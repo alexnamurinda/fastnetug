@@ -1,0 +1,399 @@
+/* consultation.css */
+/* Page Header Styling */
+.page-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.512), rgba(0, 0, 0, 0.5)), url('../images/visaconsultation.png') no-repeat center;
+    background-size: cover;
+    background-position: center;
+    padding: 150px 0 80px;
+    margin-bottom: 0;
+    color: #fff;
+    text-align: center;
+    z-index: 1;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+
+/* Services Tabs */
+.service-tabs {
+    margin-top: 2rem;
+}
+
+.service-nav {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.service-nav .nav-link {
+    padding: 1rem 1.5rem;
+    color: #495057;
+    border-left: 4px solid transparent;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.service-nav .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.service-nav .nav-link.active {
+    background-color: #fff;
+    color: #007bff;
+    border-left: 4px solid #007bff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.service-content {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    min-height: 400px;
+}
+
+.service-content h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.service-features {
+    list-style: none;
+    padding-left: 0;
+    margin: 1.5rem 0;
+}
+
+.service-features li {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.service-features li i {
+    color: #28a745;
+    margin-right: 10px;
+}
+
+.price-box {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    display: inline-flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+.price {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #007bff;
+}
+
+.duration {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Booking Section */
+.booking-info, .booking-form {
+    background-color: #fff;
+    height: 100%;
+}
+
+.booking-steps {
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.booking-steps li {
+    margin-bottom: 1rem;
+    padding-left: 0.5rem;
+}
+
+.consultation-options h4 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.option-item {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.option-label {
+    font-weight: 600;
+    margin-right: 10px;
+    min-width: 100px;
+}
+
+.option-label i {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+/* FAQ Section */
+.faq-accordion .accordion-item {
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.faq-accordion .accordion-button {
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 1.25rem;
+    background-color: #fff;
+    color: #2c3e50;
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+    background-color: #f8f9fa;
+    color: #007bff;
+    box-shadow: none;
+}
+
+.faq-accordion .accordion-body {
+    padding: 1.25rem;
+    background-color: #fff;
+}
+
+.faq-accordion .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0, 123, 255, 0.25);
+}
+
+.faq-accordion .accordion-button::after {
+    background-size: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+/* Testimonials Section */
+.testimonial-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+    padding: 1.5rem;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-5px);
+}
+
+.testimonial-content {
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: #5d6d7e;
+}
+
+.testimonial-content::before {
+    content: '"';
+    font-size: 3rem;
+    color: #e1e5ea;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-family: serif;
+    z-index: 0;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+}
+
+.testimonial-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #e1e5ea;
+}
+
+.author-info h4 {
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.author-info p {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Call to Action Section */
+.cta-section {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 4rem 0;
+}
+
+.cta-section h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.cta-section .btn-outline-light:hover {
+    background-color: #fff;
+    color: #007bff;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+    .consultation-hero {
+        padding: 100px 0 40px;
+    }
+    
+    .consultation-hero img {
+        margin-top: 2rem;
+    }
+    
+    .service-content {
+        padding: 1.5rem;
+        min-height: auto;
+    }
+    
+    .service-nav .nav-link {
+        padding: 0.75rem 1rem;
+    }
+    
+    .testimonial-card {
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .service-nav {
+        margin-bottom: 1.5rem;
+    }
+    
+    .service-nav .nav-link {
+        border-left: none;
+        border-bottom: 2px solid transparent;
+    }
+    
+    .service-nav .nav-link.active {
+        border-left: none;
+        border-bottom: 2px solid #007bff;
+    }
+    
+    .booking-info {
+        margin-bottom: 2rem;
+    }
+    
+    .consultation-options .option-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .consultation-options .option-label {
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Animation effects */
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.8s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form styling enhancements */
+.booking-form .form-control:focus,
+.booking-form .form-select:focus {
+    border-color: rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+}
+
+.booking-form label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.booking-form .btn-primary {
+    padding: 0.5rem 2rem;
+    font-weight: 500;
+}
+
+/* Price comparison highlight */
+.recommended-service {
+    position: relative;
+    overflow: hidden;
+}
+
+.recommended-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #28a745;
+    color: white;
+    padding: 0.25rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transform: rotate(45deg) translate(15px, -15px);
+    transform-origin: top right;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Service hover effects */
+.service-hover-effect {
+    transition: all 0.3s ease;
+}
+
+.service-hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Custom checkboxes */
+.custom-checkbox .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.15em;
+}
+
+.custom-checkbox .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.custom-checkbox .form-check-label {
+    padding-left: 0.5rem;
+}

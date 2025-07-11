@@ -1,0 +1,154 @@
+
+/* Page Header */
+.page-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.53)), url('../images/aboutus.avif') no-repeat center;
+    background-size: cover;
+    background-position: center;
+    padding: 150px 0 80px;
+    margin-bottom: 0;
+    color: #fff;
+    text-align: center;
+    z-index: 1;
+}
+
+.page-header h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.breadcrumb {
+    display: inline-flex;
+    background: transparent;
+}
+
+.breadcrumb-item a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #f8f9fa;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: #fff;
+}
+
+
+/* Contact info cards */
+.contact-info-card {
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.icon-wrapper {
+    height: 80px;
+    width: 80px;
+    line-height: 80px;
+    margin: auto;
+    padding: 15px;
+    border-radius: 50%;
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+    transition: all 0.3s ease;
+}
+
+/* .contact-info-card:hover .icon-wrapper {
+    background-color: #0d6efd;
+    color: #fff;
+} */
+
+/* Form styling */
+.contact-form-wrapper {
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+/* Map container */
+.map-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.map-container iframe {
+    border: none;
+    border-radius: 8px;
+}
+
+.business-hours {
+    background-color: #fff;
+    border-radius: 8px;
+    width: 60%;
+    margin-left: 20%;
+}
+
+/* CTA section
+.contact-cta {
+    background: linear-gradient(rgba(13, 110, 253, 0.9), rgba(13, 110, 253, 0.9)), url('../images/cta-bg.jpg') center/cover no-repeat;
+} */
+
+/* FAQ section */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+/* Animation for icon */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.icon-wrapper i {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive styling */
+@media (max-width: 767.98px) {
+    .contact-header {
+        padding: 4rem 0;
+    }
+    
+    .contact-info-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .map-container {
+        margin-top: 2rem;
+    }
+}
+
+/* Back to top button */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: none;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    border-radius: 50%;
+    z-index: 99;
+    padding: 0;
+}
+
+.back-to-top.show {
+    display: block;
+}

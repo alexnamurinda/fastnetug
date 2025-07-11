@@ -1,0 +1,414 @@
+/* Real Estate Services Page Specific Styles */
+
+/* Page Header Styling */
+.page-header {
+    background: linear-gradient(rgba(0, 0, 0, 0.512), rgba(0, 0, 0, 0.2)), url('../images/nav_bg.jpg') no-repeat center;
+    background-size: cover;
+    background-position: center;
+    padding: 150px 0 80px;
+    margin-bottom: 0;
+    color: #fff;
+    text-align: center;
+    z-index: 1;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Service Overview Section */
+.service-overview {
+    padding: 80px 0;
+}
+
+.service-overview h2 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.service-overview .lead {
+    color: #555;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.carousel-indicators {
+    bottom: -50px;
+}
+
+.carousel-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+}
+
+.carousel-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.carousel-caption-custom {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.custom-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.custom-dots button {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    background-color: #ccc;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.custom-dots button.active,
+.custom-dots button:hover {
+    background-color: #3498db;
+}
+
+.service-overview {
+    padding: 80px 0;
+}
+
+.service-overview h2 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.service-overview .lead {
+    color: #555;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+
+
+/* Service Features Section */
+.service-features {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+}
+
+.section-header {
+    margin-bottom: 50px;
+}
+
+.section-header h2 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.section-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.feature-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #0d6efd;
+    margin-bottom: 20px;
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.feature-list {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 15px;
+}
+
+.feature-list li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.feature-list li i {
+    color: #0d6efd;
+    margin-right: 10px;
+}
+
+/* Process Section */
+.process-section {
+    padding: 80px 0;
+}
+
+.process-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.process-icon {
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    font-size: 2rem;
+    color: #0d6efd;
+    background: #e6f0ff;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+.process-number {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.process-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Featured Properties Section */
+.featured-properties {
+    padding: 80px 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 5px 100px rgba(0, 0, 0, 0.6);
+}
+
+.property-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 100%;
+}
+
+.property-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.property-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.property-img img {
+    width: 100%;
+    transition: transform 0.5s;
+}
+
+.property-card:hover .property-img img {
+    transform: scale(1.1);
+}
+
+.property-status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #0d6efd;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.property-info {
+    padding: 20px;
+}
+
+.property-info h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.property-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0d6efd;
+    margin-bottom: 15px;
+}
+
+.property-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.property-details span {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.property-details span i {
+    color: #333;
+    margin-right: 5px;
+    font-size: 20px;
+}
+
+.property-location {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.property-location i {
+    color: #333;
+    margin-right: 5px;
+    font-size: 20px;
+}
+
+.property-row {
+    display: none;
+}
+
+.property-row.active {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pagination-controls .btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+
+/* CTA Section */
+.cta-section {
+    padding: 60px 0;
+    background: linear-gradient(to right, #0d6efd, #0b5ed7);
+    color: #fff;
+}
+
+.cta-section h2 {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* FAQ Section */
+.faq-section {
+    padding: 80px 0;
+}
+
+.accordion-item {
+    margin-bottom: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.accordion-button {
+    font-weight: 600;
+    color: #333;
+    background-color: #f8f9fa;
+    box-shadow: none;
+    padding: 15px 20px;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #0d6efd;
+    background-color: #e6f0ff;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: #e9ecef;
+}
+
+.accordion-body {
+    padding: 20px;
+    color: #666;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .property-details {
+        flex-direction: column;
+    }
+
+    .property-details span {
+        margin-bottom: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        padding: 100px 0 40px;
+    }
+
+    .service-overview,
+    .service-features,
+    .process-section,
+    .featured-properties,
+    .faq-section {
+        padding: 60px 0;
+    }
+
+    .feature-card,
+    .process-card,
+    .property-card {
+        margin-bottom: 30px;
+    }
+}

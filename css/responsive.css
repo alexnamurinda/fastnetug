@@ -1,0 +1,303 @@
+/* Large devices (desktops, less than 1200px) */
+@media (max-width: 1199.98px) {
+    .navbar-nav .nav-link {
+        margin: 0 0.3rem;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+    }
+
+    .service-icon {
+        width: 70px;
+        height: 70px;
+        line-height: 70px;
+        font-size: 1.8rem;
+    }
+
+    .service-features {
+        min-height: 120px;
+    }
+}
+
+/* Medium devices (tablets, less than 992px) */
+@media (max-width: 991.98px) {
+    .navbar {
+        background-color: #f8f9fa;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        padding: 0.5rem 0;
+    }
+
+    .navbar-brand {
+        font-size: 1.8rem;
+    }
+
+    .navbar-nav .nav-link {
+        margin: 0 0.5rem;
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .navbar-nav .nav-link:hover:after,
+    .navbar-nav .nav-link.active:after {
+        width: 60%;
+        margin-left: 20%;
+    }
+
+    .navbar-collapse {
+        justify-content: center;
+    }
+
+    .navbar-toggler {
+        border: none;
+        background-color: transparent;
+    }
+
+    .navbar-toggler:focus {
+        outline: none;
+        box-shadow: inset 0 0 0 2px var(--primary-color);
+        color: var(--secondary-color);
+    }
+
+    .navbar-nav {
+        padding: 1rem 0;
+    }
+
+    .navbar-nav .nav-link {
+        margin: 0.5rem 0;
+    }
+
+    .hero-section {
+        height: auto;
+        min-height: auto;
+        padding: 10rem 0 5rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-text {
+        font-size: 1.2rem;
+    }
+
+    .btn-outline-light {
+        font-size: 1.2rem;
+        padding: 0.5rem 1.5rem;
+        width: 60%;
+    }
+
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+
+    .service-card {
+        margin-bottom: 2rem;
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .service-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .about-img {
+        margin-bottom: 3rem;
+    }
+
+    .about-content {
+        padding-left: 0;
+    }
+
+    .testimonial-card {
+        margin-bottom: 2rem;
+    }
+
+    .service-features {
+        min-height: auto;
+    }
+
+    .cta-section .text-lg-end {
+        text-align: center !important;
+        margin-top: 2rem;
+    }
+
+    .service-hero {
+        height: 40vh;
+        min-height: 300px;
+    }
+
+    .footer-info,
+    .footer-links,
+    .footer-contact {
+        margin-bottom: 2rem;
+    }
+
+    .team-member-img img {
+        height: 250px;
+    }
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767.98px) {
+    section {
+        padding: 1rem 25px;
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+        font-size: 2rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-text {
+        font-size: 1rem;
+    }
+
+    .service-card,
+    .property-card,
+    .testimonial-card,
+    .review-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .about-stats .stat-item {
+        margin-bottom: 2rem;
+    }
+
+    .service-hero {
+        height: 30vh;
+        min-height: 250px;
+    }
+
+    .service-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .footer {
+        padding: 3rem 0 0;
+    }
+
+    .footer-links-bottom a {
+        margin-left: 1rem;
+    }
+
+    .copyright,
+    .footer-links-bottom {
+        text-align: center !important;
+    }
+
+    .footer-links-bottom {
+        margin-top: 1rem;
+    }
+
+    .contact-info {
+        margin-bottom: 2rem;
+    }
+
+    .error-content h1 {
+        font-size: 6rem;
+    }
+
+    .package-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 50px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+    .navbar-brand {
+        font-size: 1.8rem;
+    }
+
+    .logo-text {
+        font-size: 2rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-buttons {
+        display: block;
+        width: 65%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .btn {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .service-icon {
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .service-card h3 {
+        font-size: 1.3rem;
+    }
+
+    .about-content h2 {
+        font-size: 1.8rem;
+    }
+
+    .stat-item h3 {
+        font-size: 2rem;
+    }
+
+    .floating-buttons {
+        width: 20px;
+        height: 20px;
+        bottom: 180px;
+        right: 50px;
+        z-index: 1000;
+    }
+
+    .back-to-top {
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .service-hero h1 {
+        font-size: 2rem;
+    }
+
+    .property-img img {
+        height: 200px;
+    }
+
+    .property-price {
+        font-size: 1.3rem;
+    }
+
+    .team-member-img img {
+        height: 220px;
+    }
+
+    .error-content h1 {
+        font-size: 4rem;
+    }
+}
