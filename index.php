@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -32,7 +32,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Home</a>
                     </li>
-                    <li class="nav-item dropdown">
+                    <!-- <li class="nav-item dropdown">
                         <a class="nav-link" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
                             Services <i class="fas fa-caret-down"></i>
                         </a>
@@ -41,7 +41,7 @@
                             <li><a class="dropdown-item" href="pages/installation.php">Installation Services</a></li>
                             <li><a class="dropdown-item" href="pages/support.php">Technical Support</a></li>
                         </ul>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link" href="pages/coverage.php">Coverage Areas</a>
                     </li>
@@ -80,9 +80,9 @@
                     <h1 class="hero-title">Seamless Connectivity for Every Need</h1>
                     <p class="hero-text">Stay connected with fast, secure, and affordable WiFi plans tailored for student hostels, homes, and businesses across Uganda.</p>
                     <div class="hero-buttons">
-                        <a href="#packages" class="btn btn-primary btn-lg">View Packages</a>
+                        <a href="#packages" class="btn btn-primary btn-lg">Buy Voucher</a>
                         <a href="tel:0744766410" class="btn btn-primary btn-lg" style="background: transparent; border: 1px solid white;">
-                            <i class="fas fa-phone-alt me-2" style="color: #fff;"></i>Call Now
+                            <i class="fas fa-phone-alt me-2" style="color: #fff;"></i>Call Us Now
                         </a>
                     </div>
                 </div>
@@ -110,7 +110,7 @@
                             <li><i class="fas fa-check text-success"></i> Up to 1 device</li>
                             <li><i class="fas fa-check text-success"></i> Perfect for travelers</li>
                         </ul>
-                        <button class="btn btn-outline-primary w-100">Choose Plan</button>
+                        <button class="btn btn-outline-primary w-100">Buy Now</button>
                     </div>
                 </div>
 
@@ -124,7 +124,7 @@
                             <li><i class="fas fa-check text-success"></i> Up to 1 device</li>
                             <li><i class="fas fa-check text-success"></i> Ideal for short stays</li>
                         </ul>
-                        <button class="btn btn-outline-primary w-100">Choose Plan</button>
+                        <button class="btn btn-outline-primary w-100">Buy Now</button>
                     </div>
                 </div>
 
@@ -150,7 +150,7 @@
                         <div class="package-price">50,000 <small>UGX</small></div>
                         <ul class="list-unstyled">
                             <li><i class="fas fa-check text-success"></i> 105 days unlimited access</li>
-                            <li><i class="fas fa-check text-success"></i> Up to 3 devices</li>
+                            <li><i class="fas fa-check text-success"></i> Up to 2 devices</li>
                             <li><i class="fas fa-check text-success"></i> Best value for students</li>
                         </ul>
                         <button class="btn btn-outline-primary w-100">Choose Plan</button>
@@ -194,7 +194,7 @@
                 </div>
             </div>
         </div>
-    </section> 
+    </section>
 
     <!-- Services Section -->
     <!-- <section id="services" class="services-section">
@@ -290,10 +290,10 @@
                     <div class="coverage-map text-center">
                         <i class="fas fa-map-marked-alt" style="font-size: 5rem; margin-bottom: 20px;"></i>
                         <h3>Wide Coverage Across Kampala</h3>
-                        <p>Our network covers major areas including Nabisunsa, Ntinda, Kibuli, Banda, and surrounding areas.</p>
+                        <p>Our network covers major areas including Nabisunsa, Banda, Ntinda, Kibuli, and surrounding areas.</p>
                         <div class="row mt-4">
                             <div class="col-6">
-                                <h4>50+</h4>
+                                <h4>25+</h4>
                                 <p>Hotspot Locations</p>
                             </div>
                             <div class="col-6">
@@ -303,20 +303,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6" data-aos="fade-up">
-                    <div class="about-content">
+                <div class="col-lg-6 d-flex justify-content-center">
+                    <div class="about-content text-center w-100 px-3 px-md-5">
                         <h2>Why Choose FastNetUG?</h2>
-                        <p>We're Uganda's fastest-growing WiFi provider, committed to delivering reliable, high-speed internet access to students, families, and businesses across Kampala.</p>
-                        <p>Our network is built on cutting-edge technology with multiple redundancies to ensure you stay connected when it matters most.</p>
-                        <div class="row">
-                            <div class="col-md-6">
+                        <p style="text-align:justify;">We're Uganda's fastest-growing WiFi provider, committed to delivering reliable, high-speed internet access to students, families, and businesses across Kampala and beyond.</p>
+                        <p style="text-align:justify;">Our network is backed by cutting-edge technology and round-the-clock support. With our 24/7 customer service team, you’ll get the fastest assistance whenever you need it — day or night.</p>
+
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-6 mb-4">
                                 <div class="feature-item">
                                     <i class="fas fa-bolt feature-icon"></i>
-                                    <h4>Lightning Fast</h4>
+                                    <h4>Fast Speeds</h4>
                                     <p>Up to 100 Mbps speeds for seamless browsing and streaming</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6 mb-4">
                                 <div class="feature-item">
                                     <i class="fas fa-shield-alt feature-icon"></i>
                                     <h4>Secure Network</h4>
@@ -324,9 +325,11 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="pages/about.php" class="btn btn-primary" style="width: 80%; margin-left: 10%;">Learn More ></a>
+
+                        <a href="pages/about.php" class="btn btn-primary w-75 mx-auto">Learn More ></a>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
@@ -335,8 +338,8 @@
     <section class="testimonials-section">
         <div class="container">
             <div class="section-header text-center" data-aos="fade-up">
-                <h2>What Our Customers Say</h2>
-                <p>Hear from satisfied customers who trust FastNetUG for their internet needs</p>
+                <h2>What Our Clients Say</h2>
+                <!-- <p>Hear from satisfied customers who trust FastNetUG for their internet needs</p> -->
             </div>
             <div class="testimonial-slider" data-aos="fade-up">
                 <div class="row">
@@ -347,14 +350,14 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+
                             </div>
                             <p class="testimonial-text">"FastNetUG saved my semester! Their WiFi is incredibly fast and reliable. I can stream lectures, download research papers, and video call my family without any interruptions."</p>
                             <div class="testimonial-author">
                                 <img src="images/developer.jpg" alt="Student" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Sarah Namuli</h5>
-                                    <span>Makerere University Student</span>
+                                    <h5>Student</h5>
+                                    <span>Kyambogo University</span>
                                 </div>
                             </div>
                         </div>
@@ -368,12 +371,12 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                             </div>
-                            <p class="testimonial-text">"As a family of six, we needed reliable internet for everyone. FastNetUG's family bundle gives us amazing speeds and their customer service is exceptional!"</p>
+                            <p class="testimonial-text">"As a family of five, we needed reliable internet for everyone. FastNetUG's family bundle gives us amazing speeds and their customer service is exceptional!"</p>
                             <div class="testimonial-author">
-                                <img src="images/micheal.jpg" alt="Family Customer" class="rounded-circle">
+                                <img src="images/sara.jpg" alt="Family Customer" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>David Ssekandi</h5>
-                                    <span>Family Plan Customer</span>
+                                    <h5>Lilian T</h5>
+                                    <span>Family Package</span>
                                 </div>
                             </div>
                         </div>
@@ -384,21 +387,19 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
                             </div>
-                            <p class="testimonial-text">"Our business depends on reliable internet. FastNetUG's business package has been a game-changer with 99.9% uptime and lightning-fast speeds."</p>
+                            <p class="testimonial-text">"Our business depends on reliable internet. FastNetUG's business package has been a game-changer with 99% uptime and lightning-fast speeds."</p>
                             <div class="testimonial-author">
-                                <img src="images/sara.jpg" alt="Business Customer" class="rounded-circle">
+                                <img src="images/profile_pic.png" alt="Business Customer" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Grace Mukisa</h5>
-                                    <span>Small Business Owner</span>
+                                    <h5>Operations Manager</h5>
+                                    <span>Nabisunsa savings sacco</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-4">
+                <div class="text-center mt-5" style="top: 20px;">
                     <a href="pages/reviews.php" class="btn btn-outline-primary">View All Reviews</a>
                 </div>
             </div>
@@ -408,18 +409,19 @@
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <div class="row align-items-center" data-aos="zoom-in" duration="1000">
-                <div class="col-lg-8">
-                    <h2>Ready to Get Connected?</h2>
-                    <p>Join thousands of satisfied customers enjoying fast, reliable internet across Kampala. Get connected today!</p>
+            <div class="row align-items-center justify-content-between text-center text-lg-start" data-aos="zoom-in" data-aos-duration="1000">
+                <div class="col-lg-7 mb-4 mb-lg-0">
+                    <h2 class="cta-title">Ready to Get Connected?</h2>
+                    <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala. Get connected today!</p>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <a href="tel:0744766410" class="btn btn-light btn-lg me-2" title="Call Us">
-                        <i class="fas fa-phone-alt"></i> Call Now
+                <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
+                    <a href="tel:0744766410" class="btn btn-light btn-lg" title="Call Us">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>Call Now</span>
                     </a>
-                    or
                     <a href="https://wa.me/256744766410" class="btn btn-success btn-lg" title="Chat on WhatsApp" target="_blank">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
                     </a>
                 </div>
             </div>
@@ -429,23 +431,23 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-3 text-center">
+            <div class="row text-center text-md-start gy-4">
+                <div class="col-md-3">
                     <div class="footer-info">
                         <div class="footer-logo mb-3">
                             <h3>FastNetUG <i class="fas fa-wifi"></i></h3>
                         </div>
-                        <p>Uganda's premier WiFi service provider delivering fast, reliable internet to homes, businesses, and students.</p>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <p>Follow us on all our socials</p>
+                        <div class="social-links d-flex justify-content-center justify-content-md-start">
+                            <a href=""><i class="fab fa-facebook-f"></i></a>
+                            <a href=""><i class="fab fa-twitter"></i></a>
+                            <a href=""><i class="fab fa-instagram"></i></a>
+                            <a href=""><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 text-center">
+                <div class="col-md-3">
                     <div class="footer-links">
                         <h4>Quick Links</h4>
                         <ul>
@@ -453,50 +455,44 @@
                             <li><a href="pages/about.php">About Us</a></li>
                             <li><a href="pages/coverage.php">Coverage Areas</a></li>
                             <li><a href="pages/contact.php">Contact Us</a></li>
-                            <li><a href="pages/reviews.php">Reviews</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-3 text-center">
+
+                <div class="col-md-3">
                     <div class="footer-links">
-                        <h4>Our Services</h4>
+                        <h4>Other Services</h4>
                         <ul>
-                            <li><a href="pages/packages.php">WiFi Packages</a></li>
-                            <li><a href="pages/installation.php">Installation</a></li>
-                            <li><a href="pages/support.php">Technical Support</a></li>
-                            <li><a href="pages/business.php">Business Solutions</a></li>
+                            <li><a href="#">WiFi Packages</a></li>
+                            <li><a href="pages/contact.php">Installations</a></li>
+                            <li><a href="pages/contact.php">Web development</a></li>
+                            <li><a href="pages/contact.php">Telecom services</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-3 text-center">
+
+                <div class="col-md-3">
                     <div class="footer-contact">
                         <h4>Contact Info</h4>
-                        <p>
-                            <i class="fas fa-map-marker-alt"></i> Makerere University Area<br>
-                            Wandegeya, Kampala<br>
-                            <i class="fas fa-phone"></i> +256 744 766 410<br>
-                            <i class="fas fa-envelope"></i> info@fastnetug.com<br>
-                            <i class="fas fa-wifi"></i> Network: FastNetUG
-                        </p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Banda, Kampala</p>
+                        <p><i class="fas fa-phone"></i> +256 744 766 410</p>
+                        <p><i class="fas fa-envelope"></i> info@fastnetug.com</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">
+
+        <div class="footer-bottom mt-5">
             <div class="container">
-                <div class="row d-flex align-items-center justify-content-between">
-                    <div class="col-md-5 text-md-start text-center">
+                <div class="row align-items-center justify-content-between text-center text-md-start">
+                    <div class="col-md-6">
                         <p class="copyright">© 2025 FastNetUG. All Rights Reserved.</p>
                     </div>
-                    <div class="col-md-3 text-md-center text-center">
-                        <p class="copyright">
-                            Developed by <a href="https://namurindaalex.github.io/portfolio/" target="_blank" class="developer-link">namtechnologies.com</a>
-                        </p>
-                    </div>
-                    <div class="col-md-3 text-md-end text-center">
+
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
                         <div class="footer-links-bottom">
-                            <a href="">Privacy Policy</a>
-                            <a href="">Terms of Service</a>
+                            <a href="#">Privacy Policy</a>
+                            <a href="#">Terms of Service</a>
                         </div>
                     </div>
                 </div>
@@ -504,47 +500,29 @@
         </div>
     </footer>
 
-    <!-- Speed Test Modal -->
-    <div class="modal fade" id="speedTestModal" tabindex="-1" aria-labelledby="speedTestModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="speedTestModalLabel">Test Your Speed</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="speed-test-widget">
-                        <div class="speed-gauge">
-                            <h3 id="speedResult">Click to Test</h3>
-                            <button class="btn btn-primary" id="startSpeedTest">
-                                <i class="fas fa-play"></i> Start Speed Test
-                            </button>
-                        </div>
-                        <div class="speed-details mt-4">
-                            <div class="row">
-                                <div class="col-4">
-                                    <h6>Download</h6>
-                                    <span id="downloadSpeed">-- Mbps</span>
-                                </div>
-                                <div class="col-4">
-                                    <h6>Upload</h6>
-                                    <span id="uploadSpeed">-- Mbps</span>
-                                </div>
-                                <div class="col-4">
-                                    <h6>Ping</h6>
-                                    <span id="pingSpeed">-- ms</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="shareSpeed">Share Results</button>
-                </div>
+
+
+<!-- Speed Test Modal -->
+<div class="modal fade" id="speedTestModal" tabindex="-1" aria-labelledby="speedTestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="speedTestModalLabel">Test Your Internet Speed</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <iframe
+                    src="https://librespeed.org/"
+                    width="100%"
+                    height="450"
+                    style="border: none;"
+                    title="LibreSpeed Internet Speed Test"
+                    loading="lazy"
+                ></iframe>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Package Selection Modal -->
     <div class="modal fade" id="packageModal" tabindex="-1" aria-labelledby="packageModalLabel" aria-hidden="true">
@@ -623,6 +601,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Counter-Up/1.0.0/jquery.counterup.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest/speedtest.min.js"></script>
+
     <!-- Custom JavaScript -->
     <script src="scripts/main.js"></script>
     <script src="scripts/services.js"></script>
@@ -639,28 +619,6 @@
             const packageName = $(this).closest('.package-card').find('h3').text();
             $('#selectedPackage').val(packageName.toLowerCase().replace(' ', ''));
             $('#packageModal').modal('show');
-        });
-
-        // Speed Test Simulation
-        $('#startSpeedTest').on('click', function() {
-            const btn = $(this);
-            const originalText = btn.html();
-
-            btn.html('<i class="fas fa-spinner fa-spin"></i> Testing...').prop('disabled', true);
-
-            // Simulate speed test
-            setTimeout(() => {
-                const downloadSpeed = (Math.random() * 50 + 25).toFixed(1);
-                const uploadSpeed = (Math.random() * 20 + 10).toFixed(1);
-                const ping = Math.floor(Math.random() * 50 + 10);
-
-                $('#downloadSpeed').text(downloadSpeed + ' Mbps');
-                $('#uploadSpeed').text(uploadSpeed + ' Mbps');
-                $('#pingSpeed').text(ping + ' ms');
-                $('#speedResult').text('Test Complete!');
-
-                btn.html(originalText).prop('disabled', false);
-            }, 3000);
         });
 
         // Package form submission
@@ -680,6 +638,35 @@
             }
         });
     </script>
+
+    <script>
+        const s = new Speedtest();
+
+        $('#startSpeedTest').on('click', function() {
+            const btn = $(this);
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Testing...').prop('disabled', true);
+            $('#speedResult').text('Testing...');
+
+            // Reset display
+            $('#downloadSpeed').text('-- Mbps');
+            $('#uploadSpeed').text('-- Mbps');
+            $('#pingSpeed').text('-- ms');
+
+            s.onupdate = function(data) {
+                if (data.download) $('#downloadSpeed').text((data.download / 1e6).toFixed(2) + ' Mbps');
+                if (data.upload) $('#uploadSpeed').text((data.upload / 1e6).toFixed(2) + ' Mbps');
+                if (data.ping) $('#pingSpeed').text(data.ping.toFixed(0) + ' ms');
+            };
+
+            s.onend = function(aborted) {
+                $('#speedResult').text('Test Complete!');
+                btn.html('<i class="fas fa-play"></i> Start Speed Test').prop('disabled', false);
+            };
+
+            s.start(); // Run the test
+        });
+    </script>
+
 
 </body>
 
