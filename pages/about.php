@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - T&T Business Solutions</title>
+    <title>About Us - FastNetUG</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
@@ -21,8 +21,8 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <span class="logo-text">T&T</span> Business Solutions
+            <a class="navbar-brand" href="../index.php">
+                <span class="logo-text">FastNetUG</span> <i class="fas fa-wifi wifi-animation"></i>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -32,15 +32,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../index.php">Home</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            Services <i class="fas fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="services.php">Real Estate</a></li>
-                            <li><a class="dropdown-item" href="airticketbooking.php">Air Ticket Booking</a></li>
-                            <li><a class="dropdown-item" href="consultation.php">Visa Consultation</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="coverage.php">Coverage Areas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="#">About Us</a>
@@ -80,15 +73,17 @@
                 <div class="col-lg-6" data-aos="fade-up">
                     <div class="story-content">
                         <h3>Our Story</h3>
-                        <p class="lead">From humble beginnings to an industry leader</p>
-                        <p>Founded in 2015, T&T Business Solutions was established with a simple mission: to provide comprehensive business solutions under one roof with uncompromising quality and personalized service.</p>
-                        <p>What began as a small operation with just 3 team members has grown into a trusted industry name with over 30 professionals dedicated to helping clients achieve their goals.</p>
-                        <p>Our founders, Thomas & Teresa Wilson, saw the need for a reliable one-stop business solution provider that truly understood client needs and delivered exceptional results. This vision continues to guide every aspect of our operations today.</p>
+                        <p class="lead">Connecting Uganda, One Hotspot at a Time</p>
+                        <p>Founded in 2023, FastNetUG was born from a simple observation: students, families, and small businesses around Nabisunsa deserved affordable, reliable internet access without the complications of traditional ISPs.</p>
+                        <p>What started as a small WiFi hotspot operation in Namuli Hostel has grown into region's fastest-growing WiFi network, serving over 1,000 active users across Kampala and surrounding areas.</p>
+                        <p>Our founder saw students struggling with expensive data bundles and unreliable home internet. This inspired the creation of FastNetUG - a service that puts connectivity first, with transparent pricing and no hidden fees.</p>
+                        <p>Today, we're proud to be the go-to WiFi solution for student hostels, families, and small businesses who need fast, affordable internet that just works.</p>
                     </div>
                 </div>
                 <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
                     <div class="story-image">
-                        <img src="../images/history.jpg" alt="Our History" class="img-fluid rounded">
+                        <img src="../images/testim2.avif" alt="Our Network Coverage" class="img-fluid rounded">
+                        <img src="../images/testim3.avif" alt="Our Network Coverage" class="img-fluid rounded">
                     </div>
                 </div>
             </div>
@@ -105,12 +100,7 @@
                             <i class="fas fa-bullseye"></i>
                         </div>
                         <h3>Our Mission</h3>
-                        <p>To provide exceptional real estate opportunities, personalized travel experiences,
-                            and reliable visa and air ticketing services. We are committed to delivering professional,
-                            efficient, and customer-centric solutions that simplify journeys, enhance investments, and
-                            create lasting value for our clients. Through innovation, integrity, and expertise,
-                            we aim to make every transaction smooth, transparent, and rewarding.
-                        </p>
+                        <p>To bridge the digital divide in Uganda by providing fast, affordable, and reliable WiFi access to students, families, and small businesses.</p>
                     </div>
                 </div>
                 <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
@@ -119,11 +109,7 @@
                             <i class="fas fa-eye"></i>
                         </div>
                         <h3>Our Vision</h3>
-                        <p>To be the leading one-stop service provider in real estate, travel, and immigration
-                            solutions, empowering individuals and businesses with seamless property investments,
-                            unforgettable travel experiences, and hassle-free visa and documentation services across the
-                            globe.
-                        </p>
+                        <p>To become Uganda's leading WiFi network provider, creating a connected society where every student can access online learning resources, every family can stay connected with loved ones, and every business can thrive in the digital economy.</p>
                     </div>
                 </div>
             </div>
@@ -143,8 +129,8 @@
                         <div class="value-icon">
                             <i class="fas fa-handshake"></i>
                         </div>
-                        <h3>Integrity</h3>
-                        <p>We conduct business with unwavering honesty, transparency, and ethical standards, earning the trust of our clients in every interaction.</p>
+                        <h3>Reliability</h3>
+                        <p>We maintain 99.9% network uptime and provide consistent, dependable internet service that our customers can count on for their daily connectivity needs.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center">
@@ -152,8 +138,8 @@
                         <div class="value-icon">
                             <i class="fas fa-star"></i>
                         </div>
-                        <h3>Excellence</h3>
-                        <p>We strive for excellence in everything we do, constantly improving our services and exceeding client expectations.</p>
+                        <h3>Affordability</h3>
+                        <p>We believe quality internet should be accessible to everyone. Our transparent pricing and flexible packages ensure you only pay for what you need.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center">
@@ -161,8 +147,8 @@
                         <div class="value-icon">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h3>Client Focus</h3>
-                        <p>We put our clients' needs first, tailoring our services to meet their unique requirements and ensuring their success is our success.</p>
+                        <h3>Customer First</h3>
+                        <p>Every decision we make puts our customers first. From our 24/7 support to our user-friendly packages, we prioritize your connectivity experience.</p>
                     </div>
                 </div>
 
@@ -173,16 +159,16 @@
                             <i class="fas fa-lightbulb"></i>
                         </div>
                         <h3>Innovation</h3>
-                        <p>We embrace new ideas, technologies, and approaches to continuously improve our services and provide cutting-edge solutions.</p>
+                        <p>We continuously upgrade our infrastructure and adopt new technologies to deliver faster speeds and better coverage to our users.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center mt-md-4">
                     <div class="value-card">
                         <div class="value-icon">
-                            <i class="fas fa-hands-helping"></i>
+                            <i class="fas fa-shield-alt"></i>
                         </div>
-                        <h3>Teamwork</h3>
-                        <p>We collaborate effectively within our team and with our clients, leveraging diverse expertise to achieve shared goals.</p>
+                        <h3>Security</h3>
+                        <p>We implement advanced security protocols to protect your data and ensure safe browsing for all our network users.</p>
                     </div>
                 </div>
                 <div class="col-md-4 text-center mt-md-4">
@@ -190,8 +176,8 @@
                         <div class="value-icon">
                             <i class="fas fa-globe"></i>
                         </div>
-                        <h3>Social Responsibility</h3>
-                        <p>We are committed to making a positive impact in our community and conducting business in an environmentally and socially responsible manner.</p>
+                        <h3>Community Impact</h3>
+                        <p>We're committed to empowering local communities by providing internet access that enables education, business growth, and social connections.</p>
                     </div>
                 </div>
             </div>
@@ -202,18 +188,18 @@
     <section class="team-section">
         <div class="container">
             <div class="section-header text-center" data-aos="fade-up">
-                <h2>Meet Our Leadership Team</h2>
-                <p>The experts behind our success</p>
+                <h2>Meet Our Team</h2>
+                <p>The tech-savvy experts behind your connectivity</p>
             </div>
             <div class="row">
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/developer.jpg" alt="Team Member" class="img-fluid">
+                            <img src="../images/developer.jpg" alt="CEO" class="img-fluid">
                         </div>
                         <div class="team-info">
-                            <h4>Thomas Wilson</h4>
-                            <p>Co-Founder & CEO</p>
+                            <h4>Alex Namurinda</h4>
+                            <p>Founder & CEO</p>
                             <div class="team-social">
                                 <a href="#"><i class="fab fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fab fa-twitter"></i></a>
@@ -222,18 +208,62 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="team-card">
+                        <div class="team-img">
+                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                        </div>
+                        <div class="team-info">
+                            <h4>Kasumba Mark</h4>
+                            <p>Head of Network Operations</p>
+                            <div class="team-social">
+                                <a href="tel:0752090648" title="Call Us">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/256752090648" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/sara.jpg" alt="Team Member" class="img-fluid">
+                            <img src="../images/sara.jpg" alt="CTO" class="img-fluid">
                         </div>
                         <div class="team-info">
-                            <h4>Teresa Wilson</h4>
-                            <p>Co-Founder & Chief Operating Officer</p>
+                            <h4>Achan K</h4>
+                            <p>Project Agent - Kasalita Hostel</p>
                             <div class="team-social">
-                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="#"><i class="far fa-envelope"></i></a>
+                                <a href="tel:0775580790" title="Call Us">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/256775580790" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="team-card">
+                        <div class="team-img">
+                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                        </div>
+                        <div class="team-info">
+                            <h4>Habib Ssemakula</h4>
+                            <p>Project Agent - New Hostel</p>
+                            <div class="team-social">
+                                <a href="tel:0767239404" title="Call Us">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/256767239404" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -241,11 +271,49 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/micheal.jpg" alt="Team Member" class="img-fluid">
+                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
                         </div>
                         <div class="team-info">
-                            <h4>Michael Rodriguez</h4>
-                            <p>Director of Real Estate</p>
+                            <h4>Prossie M</h4>
+                            <p>Project Agent - Herman Hostel</p>
+                            <div class="team-social">
+                                <a href="tel:0757951874" title="Call Us">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/256757951874" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="team-card">
+                        <div class="team-img">
+                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                        </div>
+                        <div class="team-info">
+                            <h4>Michael Kunta</h4>
+                            <p>Project Agent - Lower Herman</p>
+                            <div class="team-social">
+                                <a href="tel:0708620852" title="Call Us">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/256708620852" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="team-card">
+                        <div class="team-img">
+                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                        </div>
+                        <div class="team-info">
+                            <h4>Michael Ssemakula</h4>
+                            <p>Head of Network Operations</p>
                             <div class="team-social">
                                 <a href="#"><i class="fab fa-linkedin-in"></i></a>
                                 <a href="#"><i class="fab fa-twitter"></i></a>
@@ -253,7 +321,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -263,45 +331,45 @@
         <div class="container">
             <div class="section-header text-center" data-aos="fade-up">
                 <h2>Our Journey</h2>
-                <p>Key milestones in our company's history</p>
+                <p>Key milestones in our network expansion</p>
             </div>
             <div class="timeline">
                 <div class="timeline-item left" data-aos="zoom-in">
                     <div class="timeline-content">
-                        <h3>2015</h3>
-                        <p>T&T Business Solutions founded by Thomas & Teresa Wilson in New York</p>
+                        <h3>Nov 2023</h3>
+                        <p>FastNetUG launched with first WiFi hotspot in Namuli Hostel, serving 30 students</p>
                     </div>
                 </div>
                 <div class="timeline-item right" data-aos="zoom-in">
                     <div class="timeline-content">
-                        <h3>2017</h3>
-                        <p>Expanded services to include Air Ticket Booking and Visa Consultation</p>
+                        <h3>May 2024</h3>
+                        <p>Expanded to wing 2 of Namuli Hostel with 50+ active users</p>
                     </div>
                 </div>
                 <div class="timeline-item left" data-aos="zoom-in">
                     <div class="timeline-content">
-                        <h3>2019</h3>
-                        <p>Reached milestone of 200+ satisfied clients and moved to larger office space</p>
+                        <h3>Oct 2024</h3>
+                        <p>Reached 1,00 users milestone and expanded to 2 more Hostels</p>
                     </div>
                 </div>
                 <div class="timeline-item right" data-aos="zoom-in">
                     <div class="timeline-content">
-                        <h3>2021</h3>
-                        <p>Awarded "Business Excellence Award" for outstanding customer service</p>
+                        <h3>March 2025</h3>
+                        <p>Upgraded to fiber backbone infrastructure and achieved 99.9% uptime</p>
                     </div>
                 </div>
                 <div class="timeline-item left" data-aos="zoom-in">
                     <div class="timeline-content">
-                        <h3>2023</h3>
-                        <p>Expanded team to 30+ professionals and established partnerships with leading industry providers</p>
+                        <h3>May 2025</h3>
+                        <p>Expanded to 10+ hotspot locations and mobilized a strong 24/7 customer support</p>
                     </div>
                 </div>
-                <div class="timeline-item right" data-aos="zoom-in">
+                <!-- <div class="timeline-item right" data-aos="zoom-in">
                     <div class="timeline-content">
                         <h3>2025</h3>
-                        <p>Celebrating 10 years of excellence with over 500 happy clients worldwide</p>
+                        <p>Celebrating 2,500+ active users and planning expansion to other major cities</p>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -310,29 +378,28 @@
     <section class="partners-section">
         <div class="container">
             <div class="section-header text-center" data-aos="fade-up">
-                <h2>Our Partners</h2>
-                <p>We collaborate with industry leaders to deliver the best solutions</p>
+                <h2>Our Technology Partners</h2>
             </div>
             <div class="partners-slider" data-aos="fade-up">
                 <div class="row">
                     <div class="col-md-3 col-6 text-center">
                         <div class="partner-logo">
-                            <img src="../images/partner1.avif" alt="Partner" class="img-fluid">
+                            <img src="../images/Savanna Fibre.png" alt="savanna" class="img-fluid">
                         </div>
                     </div>
                     <div class="col-md-3 col-6 text-center">
                         <div class="partner-logo">
-                            <img src="../images/partner2.avif" alt="Partner" class="img-fluid">
+                            <img src="../images/liquid.png" alt="LIT" class="img-fluid">
                         </div>
                     </div>
                     <div class="col-md-3 col-6 text-center">
                         <div class="partner-logo">
-                            <img src="../images/partner4.avif" alt="Partner" class="img-fluid">
+                            <img src="../images/airtel.png" alt="airtel" class="img-fluid">
                         </div>
                     </div>
                     <div class="col-md-3 col-6 text-center">
                         <div class="partner-logo">
-                            <img src="../images/partner3.jpg" alt="Partner" class="img-fluid">
+                            <img src="../images/isbat.png" alt="isbat" class="img-fluid">
                         </div>
                     </div>
                 </div>
@@ -343,91 +410,134 @@
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8" data-aos="zoom-in">
-                    <h2>Ready to Work with Us?</h2>
-                    <p>Contact our team today to discuss how we can help you achieve your goals.</p>
+            <div class="row align-items-center justify-content-between text-center text-lg-start" data-aos="zoom-in" data-aos-duration="1000">
+                <div class="col-lg-7 mb-4 mb-lg-0">
+                    <h2 class="cta-title">Ready to Get Connected?</h2>
+                    <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala. Get connected today!</p>
                 </div>
-                <div class="col-lg-4 text-lg-end" data-aos="zoom-out">
-                    <a href="contact.php#inquiryForm" class="btn btn-light btn-lg">Get in Touch</a>
+                <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
+                    <a href="tel:0744766410" class="btn btn-light btn-lg" title="Call Us">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>Call Now</span>
+                    </a>
+                    <a href="https://wa.me/256744766410" class="btn btn-success btn-lg" title="Chat on WhatsApp" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Network Stats Section -->
+    <!-- <section class="network-stats">
+        <div class="container">
+            <div class="section-header text-center" data-aos="fade-up">
+                <h2>Our Network by Numbers</h2>
+            </div>
+            <div class="row text-center">
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-card">
+                        <i class="fas fa-users stat-icon"></i>
+                        <span class="stat-number counter">2500</span>
+                        <p>Active Users</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-card">
+                        <i class="fas fa-wifi stat-icon"></i>
+                        <span class="stat-number counter">25</span>+
+                        <p>Hotspot Locations</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-card">
+                        <i class="fas fa-clock stat-icon"></i>
+                        <span class="stat-number counter">99.9</span>%
+                        <p>Network Uptime</p>
+                    </div>
+                </div>
+                <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-card">
+                        <i class="fas fa-headset stat-icon"></i>
+                        <span class="stat-number counter">24</span>/7
+                        <p>Customer Support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-3 text-center">
+            <div class="row text-center text-md-start gy-4">
+                <div class="col-md-3">
                     <div class="footer-info">
-                        <img src="../images/logo.png" alt="Logo" class="footer-logo mb-3">
-                        <p>Your trusted partner for real estate, air ticket booking, visa consultation, and more.</p>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <div class="footer-logo mb-3">
+                            <h3>FastNetUG <i class="fas fa-wifi"></i></h3>
+                        </div>
+                        <p>Follow us on all our socials</p>
+                        <div class="social-links d-flex justify-content-center justify-content-md-start">
+                            <a href=""><i class="fab fa-facebook-f"></i></a>
+                            <a href=""><i class="fab fa-twitter"></i></a>
+                            <a href=""><i class="fab fa-instagram"></i></a>
+                            <a href=""><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 text-center">
+                <div class="col-md-3">
                     <div class="footer-links">
                         <h4>Quick Links</h4>
                         <ul>
                             <li><a href="../index.php">Home</a></li>
                             <li><a href="#">About Us</a></li>
-                            <li><a href="../index.php#services">Services</a></li>
+                            <li><a href="coverage.php">Coverage Areas</a></li>
                             <li><a href="contact.php">Contact Us</a></li>
-                            <li><a href="reviews.php">Reviews</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-3 text-center">
+
+                <div class="col-md-3">
                     <div class="footer-links">
-                        <h4>Our Services</h4>
+                        <h4>Other Services</h4>
                         <ul>
-                            <li><a href="services.php">Real Estate</a></li>
-                            <li><a href="airticketbooking.php">Air Ticket Booking</a></li>
-                            <li><a href="consultation.php">Visa Consultation</a></li>
+                            <li><a href="#">WiFi Packages</a></li>
+                            <li><a href="pages/contact.php">Installations</a></li>
+                            <li><a href="pages/contact.php">Web development</a></li>
+                            <li><a href="pages/contact.php">Telecom services</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="col-md-3 text-center">
+
+                <div class="col-md-3">
                     <div class="footer-contact">
-                        <h4>Contact Us</h4>
-                        <p>
-                            <i class="fas fa-map-marker-alt"></i> 123 Nabisunsa, Jinja Road<br>
-                            Kampala, Uganda<br>
-                            <i class="fas fa-phone"></i>+256 744 - 766 - 410<br>
-                            <i class="fas fa-envelope"></i> info@ttbusinesssolution.com
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <div class="row d-flex align-items-center justify-content-between">
-                    <div class="col-md-5 text-md-start text-center">
-                        <p class="copyright">© 2025 T&T Business Solution. All Rights Reserved.</p>
-                    </div>
-                    <div class="col-md-3 text-md-center text-center">
-                        <p class="copyright">
-                            Developed by <a href="https://namurindaalex.github.io/portfolio/" target="_blank" class="developer-link">namtechnologies.com</a>
-                        </p>
-                    </div>
-                    <div class="col-md-3 text-md-end text-center">
-                        <div class="footer-links-bottom">
-                            <a href="">Privacy Policy</a>
-                            <a href="">Terms of Service</a>
-                        </div>
+                        <h4>Contact Info</h4>
+                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Banda, Kampala</p>
+                        <p><i class="fas fa-phone"></i> +256 744 766 410</p>
+                        <p><i class="fas fa-envelope"></i> info@fastnetug.com</p>
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="footer-bottom mt-5">
+            <div class="container">
+                <div class="row align-items-center justify-content-between text-center text-md-start">
+                    <div class="col-md-6">
+                        <p class="copyright">© 2025 FastNetUG. All Rights Reserved.</p>
+                    </div>
+
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <div class="footer-links-bottom">
+                            <a href="#">Privacy Policy</a>
+                            <a href="#">Terms of Service</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <!-- Back to Top Button -->

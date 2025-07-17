@@ -135,6 +135,11 @@
     .team-member-img img {
         height: 250px;
     }
+
+    .coverage-map-container {
+        display: none;
+    }
+
 }
 
 /* Small devices (landscape phones, less than 768px) */
@@ -205,13 +210,13 @@
     }
 
     .package-card {
-    border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    padding: 30px;
-    margin: 20px 50px;
-    transition: all 0.3s ease;
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-}
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 50px;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    }
 }
 
 /* Extra small devices (portrait phones, less than 576px) */

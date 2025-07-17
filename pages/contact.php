@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - T&T Business Solutions</title>
+    <title>Contact Us - FastNetUG</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -23,7 +23,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <span class="logo-text">T&T</span> Business Solutions
+                <span class="logo-text">FastNetUG</span> <i class="fas fa-wifi wifi-animation"></i>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -33,15 +33,8 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../index.php">Home</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown">
-                            Services <i class="fas fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="services.php">Real Estate</a></li>
-                            <li><a class="dropdown-item" href="airticketbooking.php">Air Ticket Booking</a></li>
-                            <li><a class="dropdown-item" href="consultation.php">Visa Consultation</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="coverage.php">Coverage Areas</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="about.php">About Us</a>
@@ -53,9 +46,6 @@
                         <a class="nav-link" href="reviews.php">Reviews</a>
                     </li>
                 </ul>
-                <!-- <div class="ms-3 d-none d-lg-block">
-                    <a href="pages/contact.php" class="btn btn-primary">Get a Quote</a>
-                </div> -->
             </div>
         </div>
     </nav>
@@ -87,7 +77,7 @@
                             <i class="fas fa-map-marker-alt fa-3x text-primary"></i>
                         </div>
                         <h3>Our Location</h3>
-                        <p>123 Nabisunsa, Jinja Road<br>Nakawa Division<br>Kampala, Uganda</p>
+                        <p>Nabisunsa Close<br>Banda, Nakawa Division<br>Kampala, Uganda</p>
                         <a href="https://maps.google.com" target="_blank" class="btn btn-outline-primary mt-2">Get Directions</a>
                     </div>
                 </div>
@@ -97,8 +87,8 @@
                             <i class="fas fa-envelope fa-3x text-primary"></i>
                         </div>
                         <h3>Email Us</h3>
-                        <p>General Inquiries:<br><a href="mailto:info@tandbsolutions.com">info@ttbusinesssolution.com</a></p>
-                        <p>Support:<br><a href="mailto:support@tandbsolutions.com">support@ttbusinesssolution.com</a></p>
+                        <p>General Inquiries:<br><a href="mailto:info@fastnetug.com">info@fastnetug.com</a></p>
+                        <p>Technical Support:<br><a href="mailto:support@fastnetug.com">support@fastnetug.com</a></p>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -109,7 +99,7 @@
                         <h3>Call Us</h3>
                         <p>Office: +256 744 - 766 - 410</p>
                         <p>Customer Service: +256 744 - 766 - 410</p>
-                        <p>Mon-Fri: 8:00 AM - 5:00 PM</p>
+                        <p>Mon-Fri: 9:00 AM - 5:00 PM</p>
                     </div>
                 </div>
             </div>
@@ -147,10 +137,11 @@
                                     <label for="subject" class="form-label">Subject</label>
                                     <select class="form-select" id="subject" required>
                                         <option value="" selected disabled>Select a subject</option>
-                                        <option value="Real Estate">Real Estate Inquiry</option>
-                                        <option value="Air Tickets">Air Ticket Booking</option>
-                                        <option value="Visa Consultation">Visa Consultation</option>
-                                        <option value="Documentation">Documentation Services</option>
+                                        <option value="WiFi Package">WiFi Package Inquiry</option>
+                                        <option value="Technical Support">Technical Support</option>
+                                        <option value="Installation">Installation Request</option>
+                                        <option value="Business Package">Business Package</option>
+                                        <option value="Network Coverage">Network Coverage</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <div class="invalid-feedback">
@@ -168,7 +159,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="newsletter">
                                         <label class="form-check-label" for="newsletter">
-                                            Subscribe to our newsletter
+                                            Subscribe to our newsletter for WiFi updates and promotions
                                         </label>
                                     </div>
                                 </div>
@@ -196,6 +187,11 @@
                                 <li><strong>Saturday:</strong> 10:00 AM - 2:00 PM</li>
                                 <li><strong>Sunday:</strong> Closed</li>
                             </ul>
+                            <div class="mt-3">
+                                <p class="text-muted small">
+                                    <i class="fas fa-headset me-2"></i>24/7 Technical Support Available
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -213,48 +209,48 @@
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingOne">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                    How quickly can I expect a response?
+                                    How quickly can I get WiFi installed?
                                 </button>
                             </h2>
                             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#contactFAQ">
                                 <div class="accordion-body">
-                                    We strive to respond to all inquiries within 24 hours during business days. For urgent matters, we recommend calling our customer service line for immediate assistance.
+                                    We typically install WiFi within 24-48 hours of your request. For urgent business needs, we offer same-day installation in most coverage areas. Contact us to check availability in your area.
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingTwo">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    Do you offer consultations for first-time clients?
+                                    What areas do you currently cover?
                                 </button>
                             </h2>
                             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#contactFAQ">
                                 <div class="accordion-body">
-                                    Yes, we offer a complimentary 30-minute initial consultation for all new clients. This allows us to understand your needs and explain how our services can help you.
+                                    Our network currently covers Nabisunsa, Banda, Ntinda, Kibuli, and surrounding areas within a 25km radius of Kampala. We're constantly expanding our coverage area.
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingThree">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    How can I schedule an appointment?
+                                    Do you offer technical support?
                                 </button>
                             </h2>
                             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#contactFAQ">
                                 <div class="accordion-body">
-                                    You can schedule an appointment by filling out our contact form, calling our office directly, or sending us an email. Please provide your preferred date and time, and we will confirm availability.
+                                    Yes! We provide 24/7 technical support for all our customers. You can reach us by phone, email, or WhatsApp for immediate assistance with any connectivity issues.
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingFour">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                    What areas do your real estate services cover?
+                                    What WiFi packages do you offer?
                                 </button>
                             </h2>
                             <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#contactFAQ">
                                 <div class="accordion-body">
-                                    Our real estate services cover residential and commercial properties in the metropolitan area and surrounding suburbs. We can also connect you with our partner agencies for properties in other regions.
+                                    We offer Daily (1,000 UGX), Weekly (6,000 UGX), Monthly (20,000 UGX), and Semester (50,000 UGX) packages. We also have Family bundles and custom Business packages with dedicated bandwidth and priority support.
                                 </div>
                             </div>
                         </div>
@@ -270,8 +266,10 @@
             <div class="row">
                 <div class="col-md-3 text-center">
                     <div class="footer-info">
-                        <img src="../images/logo.png" alt="Logo" class="footer-logo mb-3">
-                        <p>Your trusted partner for real estate, air ticket booking, visa consultation, and more.</p>
+                        <div class="footer-logo mb-3">
+                            <h3>FastNetUG <i class="fas fa-wifi"></i></h3>
+                        </div>
+                        <p>Your trusted partner for fast, reliable WiFi solutions across Kampala and beyond.</p>
                         <div class="social-links">
                             <a href="#"><i class="fab fa-facebook-f"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -287,7 +285,7 @@
                         <ul>
                             <li><a href="../index.php">Home</a></li>
                             <li><a href="about.php">About Us</a></li>
-                            <li><a href="../index.php#services">Services</a></li>
+                            <li><a href="coverage.php">Coverage Areas</a></li>
                             <li><a href="#">Contact Us</a></li>
                             <li><a href="reviews.php">Reviews</a></li>
                         </ul>
@@ -295,17 +293,18 @@
                 </div>
                 <div class="col-md-3 text-center">
                     <div class="footer-links">
-                        <h4>Our Services</h4>
+                        <h4>WiFi Services</h4>
                         <ul>
-                            <li><a href="services.php">Real Estate</a></li>
-                            <li><a href="airticketbooking.php">Air Ticket Booking</a></li>
-                            <li><a href="consultation.php">Visa Consultation</a></li>
+                            <li><a href="../index.php#packages">WiFi Packages</a></li>
+                            <li><a href="contact.php">Installation Services</a></li>
+                            <li><a href="contact.php">Technical Support</a></li>
+                            <li><a href="contact.php">Business Solutions</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-3 text-center">
                     <h5 class="footer-links">Newsletter</h5>
-                    <p>Subscribe to our newsletter for the latest updates and offers.</p>
+                    <p>Subscribe to our newsletter for WiFi updates, promotions, and network announcements.</p>
                     <form class="newsletter-form">
                         <div class="input-group">
                             <input type="email" class="form-control" placeholder="Your Email">
@@ -319,7 +318,7 @@
             <div class="container">
                 <div class="row d-flex align-items-center justify-content-between">
                     <div class="col-md-5 text-md-start text-center">
-                        <p class="copyright">© 2025 T&T Business Solution. All Rights Reserved.</p>
+                        <p class="copyright">© 2025 FastNetUG. All Rights Reserved.</p>
                     </div>
                     <div class="col-md-3 text-md-center text-center">
                         <p class="copyright">
