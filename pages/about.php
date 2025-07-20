@@ -212,7 +212,7 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                            <img src="../images/Mark.png" alt="Network Engineer" class="img-fluid">
                         </div>
                         <div class="team-info">
                             <h4>Kasumba Mark</h4>
@@ -252,7 +252,7 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                            <img src="../images/habib.png" alt="Network Engineer" class="img-fluid">
                         </div>
                         <div class="team-info">
                             <h4>Habib Ssemakula</h4>
@@ -271,7 +271,7 @@
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="team-card">
                         <div class="team-img">
-                            <img src="../images/micheal.jpg" alt="Network Engineer" class="img-fluid">
+                            <img src="../images/prossie.png" alt="Network Engineer" class="img-fluid">
                         </div>
                         <div class="team-info">
                             <h4>Prossie M</h4>
