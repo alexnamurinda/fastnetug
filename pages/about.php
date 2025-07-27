@@ -505,9 +505,9 @@
                         <h4>Other Services</h4>
                         <ul>
                             <li><a href="#">WiFi Packages</a></li>
-                            <li><a href="pages/contact.php">Installations</a></li>
-                            <li><a href="pages/contact.php">Web development</a></li>
-                            <li><a href="pages/contact.php">Telecom services</a></li>
+                            <li><a href="contact.php">Installations</a></li>
+                            <li><a href="contact.php">Web development</a></li>
+                            <li><a href="contact.php">Telecom services</a></li>
                         </ul>
                     </div>
                 </div>
