@@ -871,6 +871,7 @@ section {
     border-radius: var(--border-radius);
     border: 1px solid #ddd;
     padding: 0.75rem 1rem;
+    text-align: center;
 }
 
 .form-control:focus {

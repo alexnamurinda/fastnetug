@@ -527,52 +527,33 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="packageModalLabel">Select Your Package</h5>
+                    <h5 class="modal-title" id="packageModalLabel">Enter phone number to make payment</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Dynamic message -->
+                    <div id="selectedPackageAlert" class="alert alert-info fw-bold text-center"></div>
                     <form id="packageForm">
+                        <input type="hidden" id="selectedPackageName" />
+                        <input type="hidden" id="selectedPackageAmount" />
                         <div class="mb-3">
-                            <label for="customerName" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="customerName" required>
+                            <input type="tel" class="form-control" id="customerPhone" placeholder="- enter phone number -" required>
                         </div>
                         <div class="mb-3">
-                            <label for="customerPhone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="customerPhone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="customerLocation" class="form-label">Location</label>
                             <select class="form-select" id="customerLocation" required>
-                                <option value="">Select your area</option>
-                                <option value="Makerere">Makerere</option>
-                                <option value="Wandegeya">Wandegeya</option>
-                                <option value="Kikoni">Kikoni</option>
-                                <option value="Ntinda">Ntinda</option>
-                                <option value="Najera">Najera</option>
-                                <option value="Other">Other (Specify in notes)</option>
+                                <option value="">Select your location</option>
+                                <option value="Makerere">Namuli Hostel</option>
+                                <option value="Wandegeya">Herman Hostel</option>
+                                <option value="Kikoni">Kasalita Hostel</option>
+                                <option value="Ntinda">Nabisunsa Close</option>
+                                <option value="Najera">Other</option>
                             </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="selectedPackage" class="form-label">Choose Package</label>
-                            <select class="form-select" id="selectedPackage" required>
-                                <option value="">Select a package</option>
-                                <option value="daily">Daily Pass - 1,000 UGX</option>
-                                <option value="weekly">Weekly Plan - 6,000 UGX</option>
-                                <option value="monthly">Monthly Plan - 20,000 UGX</option>
-                                <option value="semester">Semester Plan - 50,000 UGX</option>
-                                <option value="family">Family Bundle - 35,000 UGX</option>
-                                <option value="business">Business Pro - Custom</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="customerNotes" class="form-label">Additional Notes</label>
-                            <textarea class="form-control" id="customerNotes" rows="3" placeholder="Any special requirements or questions?"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="submitPackageRequest">Submit Request</button>
+                    <button type="button" class="btn btn-primary" id="submitPackageRequest">Make payment</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -612,28 +593,58 @@
         // Initialize AOS
         AOS.init();
 
-        // Package selection
+        // Mapping of package names to price
+        const packageMap = {
+            "Daily Pass": "1,000 UGX",
+            "Weekly Plan": "6,000 UGX",
+            "Monthly Plan": "20,000 UGX",
+            "Semester Plan": "50,000 UGX",
+            "Family Bundle": "50,000 UGX/month",
+            "Business Pro": "Custom Pricing"
+        };
+
+        // Show modal and inject package info
         $('.package-card button').on('click', function() {
-            const packageName = $(this).closest('.package-card').find('h3').text();
-            $('#selectedPackage').val(packageName.toLowerCase().replace(' ', ''));
+            const card = $(this).closest('.package-card');
+            const packageName = card.find('h4').text().trim();
+            const price = packageMap[packageName] || 'Custom Pricing';
+
+            $('#selectedPackageName').val(packageName);
+            $('#selectedPackageAmount').val(price);
+            $('#selectedPackageAlert').html(`You have chosen <strong>${packageName}</strong> at <strong>${price}</strong>.`);
+
             $('#packageModal').modal('show');
         });
 
-        // Package form submission
+        // Submit handler
         $('#submitPackageRequest').on('click', function() {
-            const name = $('#customerName').val();
-            const phone = $('#customerPhone').val();
+            const phone = $('#customerPhone').val().trim();
             const location = $('#customerLocation').val();
-            const package = $('#selectedPackage option:selected').text();
+            const packageName = $('#selectedPackageName').val();
+            const amount = $('#selectedPackageAmount').val();
 
-            if (name && phone && location && package) {
-                // In a real application, you would send this data to your server
-                alert('Thank you! We will contact you shortly to complete your WiFi setup.');
-                $('#packageModal').modal('hide');
-                $('#packageForm')[0].reset();
-            } else {
-                alert('Please fill in all required fields.');
+            // Phone validation
+            const phoneRegex = /^(?:\+256|0)?7\d{8}$/;
+            if (!phone) {
+                alert("Please enter your phone number.");
+                return;
             }
+            if (!phoneRegex.test(phone)) {
+                alert("Please enter a valid Ugandan phone number.");
+                return;
+            }
+
+            if (!location) {
+                alert("Please select your location.");
+                return;
+            }
+
+            // Success message
+            alert("Feature Coming soon! Thanks for your support.");
+
+            // Reset form
+            $('#packageModal').modal('hide');
+            $('#packageForm')[0].reset();
         });
     </script>
 
