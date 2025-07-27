@@ -154,8 +154,8 @@ section {
     color: var(--primary-color);
     font-weight: 900;
     font-size: 2.5rem;
-    width: 265px;
-    height: 64px;
+    width: 200px;
+    height: auto;
 }
 
 .navbar-nav .nav-link {

@@ -22,7 +22,8 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="../index.php">
-                <span class="logo-text">FastNetUG</span> <i class="fas fa-wifi wifi-animation"></i>
+                <img src="images/FastNetUGbg.png" alt="FastNetUG Logo" class="logo-text">
+                <!-- <span class="logo-text">FastNetUG</span> <i class="fas fa-wifi wifi-animation"></i> -->
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
