@@ -4,8 +4,8 @@ session_start();
 // Database configuration
 $servername = "localhost";
 $username = "fastnetug_user1";  // Replace with your database username
-$password = "";  // Replace with your database password
-$dbname = "fastnet_db";  // Replace with your database name
+$password = "smartwatt@mysql123";  // Replace with your database password
+$dbname = "fastnet_db";  
 
 try {
     $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
