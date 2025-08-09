@@ -7,7 +7,7 @@
 // Database configuration
 $servername = "localhost";
 $username = "fastnetug_user1";  // Replace with your database username
-$password = "";  // Replace with your database password
+$password = "smartwatt@mysql123";  // Replace with your database password
 $dbname = "fastnet_db";          // Database name
 
 // HTML header for better display
