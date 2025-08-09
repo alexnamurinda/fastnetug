@@ -64,20 +64,7 @@ try {
     $created_at = date('Y-m-d H:i:s');
     $expires_at = date('Y-m-d H:i:s', strtotime('+24 hours')); // Request expires in 24 hours
     
-    // Check if there's already a pending request for this MAC address
-    $checkStmt = $pdo->prepare("
-        SELECT id FROM payment_requests 
-        WHERE mac_address = ? AND status = 'pending' AND expires_at > NOW()
-    ");
-    $checkStmt->execute([$mac_address]);
-    
-    if ($checkStmt->rowCount() > 0) {
-        echo json_encode([
-            'success' => false, 
-            'message' => 'You already have a pending payment request. Please complete it first.'
-        ]);
-        exit();
-    }
+    // --- Removed the blocking check for pending requests by MAC ---
     
     // Insert payment request into database
     $stmt = $pdo->prepare("
