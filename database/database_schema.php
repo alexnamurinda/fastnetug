@@ -6,8 +6,8 @@
 
 // Database configuration
 $servername = "localhost";
-$username = "root";  // Replace with your database username
-$password = "Alex@mysql123";  // Replace with your database password
+$username = "fastnetug_user1";  // Replace with your database username
+$password = "";  // Replace with your database password
 $dbname = "fastnet_db";          // Database name
 
 // HTML header for better display
