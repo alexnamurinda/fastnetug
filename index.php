@@ -1,3 +1,6 @@
+<?php
+include 'database/database_schema.sql';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
