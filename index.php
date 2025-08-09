@@ -1,5 +1,5 @@
 <?php
-include 'database/database_schema.sql';
+include 'database/database_schema.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
