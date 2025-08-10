@@ -596,11 +596,11 @@ if (isset($_GET['action'])) {
                                         <th>Request ID</th>
                                         <th>Phone Number</th>
                                         <th>Package</th>
-                                        <th>Amount</th>
+                                        <!-- <th>Amount</th> -->
                                         <th>Requested At</th>
-                                        <th>Status</th>
                                         <th>Voucher Code</th>
-                                        <th class="text-center">Actions</th>
+                                        <th>Status</th>
+                                        <!-- <th class="text-center">Actions</th> -->
                                     </tr>
                                 </thead>
                                 <tbody>
