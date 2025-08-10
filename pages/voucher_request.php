@@ -31,8 +31,8 @@ try {
     // Get POST data
     $phone = $_POST['phone'] ?? '';
     $mac_address = $_POST['mac_address'] ?? '';
-    $package = $_POST['package_name'] ?? $_POST['package'] ?? '';
-    $price = $_POST['package_price'] ?? $_POST['price'] ?? '';
+    $package = $_POST['package'] ?? '';
+    $price = $_POST['price'] ?? '';
 
     // Validate required fields
     if (empty($phone) || empty($mac_address) || empty($package) || empty($price)) {
@@ -58,8 +58,9 @@ try {
         $normalized_phone = '256' . substr($phone, 1);
     }
 
-    // Validate MAC address format
-    if (!preg_match('/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
+    // Normalize and validate MAC address
+    $mac_address = normalizeMAC($mac_address);
+    if (!$mac_address) {
         echo json_encode([
             'success' => false,
             'message' => 'Invalid MAC address format'
@@ -196,6 +197,42 @@ try {
 }
 
 /**
+ * Normalize MAC address to standard format
+ */
+function normalizeMAC($mac) {
+    // Remove any whitespace
+    $mac = trim($mac);
+    
+    // Handle MikroTik template variable
+    if ($mac === '$(mac)' || empty($mac)) {
+        // Generate a fallback MAC-like identifier
+        $mac = 'XX:XX:XX:XX:XX:XX';
+    }
+    
+    // Remove any non-hex characters except : and -
+    $mac = preg_replace('/[^0-9A-Fa-f:-]/', '', $mac);
+    
+    // Handle different MAC formats
+    if (strlen($mac) === 12) {
+        // Format: 001122334455 -> 00:11:22:33:44:55
+        $mac = implode(':', str_split($mac, 2));
+    } elseif (strlen($mac) === 17) {
+        // Already in correct format with separators
+        $mac = str_replace('-', ':', $mac);
+    } else {
+        // Invalid length, return false
+        return false;
+    }
+    
+    // Final validation
+    if (preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
+        return strtolower($mac);
+    }
+    
+    return false;
+}
+
+/**
  * Send SMS function - Main dispatcher
  */
 function sendSMS($phone, $message)
@@ -321,3 +358,4 @@ function cleanExpiredRequests($pdo) {
 
 // Uncomment the line below to run cleanup on each request (not recommended for production)
 // cleanExpiredRequests($pdo);
+?>
