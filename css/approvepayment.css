@@ -168,6 +168,11 @@ body {
     font-weight: 500;
 }
 
+.refreshbtn {
+    padding: 2px 4px;
+    font-size: 0.75rem;
+}
+
 /* Table styling improvements */
 .table-responsive {
     padding: 0 1rem 1rem 1rem;
@@ -536,7 +541,7 @@ body {
         padding: 0 0.75rem;
     }
 
-    .btn-outline-primary.btn-sm {
+    .refreshbtn {
         padding: 2px 4px;
         font-size: 0.75rem;
     }

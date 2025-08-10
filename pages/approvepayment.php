@@ -416,8 +416,8 @@ if (isset($_GET['action'])) {
                     <div class="card-header-custom d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-list-alt me-2"></i>Payment Requests</span>
                         <!-- Single refresh button that refreshes all data -->
-                        <button class="btn btn-outline-primary btn-sm" onclick="refreshAllData()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh All
+                        <button class="refreshbtn" onclick="refreshAllData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
                         </button>
                     </div>
                     <div class="card-body p-3">
