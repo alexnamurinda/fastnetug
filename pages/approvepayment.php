@@ -119,7 +119,7 @@ if (isset($_GET['action'])) {
             $pdo->commit();
 
             // Send SMS to user
-            $sms_message = "FastNetUG: Payment approved! Your voucher code is {$voucher['voucher_code']}. Valid for {$request['package']}. Use this to login.";
+            $sms_message = "FastNetUG: Voucher code is {$voucher['voucher_code']}. Valid for {$request['package']}.";
             sendSMS($request['phone'], $sms_message);
 
             echo json_encode(['success' => true, 'message' => 'Request approved and voucher sent.']);

@@ -3,6 +3,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+date_default_timezone_set('Africa/Kampala');
 
 // Handle preflight requests
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -78,7 +79,7 @@ try {
     if ($existing_requests > 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'You already have a recent pending payment request. Please wait 10 minutes before submitting another request.'
+            'message' => 'You already have a recent pending payment request.'
         ]);
         exit();
     }
@@ -108,11 +109,11 @@ try {
         (log_type, reference_id, user_identifier, action_description, ip_address, user_agent) 
         VALUES (?, ?, ?, ?, ?, ?)
     ");
-    
+
     $action_description = "New voucher request created - Package: $package, Price: UGX $price";
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-    
+
     $stmt->execute([
         'voucher_request',
         $request_id,
@@ -124,10 +125,12 @@ try {
 
     // Send SMS notification to admin - simplified format
     $admin_phone = '+256744766410';
-    $approval_url = 'https://www.fastnetug.com/pages/approve_payment.php';
+    $approval_url = 'https://www.fastnetug.com/pages/approvepayment.php';
+    date_default_timezone_set('Africa/Kampala');
     $request_time = date('M j, g:i A', strtotime($created_at));
 
-    $sms_message = "FastNetUG Payment Request\n" .
+
+    $sms_message = "NEW PAYMENT REQUEST\n" .
         "ID: $request_id\n" .
         "Phone: +$normalized_phone\n" .
         "Time: $request_time\n" .
@@ -137,10 +140,10 @@ try {
     $sms_sent = sendSMS($admin_phone, $sms_message);
 
     // Log the SMS attempt
-    $sms_log_description = $sms_sent ? 
-        "SMS notification sent to admin successfully" : 
+    $sms_log_description = $sms_sent ?
+        "SMS notification sent to admin successfully" :
         "Failed to send SMS notification to admin";
-    
+
     $stmt = $pdo->prepare("
         INSERT INTO system_logs 
         (log_type, reference_id, user_identifier, action_description) 
@@ -158,22 +161,21 @@ try {
 
     echo json_encode([
         'success' => true,
-        'message' => 'Payment request submitted successfully. You will receive a voucher code via SMS once payment is approved.',
+        'message' => 'Payment request submitted successfully.',
         'request_id' => $request_id,
         'phone' => $normalized_phone,
         'package' => $package,
         'price' => $price,
         'sms_sent' => $sms_sent
     ]);
-
 } catch (PDOException $e) {
-    error_log("Database error in voucher_request.php: " . $e->getMessage());
+    error_log("Database error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Database error occurred. Please try again later.'
     ]);
 } catch (Exception $e) {
-    error_log("General error in voucher_request.php: " . $e->getMessage());
+    error_log("General error: " . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'An error occurred while processing your request. Please try again.'
@@ -183,29 +185,30 @@ try {
 /**
  * Generate short unique request ID
  */
-function generateShortRequestId($pdo) {
+function generateShortRequestId($pdo)
+{
     $max_attempts = 10;
     $attempts = 0;
-    
+
     do {
         // Generate 8-character ID: 2 letters + 6 digits
         $letters = chr(rand(65, 90)) . chr(rand(65, 90)); // AA-ZZ
-        $numbers = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT); // 000000-999999
+        $numbers = str_pad(rand(0, 999999), 3, '0', STR_PAD_LEFT); // 000000-999999
         $request_id = $letters . $numbers;
-        
+
         // Check if this ID already exists
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM voucher_requests WHERE request_id = ?");
         $stmt->execute([$request_id]);
         $exists = $stmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
-        
+
         $attempts++;
     } while ($exists && $attempts < $max_attempts);
-    
+
     if ($exists) {
         // Fallback to timestamp-based ID if we can't generate unique one
         $request_id = 'FN' . date('His') . rand(10, 99);
     }
-    
+
     return $request_id;
 }
 
@@ -265,9 +268,10 @@ function sendSMS_AfricasTalking($phone, $message)
 /**
  * Helper function to determine voucher table based on package
  */
-function getVoucherTable($package) {
+function getVoucherTable($package)
+{
     $package_lower = strtolower($package);
-    
+
     if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
         return 'daily_vouchers';
     } elseif (strpos($package_lower, 'week') !== false) {
@@ -275,7 +279,7 @@ function getVoucherTable($package) {
     } elseif (strpos($package_lower, 'month') !== false) {
         return 'monthly_vouchers';
     }
-    
+
     // Default to daily if package type cannot be determined
     return 'daily_vouchers';
 }
@@ -283,9 +287,10 @@ function getVoucherTable($package) {
 /**
  * Helper function to get profile code based on package
  */
-function getProfileCode($package) {
+function getProfileCode($package)
+{
     $package_lower = strtolower($package);
-    
+
     if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
         return '1D';
     } elseif (strpos($package_lower, 'week') !== false) {
@@ -293,7 +298,7 @@ function getProfileCode($package) {
     } elseif (strpos($package_lower, 'month') !== false) {
         return '1M';
     }
-    
+
     // Default to daily profile
     return '1D';
 }
@@ -301,7 +306,8 @@ function getProfileCode($package) {
 /**
  * Function to clean expired requests (can be called via cron job)
  */
-function cleanExpiredRequests($pdo) {
+function cleanExpiredRequests($pdo)
+{
     try {
         $stmt = $pdo->prepare("
             UPDATE voucher_requests 
@@ -309,7 +315,7 @@ function cleanExpiredRequests($pdo) {
             WHERE status = 'pending' AND created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)
         ");
         $stmt->execute();
-        
+
         $affected_rows = $stmt->rowCount();
         if ($affected_rows > 0) {
             // Log the cleanup action
@@ -325,7 +331,7 @@ function cleanExpiredRequests($pdo) {
                 "Expired $affected_rows pending voucher requests older than 24 hours"
             ]);
         }
-        
+
         return $affected_rows;
     } catch (Exception $e) {
         error_log("Error cleaning expired requests: " . $e->getMessage());
