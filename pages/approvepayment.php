@@ -356,8 +356,8 @@ if (isset($_GET['action'])) {
     </nav>
 
     <!-- Auto-refresh indicator -->
-    <div id="refresh-indicator" class="refresh-indicator">
-        <i class="fas fa-sync-alt fa-spin me-1"></i>Auto-refreshing...
+    <div id="refresh-indicator">
+        
     </div>
 
     <div class="container-fluid my-4">

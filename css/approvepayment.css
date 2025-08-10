@@ -194,24 +194,7 @@ body {
 }
 
 /* Auto-refresh indicator */
-.refresh-indicator {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--primary-color);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    box-shadow: var(--card-shadow);
-    z-index: 1050;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
 
-.refresh-indicator.show {
-    opacity: 1;
-}
 
 /* Modal styling */
 .modal-content {
@@ -669,7 +652,6 @@ body {
 /* Print styles (if needed for reports) */
 @media print {
     .navbar,
-    .refresh-indicator,
     .toast-container,
     .btn,
     .modal {
@@ -707,12 +689,7 @@ body {
     .fade-in,
     .stats-card,
     .btn-action,
-    .inventory-item,
-    .refresh-indicator {
-        animation: none;
-        transition: none;
-    }
-    
+    .inventory-item,    
     .stats-card:hover,
     .btn-action:hover,
     .inventory-item:hover {
