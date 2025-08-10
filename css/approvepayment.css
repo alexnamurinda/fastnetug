@@ -21,11 +21,6 @@ body {
     box-shadow: var(--card-shadow);
 }
 
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.5rem;
-}
-
 /* Statistics cards styling */
 .stats-card {
     background: white;
@@ -444,14 +439,6 @@ body {
     padding: 1.5rem;
 }
 
-/* Logo styling */
-.logo-text {
-    max-height: 40px;
-    width: auto;
-}
-
-
-
 
 /* Responsive design styles for different screen sizes */
 
@@ -550,13 +537,8 @@ body {
     }
 
     .btn-outline-primary.btn-sm {
-        padding: 0.25rem 0.5rem;
+        padding: 2px 4px;
         font-size: 0.75rem;
-    }
-
-    /* Compact navigation */
-    .navbar-brand {
-        font-size: 1.25rem;
     }
 
     .navbar-text {
