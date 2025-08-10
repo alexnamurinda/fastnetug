@@ -279,7 +279,6 @@ body {
 }
 
 #requests-table th {
-    background-color: transparent;
     /* Use your primary blue color */
     color: white;
     /* White text on colored background */
