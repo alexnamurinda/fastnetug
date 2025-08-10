@@ -540,16 +540,6 @@ if (isset($_GET['action'])) {
             body.textContent = message;
             actionToast.show();
         }
-
-        /**
-         * Show auto-refresh indicator briefly
-         */
-        function showRefreshIndicator() {
-            const indicator = document.getElementById('refresh-indicator');
-            indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 1500);
-        }
-
         /**
          * Update the live clock display in navigation
          */
