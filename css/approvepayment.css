@@ -181,6 +181,7 @@ body {
     font-size: 0.9rem;
     border-radius: 5px;
     background-color: transparent;
+    border: 1px solid var(--primary-color);
 }
 
 .refreshbtn:hover{
@@ -276,11 +277,12 @@ body {
 #requests-table {
     margin-bottom: 0;
     border: 1px solid #ced0d2;
+    border-radius: 5px;
 }
 
 #requests-table th {
     /* Use your primary blue color */
-    color: white;
+    color: var(--primary-color);
     /* White text on colored background */
     text-align: center;
     /* Center the header text */
@@ -570,8 +572,8 @@ body {
     }
 
     .refreshbtn {
-        padding: 2px 4px;
-        font-size: 0.75rem;
+        padding: 3px 5px;
+        font-size: 0.8rem;
     }
 
     .navbar-text {
