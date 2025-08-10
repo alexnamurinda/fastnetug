@@ -169,8 +169,10 @@ body {
 }
 
 .refreshbtn {
-    padding: 2px 4px;
-    font-size: 0.75rem;
+    padding: 3px 6px;
+    font-size: 0.85rem;
+    border-radius: 5px;
+    background-color: var(--primary-color);
 }
 
 /* Table styling improvements */
@@ -411,11 +413,11 @@ body {
         font-size: 0.85rem;
     }
 
-    /* Hide less important columns on mobile */
+    /* Hide less important columns on mobile
     #requests-table th:nth-child(4),
     #requests-table td:nth-child(4) {
         display: none;
-    }
+    } */
 }
 
 /* Animation for status changes */
@@ -588,13 +590,13 @@ body {
         padding: 0.5rem 0.25rem;
     }
 
-    /* Hide less critical columns on mobile */
+    /* Hide less critical columns on mobile
     #requests-table th:nth-child(4),
     #requests-table td:nth-child(4),
     #requests-table th:nth-child(6),
     #requests-table td:nth-child(6) {
         display: none;
-    }
+    } */
 
     /* Stack action buttons vertically on mobile */
     .btn-action {
