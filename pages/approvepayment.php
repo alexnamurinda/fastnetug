@@ -540,6 +540,16 @@ if (isset($_GET['action'])) {
             body.textContent = message;
             actionToast.show();
         }
+
+        /**
+         * Show auto-refresh indicator briefly
+         */
+        function showRefreshIndicator() {
+            const indicator = document.getElementById('refresh-indicator');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 1500);
+        }
+
         /**
          * Update the live clock display in navigation
          */
@@ -630,7 +640,7 @@ if (isset($_GET['action'])) {
 
                         // Add row to table
                         tbody.append(`
-                            <tr class="fade-in">
+                            <tr class="">
                                 <td><strong>${request.request_id}</strong></td>
                                 <td>${request.phone_formatted}</td>
                                 <td><span class="badge bg-secondary">${request.package_profile}</span></td>
@@ -723,7 +733,7 @@ if (isset($_GET['action'])) {
          * Refresh all dashboard data (requests, inventory, and stats)
          */
         function refreshAllData() {
-            showRefreshIndicator();
+            //showRefreshIndicator();
             loadRequests();
             loadInventory();
             loadStats();
