@@ -357,7 +357,7 @@ if (isset($_GET['action'])) {
 
     <!-- Auto-refresh indicator -->
     <div id="refresh-indicator">
-        
+
     </div>
 
     <div class="container-fluid my-4">
@@ -428,7 +428,7 @@ if (isset($_GET['action'])) {
                                         <th>ID</th>
                                         <th>Phone Number</th>
                                         <th>Profile</th>
-                                        <th>Time</th>
+                                        <!-- <th>Time</th> -->
                                         <th>Status</th>
                                         <th>Code</th>
                                         <th class="text-center">Actions</th>
@@ -644,7 +644,6 @@ if (isset($_GET['action'])) {
                                 <td><strong>${request.request_id}</strong></td>
                                 <td>${request.phone_formatted}</td>
                                 <td><span class="badge bg-secondary">${request.package_profile}</span></td>
-                                <td><small>${request.created_at_formatted}</small></td>
                                 <td>${statusBadge}</td>
                                 <td>${voucherCode}</td>
                                 <td class="text-center">${actionsHtml}</td>
