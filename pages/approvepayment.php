@@ -1,4 +1,5 @@
 <?php
+// Start session and set basic configurations
 session_start();
 header('Content-Type: text/html; charset=utf-8');
 date_default_timezone_set('Africa/Kampala');
@@ -9,7 +10,12 @@ $username = "fastnetug_user1";
 $password = "smartwatt@mysql123";
 $dbname = "fastnet_db";
 
-function db() {
+/**
+ * Database connection function using PDO with singleton pattern
+ * Returns a single PDO instance throughout the application lifecycle
+ */
+function db()
+{
     static $pdo = null;
     global $servername, $username, $password, $dbname;
     if ($pdo === null) {
@@ -19,16 +25,24 @@ function db() {
     return $pdo;
 }
 
-function sendSMS($phone, $message) {
+/**
+ * Send SMS notification to users via Africa's Talking API
+ * @param string $phone - Phone number to send SMS to
+ * @param string $message - SMS message content
+ * @return bool - Returns true if SMS was sent successfully
+ */
+function sendSMS($phone, $message)
+{
     $username = 'agritech_info';
     $apikey = 'atsk_1eb8e8aa4cf9f3851dabd1bf4490983972432730c57f36cfcf51980d3047884b7d19c9c3';
-    
+
     $data = [
         'username' => $username,
         'to' => $phone,
         'message' => $message
     ];
-    
+
+    // Initialize cURL for API request
     $ch = curl_init('https://api.africastalking.com/version1/messaging');
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
@@ -39,23 +53,35 @@ function sendSMS($phone, $message) {
         'Content-Type: application/x-www-form-urlencoded',
         'apiKey: ' . $apikey
     ]);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    
+
     return $httpCode === 201;
 }
 
-function getVoucherTable($package) {
+/**
+ * Determine the correct voucher table based on package type
+ * @param string $package - Package name/type
+ * @return string - Returns the appropriate database table name
+ */
+function getVoucherTable($package)
+{
     $package = strtolower($package);
     if (strpos($package, 'week') !== false) return 'weekly_vouchers';
     if (strpos($package, 'month') !== false) return 'monthly_vouchers';
     return 'daily_vouchers';
 }
 
-function formatPhoneNumber($phone) {
-    // Ensure phone number starts with +256
+/**
+ * Format phone number to Uganda standard (+256)
+ * @param string $phone - Raw phone number input
+ * @return string - Formatted phone number with +256 prefix
+ */
+function formatPhoneNumber($phone)
+{
+    // Convert different phone number formats to +256 standard
     if (substr($phone, 0, 1) === '0') {
         return '+256' . substr($phone, 1);
     } elseif (substr($phone, 0, 3) === '256') {
@@ -66,86 +92,105 @@ function formatPhoneNumber($phone) {
     return '+256' . $phone;
 }
 
+/**
+ * Convert package names to short profile codes
+ * @param string $package - Full package name
+ * @return string - Short profile code (1D, 1W, 1M)
+ */
+function getPackageProfile($package)
+{
+    $package = strtolower($package);
+    if (strpos($package, 'week') !== false || strpos($package, '7') !== false) return '1W';
+    if (strpos($package, 'month') !== false || strpos($package, '30') !== false) return '1M';
+    return '1D'; // Default to daily
+}
+
 // ==== AJAX HANDLERS ====
 if (isset($_GET['action'])) {
     $pdo = db();
 
+    // Get all voucher requests with pagination and filtering
     if ($_GET['action'] === 'get_requests') {
         $stmt = $pdo->prepare("
             SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at 
             FROM voucher_requests 
-            ORDER BY FIELD(status, 'pending', 'approved', 'rejected', 'expired') ASC, created_at DESC 
+            ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC 
             LIMIT 100
         ");
         $stmt->execute();
         $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Format phone numbers and dates
+
+        // Format data for frontend display
         foreach ($requests as &$request) {
             $request['phone_formatted'] = formatPhoneNumber($request['phone']);
             $request['created_at_formatted'] = date('M j, Y g:i A', strtotime($request['created_at']));
-            $request['approved_at_formatted'] = $request['approved_at'] ? 
+            $request['approved_at_formatted'] = $request['approved_at'] ?
                 date('M j, Y g:i A', strtotime($request['approved_at'])) : null;
+            $request['package_profile'] = getPackageProfile($request['package']);
         }
-        
+
         echo json_encode($requests);
         exit;
     }
 
+    // Get voucher inventory status (Available, Used, Total only)
     if ($_GET['action'] === 'get_inventory') {
         $tables = ['daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
         $inventory = [];
-        
+
         foreach ($tables as $table) {
+            // Count vouchers by status (excluding expired from display)
             $stmt = $pdo->prepare("SELECT status, COUNT(*) AS count FROM $table GROUP BY status");
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $inventory[$table] = ['Available' => 0, 'Used' => 0, 'Expired' => 0];
+
+            // Initialize inventory counters
+            $inventory[$table] = ['Available' => 0, 'Used' => 0];
             foreach ($results as $row) {
-                $inventory[$table][$row['status']] = (int)$row['count'];
+                if ($row['status'] === 'Available' || $row['status'] === 'Used') {
+                    $inventory[$table][$row['status']] = (int)$row['count'];
+                }
             }
-            
-            // Get total count
-            $stmt = $pdo->prepare("SELECT COUNT(*) AS total FROM $table");
-            $stmt->execute();
-            $inventory[$table]['Total'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            // Calculate total count (Available + Used only)
+            $inventory[$table]['Total'] = $inventory[$table]['Available'] + $inventory[$table]['Used'];
         }
-        
+
         echo json_encode($inventory);
         exit;
     }
 
+    // Get dashboard statistics
     if ($_GET['action'] === 'get_stats') {
         $stats = [];
-        
-        // Total requests today
+
+        // Total requests for today only (resets each day at midnight)
         $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
         $stmt->execute();
         $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        // Pending requests
+
+        // Count of pending requests
         $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
         $stmt->execute();
         $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
-        
-        // Revenue today
+
+        // Revenue generated today only
         $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
         $stmt->execute();
         $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
-        
+
         echo json_encode($stats);
         exit;
     }
 
-    // Approve request
+    // Approve a payment request and assign voucher
     if ($_GET['action'] === 'approve' && !empty($_POST['id'])) {
         $request_id = $_POST['id'];
-        
+
         try {
             $pdo->beginTransaction();
 
-            // Get and lock the request
+            // Get and lock the pending request
             $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending' FOR UPDATE");
             $stmt->execute([$request_id]);
             $request = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -169,10 +214,10 @@ if (isset($_GET['action'])) {
                 exit;
             }
 
-            // Format phone number for SMS
+            // Format phone number for SMS delivery
             $formatted_phone = formatPhoneNumber($request['phone']);
 
-            // Update voucher status to Used and assign phone
+            // Mark voucher as used and assign to customer
             $stmt = $pdo->prepare("UPDATE $voucher_table SET status = 'Used', user_phone = ?, used_at = NOW() WHERE id = ?");
             $stmt->execute([$formatted_phone, $voucher['id']]);
 
@@ -180,7 +225,7 @@ if (isset($_GET['action'])) {
             $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'approved', voucher_code = ?, approved_at = NOW() WHERE request_id = ?");
             $stmt->execute([$voucher['voucher_code'], $request_id]);
 
-            // Log the approval action
+            // Log the approval action for audit trail
             $stmt = $pdo->prepare("
                 INSERT INTO system_logs 
                 (log_type, reference_id, user_identifier, action_description, ip_address) 
@@ -192,18 +237,18 @@ if (isset($_GET['action'])) {
 
             $pdo->commit();
 
-            // Send voucher code to user via SMS
+            // Send voucher code to customer via SMS
             $sms_message = "Your voucher code is: {$voucher['voucher_code']}. Valid for {$request['package']}.Thankyou.";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
 
-            // Log SMS attempt
+            // Log SMS delivery attempt
             $stmt = $pdo->prepare("
                 INSERT INTO system_logs 
                 (log_type, reference_id, user_identifier, action_description) 
                 VALUES ('system_action', ?, ?, ?)
             ");
-            $sms_log = $sms_sent ? 
-                "Voucher SMS sent successfully to {$formatted_phone}" : 
+            $sms_log = $sms_sent ?
+                "Voucher SMS sent successfully to {$formatted_phone}" :
                 "Failed to send voucher SMS to {$formatted_phone}";
             $stmt->execute([$request_id, 'system', $sms_log]);
 
@@ -214,7 +259,6 @@ if (isset($_GET['action'])) {
                 'sms_sent' => $sms_sent
             ]);
             exit;
-
         } catch (Exception $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             error_log("Approval error: " . $e->getMessage());
@@ -223,26 +267,27 @@ if (isset($_GET['action'])) {
         }
     }
 
-    // Reject request
+    // Reject a payment request with reason
     if ($_GET['action'] === 'reject' && !empty($_POST['id']) && !empty($_POST['reason'])) {
         $request_id = $_POST['id'];
         $reason = trim($_POST['reason']);
-        
+
         try {
+            // Verify request exists and is still pending
             $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending'");
             $stmt->execute([$request_id]);
             $request = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$request) {
                 echo json_encode(['success' => false, 'message' => 'Request not found or already processed.']);
                 exit;
             }
 
-            // Update request status to rejected
+            // Update request status to rejected with reason
             $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'rejected', notes = ?, approved_at = NOW() WHERE request_id = ?");
             $stmt->execute([$reason, $request_id]);
 
-            // Log the rejection
+            // Log the rejection action
             $stmt = $pdo->prepare("
                 INSERT INTO system_logs 
                 (log_type, reference_id, user_identifier, action_description, ip_address) 
@@ -252,7 +297,7 @@ if (isset($_GET['action'])) {
             $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
             $stmt->execute([$request_id, $action_description, $ip_address]);
 
-            // Format phone and send rejection SMS
+            // Send rejection notification to customer
             $formatted_phone = formatPhoneNumber($request['phone']);
             $sms_message = "Your payment request (ID: $request_id) was rejected. Reason: $reason. Contact support at 0744766410 for assistance.";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
@@ -263,7 +308,6 @@ if (isset($_GET['action'])) {
                 'sms_sent' => $sms_sent
             ]);
             exit;
-
         } catch (Exception $e) {
             error_log("Rejection error: " . $e->getMessage());
             echo json_encode(['success' => false, 'message' => 'Error rejecting request: ' . $e->getMessage()]);
@@ -271,6 +315,7 @@ if (isset($_GET['action'])) {
         }
     }
 
+    // Handle invalid action requests
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid action or missing parameters']);
     exit;
@@ -279,24 +324,30 @@ if (isset($_GET['action'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FastNetUG Admin Dashboard</title>
+
+    <!-- External CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
+
+    <!-- Custom CSS Files -->
     <link href="../css/mainstyles.css" rel="stylesheet">
     <link href="../css/responsive.css" rel="stylesheet">
     <link href="../css/approvepayment.css" rel="stylesheet">
 </head>
+
 <body>
-    <!-- Navigation -->
+    <!-- Top Navigation Bar -->
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
             <span class="navbar-brand">
                 <img src="../images/FastNetUGbg.png" alt="FastNetUG Logo" class="logo-text">
             </span>
+            <!-- Live clock display -->
             <span class="navbar-text">
                 <i class="fas fa-clock me-1"></i>
                 <span id="current-time"></span>
@@ -304,14 +355,15 @@ if (isset($_GET['action'])) {
         </div>
     </nav>
 
-    <!-- Refresh Indicator -->
+    <!-- Auto-refresh indicator -->
     <div id="refresh-indicator" class="refresh-indicator">
-        <i class="fas fa-sync-alt fa-spin me-1"></i>Refreshing...
+        <i class="fas fa-sync-alt fa-spin me-1"></i>Auto-refreshing...
     </div>
 
     <div class="container-fluid my-4">
-        <!-- Statistics Cards -->
+        <!-- Dashboard Statistics Cards Row -->
         <div class="row mb-4">
+            <!-- Pending Requests Counter -->
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
@@ -325,7 +377,8 @@ if (isset($_GET['action'])) {
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Today's Requests Counter (resets daily at midnight) -->
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
@@ -339,7 +392,8 @@ if (isset($_GET['action'])) {
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Today's Revenue Counter (resets daily at midnight) -->
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
@@ -356,33 +410,33 @@ if (isset($_GET['action'])) {
         </div>
 
         <div class="row">
-            <!-- Payment Requests Section -->
+            <!-- Payment Requests Management Section -->
             <div class="col-lg-8">
                 <div class="card main-card">
                     <div class="card-header-custom d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-list-alt me-2"></i>Payment Requests</span>
-                        <button class="btn btn-outline-primary btn-sm" onclick="loadRequests()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        <!-- Single refresh button that refreshes all data -->
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshAllData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh All
                         </button>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-3">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="requests-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>Request ID</th>
+                                        <th>ID</th>
                                         <th>Phone Number</th>
-                                        <th>Package</th>
-                                        <th>Amount</th>
+                                        <th>Profile</th>
                                         <th>Requested At</th>
                                         <th>Status</th>
-                                        <th>Voucher Code</th>
+                                        <th>Code</th>
                                         <th class="text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="8" class="text-center py-4">
+                                        <td colspan="7" class="text-center py-4">
                                             <i class="fas fa-spinner fa-spin me-2"></i>Loading requests...
                                         </td>
                                     </tr>
@@ -393,14 +447,11 @@ if (isset($_GET['action'])) {
                 </div>
             </div>
 
-            <!-- Voucher Inventory Section -->
+            <!-- Voucher Inventory Section (3 categories: Available, Used, Total) -->
             <div class="col-lg-4">
                 <div class="card main-card">
-                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div class="card-header-custom">
                         <span><i class="fas fa-boxes me-2"></i>Voucher Inventory</span>
-                        <button class="btn btn-outline-success btn-sm" onclick="loadInventory()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
                     </div>
                     <div class="card-body">
                         <div id="inventory-container">
@@ -414,7 +465,7 @@ if (isset($_GET['action'])) {
         </div>
     </div>
 
-    <!-- Reject Request Modal -->
+    <!-- Modal for Rejecting Payment Requests -->
     <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form id="reject-form" class="modal-content">
@@ -426,16 +477,16 @@ if (isset($_GET['action'])) {
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="reject-request-id" name="id">
-                    
+
                     <div class="mb-3">
                         <label for="reject-reason" class="form-label">
                             <i class="fas fa-comment-alt me-1"></i>Reason for rejection
                         </label>
-                        <textarea class="form-control" id="reject-reason" name="reason" rows="3" 
-                                placeholder="Please provide a clear reason for rejecting this request..." required></textarea>
+                        <textarea class="form-control" id="reject-reason" name="reason" rows="3"
+                            placeholder="Please provide a clear reason for rejecting this request..." required></textarea>
                         <div class="form-text">This reason will be sent to the customer via SMS.</div>
                     </div>
-                    
+
                     <div class="alert alert-danger d-none" id="reject-error"></div>
                 </div>
                 <div class="modal-footer">
@@ -448,7 +499,7 @@ if (isset($_GET['action'])) {
         </div>
     </div>
 
-    <!-- Success/Error Toast -->
+    <!-- Success/Error Toast Notifications -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="actionToast" class="toast" role="alert">
             <div class="toast-header">
@@ -460,34 +511,48 @@ if (isset($_GET['action'])) {
         </div>
     </div>
 
+    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
+        // Initialize Bootstrap components
         const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
         const actionToast = new bootstrap.Toast(document.getElementById('actionToast'));
 
+        /**
+         * Display toast notification to user
+         * @param {string} message - Message to display
+         * @param {boolean} isSuccess - Whether this is a success or error message
+         */
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('actionToast');
             const icon = toast.querySelector('.toast-header i');
             const body = toast.querySelector('.toast-body');
-            
+
+            // Set appropriate icon based on message type
             if (isSuccess) {
                 icon.className = 'fas fa-check-circle text-success me-2';
             } else {
                 icon.className = 'fas fa-exclamation-circle text-danger me-2';
             }
-            
+
             body.textContent = message;
             actionToast.show();
         }
 
+        /**
+         * Show auto-refresh indicator briefly
+         */
         function showRefreshIndicator() {
             const indicator = document.getElementById('refresh-indicator');
             indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 1000);
+            setTimeout(() => indicator.classList.remove('show'), 1500);
         }
 
+        /**
+         * Update the live clock display in navigation
+         */
         function updateCurrentTime() {
             const now = new Date();
             const timeString = now.toLocaleString('en-US', {
@@ -501,6 +566,9 @@ if (isset($_GET['action'])) {
             document.getElementById('current-time').textContent = timeString;
         }
 
+        /**
+         * Load and display dashboard statistics
+         */
         function loadStats() {
             $.getJSON('?action=get_stats')
                 .done(function(data) {
@@ -513,18 +581,20 @@ if (isset($_GET['action'])) {
                 });
         }
 
+        /**
+         * Load and display payment requests in table format
+         */
         function loadRequests() {
-            showRefreshIndicator();
-            
             $.getJSON('?action=get_requests')
                 .done(function(data) {
                     const tbody = $('#requests-table tbody');
                     tbody.empty();
-                    
+
+                    // Display message if no requests found
                     if (data.length === 0) {
                         tbody.append(`
                             <tr>
-                                <td colspan="8" class="text-center py-4 text-muted">
+                                <td colspan="7" class="text-center py-4 text-muted">
                                     <i class="fas fa-inbox me-2"></i>No payment requests found
                                 </td>
                             </tr>
@@ -532,19 +602,21 @@ if (isset($_GET['action'])) {
                         return;
                     }
 
+                    // Populate table with request data
                     data.forEach(function(request) {
                         let statusBadge = '';
                         let actionsHtml = '';
-                        
-                        switch(request.status) {
+
+                        // Generate status badge and action buttons based on request status
+                        switch (request.status) {
                             case 'pending':
                                 statusBadge = '<span class="status-badge status-pending">Pending</span>';
                                 actionsHtml = `
-                                    <button class="btn btn-success btn-action me-1 approve-btn" data-id="${request.request_id}" title="Approve Request">
-                                        Approve
+                                    <button class="btn btn-success btn-sm me-1 approve-btn" data-id="${request.request_id}" title="Approve Request">
+                                        <i class="fas fa-check"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-action reject-btn" data-id="${request.request_id}" title="Reject Request">
-                                        Reject
+                                    <button class="btn btn-danger btn-sm reject-btn" data-id="${request.request_id}" title="Reject Request">
+                                        <i class="fas fa-times"></i>
                                     </button>
                                 `;
                                 break;
@@ -556,36 +628,23 @@ if (isset($_GET['action'])) {
                                 statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
                                 actionsHtml = '<small class="text-muted">Rejected</small>';
                                 break;
-                            case 'expired':
-                                statusBadge = '<span class="status-badge status-expired">Expired</span>';
-                                actionsHtml = '<small class="text-muted">Expired</small>';
-                                break;
                             default:
                                 statusBadge = `<span class="status-badge">${request.status}</span>`;
                                 actionsHtml = '<small class="text-muted">-</small>';
                         }
 
-                        const voucherCode = request.voucher_code ? 
-                            `<code class="bg-light px-2 py-1 rounded">${request.voucher_code}</code>` : 
+                        // Display voucher code if available
+                        const voucherCode = request.voucher_code ?
+                            `<code class="bg-light px-2 py-1 rounded">${request.voucher_code}</code>` :
                             '<small class="text-muted">-</small>';
 
+                        // Add row to table
                         tbody.append(`
                             <tr class="fade-in">
                                 <td><strong>${request.request_id}</strong></td>
-                                <td>
-                                    <i class="fas fa-phone me-1 text-muted"></i>
-                                    ${request.phone_formatted}
-                                </td>
-                                <td>
-                                    <i class="fas fa-box me-1 text-muted"></i>
-                                    ${request.package}
-                                </td>
-                                <td>
-                                    <strong>UGX ${Number(request.price).toLocaleString()}</strong>
-                                </td>
-                                <td>
-                                    <small>${request.created_at_formatted}</small>
-                                </td>
+                                <td>${request.phone_formatted}</td>
+                                <td><span class="badge bg-secondary">${request.package_profile}</span></td>
+                                <td><small>${request.created_at_formatted}</small></td>
                                 <td>${statusBadge}</td>
                                 <td>${voucherCode}</td>
                                 <td class="text-center">${actionsHtml}</td>
@@ -597,7 +656,7 @@ if (isset($_GET['action'])) {
                     const tbody = $('#requests-table tbody');
                     tbody.html(`
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-danger">
+                            <td colspan="7" class="text-center py-4 text-danger">
                                 <i class="fas fa-exclamation-triangle me-2"></i>Failed to load requests
                             </td>
                         </tr>
@@ -605,28 +664,35 @@ if (isset($_GET['action'])) {
                 });
         }
 
+        /**
+         * Load and display voucher inventory (Available, Used, Total only)
+         */
         function loadInventory() {
             $.getJSON('?action=get_inventory')
                 .done(function(data) {
                     const container = $('#inventory-container');
                     container.empty();
 
+                    // Map table names to user-friendly titles
                     const tableNames = {
                         'daily_vouchers': 'Daily Vouchers (24 Hours)',
-                        'weekly_vouchers': 'Weekly Vouchers (1 Week)', 
+                        'weekly_vouchers': 'Weekly Vouchers (1 Week)',
                         'monthly_vouchers': 'Monthly Vouchers (1 Month)'
                     };
 
+                    // Generate inventory display for each voucher type
                     Object.entries(data).forEach(function([table, counts]) {
                         const title = tableNames[table] || table;
                         const totalVouchers = counts.Total || 0;
                         const availablePercent = totalVouchers > 0 ? Math.round((counts.Available / totalVouchers) * 100) : 0;
-                        
+
+                        // Set alert color based on availability percentage
                         let alertClass = '';
                         if (availablePercent < 20) alertClass = 'border-danger';
                         else if (availablePercent < 50) alertClass = 'border-warning';
                         else alertClass = 'border-success';
 
+                        // Create inventory item (3 widgets: Available, Used, Total)
                         container.append(`
                             <div class="inventory-item ${alertClass}">
                                 <div class="inventory-title">${title}</div>
@@ -638,10 +704,6 @@ if (isset($_GET['action'])) {
                                     <div class="inventory-stat">
                                         <div class="inventory-stat-value text-primary">${counts.Used || 0}</div>
                                         <div class="inventory-stat-label">Used</div>
-                                    </div>
-                                    <div class="inventory-stat">
-                                        <div class="inventory-stat-value text-warning">${counts.Expired || 0}</div>
-                                        <div class="inventory-stat-label">Expired</div>
                                     </div>
                                     <div class="inventory-stat">
                                         <div class="inventory-stat-value text-secondary">${totalVouchers}</div>
@@ -667,6 +729,20 @@ if (isset($_GET['action'])) {
                 });
         }
 
+        /**
+         * Refresh all dashboard data (requests, inventory, and stats)
+         */
+        function refreshAllData() {
+            showRefreshIndicator();
+            loadRequests();
+            loadInventory();
+            loadStats();
+        }
+
+        /**
+         * Handle approval of a payment request
+         * @param {string} requestId - The request ID to approve
+         */
         function handleApprove(requestId) {
             if (!confirm(`Are you sure you want to approve request ${requestId}? This will send a voucher code to the customer.`)) {
                 return;
@@ -674,15 +750,15 @@ if (isset($_GET['action'])) {
 
             const button = $(`.approve-btn[data-id="${requestId}"]`);
             const originalHtml = button.html();
-            button.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+            button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
 
-            $.post('?action=approve', {id: requestId})
+            $.post('?action=approve', {
+                    id: requestId
+                })
                 .done(function(response) {
                     if (response.success) {
                         showToast(`Request ${requestId} approved successfully! Voucher ${response.voucher_code} sent to customer.`);
-                        loadRequests();
-                        loadInventory();
-                        loadStats();
+                        refreshAllData(); // Refresh all data after approval
                     } else {
                         showToast(response.message || 'Failed to approve request', false);
                         button.html(originalHtml).prop('disabled', false);
@@ -694,6 +770,10 @@ if (isset($_GET['action'])) {
                 });
         }
 
+        /**
+         * Handle rejection of a payment request
+         * @param {string} requestId - The request ID to reject
+         */
         function handleReject(requestId) {
             $('#reject-request-id').val(requestId);
             $('#reject-reason').val('');
@@ -701,25 +781,21 @@ if (isset($_GET['action'])) {
             rejectModal.show();
         }
 
-        // Initialize page
+        // Initialize page when DOM is ready
         $(document).ready(function() {
             // Load initial data
-            loadRequests();
-            loadInventory();
-            loadStats();
+            refreshAllData();
             updateCurrentTime();
 
-            // Update time every second
+            // Update live clock every second
             setInterval(updateCurrentTime, 1000);
 
-            // Auto-refresh every 30 seconds
+            // Auto-refresh all data every 5 seconds
             setInterval(function() {
-                loadRequests();
-                loadInventory();
-                loadStats();
-            }, 30000);
+                refreshAllData();
+            }, 5000);
 
-            // Event handlers
+            // Event handlers for approve/reject buttons
             $(document).on('click', '.approve-btn', function() {
                 const requestId = $(this).data('id');
                 handleApprove(requestId);
@@ -730,13 +806,13 @@ if (isset($_GET['action'])) {
                 handleReject(requestId);
             });
 
-            // Reject form submission
+            // Handle reject form submission
             $('#reject-form').on('submit', function(e) {
                 e.preventDefault();
-                
+
                 const requestId = $('#reject-request-id').val();
                 const reason = $('#reject-reason').val().trim();
-                
+
                 if (!reason) {
                     $('#reject-error').removeClass('d-none').text('Please enter a rejection reason.');
                     return;
@@ -746,13 +822,15 @@ if (isset($_GET['action'])) {
                 const originalHtml = submitBtn.html();
                 submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Rejecting...').prop('disabled', true);
 
-                $.post('?action=reject', {id: requestId, reason: reason})
+                $.post('?action=reject', {
+                        id: requestId,
+                        reason: reason
+                    })
                     .done(function(response) {
                         if (response.success) {
                             rejectModal.hide();
                             showToast(`Request ${requestId} rejected and customer notified.`);
-                            loadRequests();
-                            loadStats();
+                            refreshAllData(); // Refresh all data after rejection
                         } else {
                             $('#reject-error').removeClass('d-none').text(response.message || 'Failed to reject request.');
                         }
@@ -764,7 +842,7 @@ if (isset($_GET['action'])) {
                     });
             });
 
-            // Clear modal on hide
+            // Clear modal form when hidden
             $('#rejectModal').on('hidden.bs.modal', function() {
                 $('#reject-reason').val('');
                 $('#reject-error').addClass('d-none').text('');
@@ -773,14 +851,13 @@ if (isset($_GET['action'])) {
 
         // Keyboard shortcuts
         $(document).keydown(function(e) {
-            // Ctrl/Cmd + R to refresh
+            // Ctrl/Cmd + R to refresh all data
             if ((e.ctrlKey || e.metaKey) && e.keyCode === 82) {
                 e.preventDefault();
-                loadRequests();
-                loadInventory();
-                loadStats();
+                refreshAllData();
             }
         });
     </script>
 </body>
+
 </html>
