@@ -119,6 +119,15 @@ body {
     transition: all 0.2s ease;
 }
 
+#requests-table th,
+#requests-table td {
+    width: 14.28%;
+    /* Equal width for all 7 columns */
+    text-align: center;
+    /* Center align all content */
+    border: 1px solid #e0e1e2;
+}
+
 .btn-action:hover {
     transform: translateY(-1px);
 }
@@ -261,13 +270,18 @@ body {
 /* Enhanced table styling for payment requests */
 #requests-table {
     margin-bottom: 0;
+    border: 1px solid #ced0d2;
 }
 
 #requests-table th {
-    background-color: #f8f9fa;
+    background-color: var(--primary-color);
+    /* Use your primary blue color */
+    color: white;
+    /* White text on colored background */
+    text-align: center;
+    /* Center the header text */
     border-bottom: 2px solid #dee2e6;
     font-weight: 600;
-    color: var(--dark-color);
     padding: 1rem 0.75rem;
     font-size: 0.9rem;
 }
@@ -411,6 +425,14 @@ body {
     #requests-table td {
         padding: 0.5rem 0.4rem;
         font-size: 0.85rem;
+    }
+
+    #requests-table th,
+    #requests-table td {
+        width: 14.28%;
+        /* Equal width for all 7 columns */
+        text-align: center;
+        /* Center align all content */
     }
 
     /* Hide less important columns on mobile
