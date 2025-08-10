@@ -1,6 +1,6 @@
 <?php
 /**
- * FastNetUG Database Setup Script - Backend Only
+ * FastNetUG Database Setup Script - Updated Version
  * Run this file once to create all necessary database tables
  */
 
@@ -10,8 +10,8 @@ $username = "fastnetug_user1";  // Replace with your database username
 $password = "smartwatt@mysql123";  // Replace with your database password
 $dbname = "fastnet_db";          // Database name
 
-echo "FastNetUG Database Setup - Backend Only\n";
-echo "==========================================\n\n";
+echo "FastNetUG Database Setup - Updated Version\n";
+echo "============================================\n\n";
 
 try {
     // First, connect without specifying database to create it
@@ -89,25 +89,22 @@ try {
     ");
     echo "✅ monthly_vouchers table created successfully!\n\n";
     
-    // Create voucher_requests table
+    // Create simplified voucher_requests table (no MAC address)
     echo "Step 6: Creating voucher_requests table...\n";
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS voucher_requests (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            request_id VARCHAR(50) UNIQUE NOT NULL,
+            request_id VARCHAR(20) UNIQUE NOT NULL,
             phone VARCHAR(15) NOT NULL,
-            mac_address VARCHAR(17) NOT NULL,
             package VARCHAR(100) NOT NULL,
             price DECIMAL(10,2) NOT NULL,
             status ENUM('pending', 'approved', 'rejected', 'expired') DEFAULT 'pending',
             voucher_code VARCHAR(50) NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            expires_at TIMESTAMP NULL,
             approved_at TIMESTAMP NULL,
             notes TEXT NULL,
             INDEX idx_request_id (request_id),
             INDEX idx_phone (phone),
-            INDEX idx_mac_address (mac_address),
             INDEX idx_status (status),
             INDEX idx_created_at (created_at),
             INDEX idx_status_created (status, created_at)
@@ -135,22 +132,6 @@ try {
     ");
     echo "✅ system_logs table created successfully!\n\n";
     
-    // Create foreign key relationships
-    echo "Step 8: Setting up table relationships...\n";
-    
-    // Add foreign key constraint from voucher_requests to voucher tables
-    try {
-        $pdo->exec("
-            ALTER TABLE voucher_requests 
-            ADD CONSTRAINT fk_voucher_code_daily 
-            FOREIGN KEY (voucher_code) REFERENCES daily_vouchers(voucher_code) ON DELETE SET NULL
-        ");
-    } catch (Exception $e) {
-        // Constraint might already exist or conflict, that's okay
-    }
-    
-    echo "✅ Table relationships configured!\n\n";
-    
     // Display summary
     echo "🎉 Database Setup Complete!\n";
     echo "==========================\n";
@@ -159,7 +140,7 @@ try {
     echo "- daily_vouchers: Stores daily voucher codes\n";
     echo "- weekly_vouchers: Stores weekly voucher codes\n";
     echo "- monthly_vouchers: Stores monthly voucher codes\n";
-    echo "- voucher_requests: Stores customer payment requests\n";
+    echo "- voucher_requests: Stores customer payment requests (simplified)\n";
     echo "- system_logs: Audit trail for all actions\n\n";
     
     // Show table status
@@ -229,4 +210,3 @@ if (!empty($missing_extensions)) {
     echo "Please install these extensions before proceeding.\n";
     exit(1);
 }
-?>

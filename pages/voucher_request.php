@@ -28,17 +28,16 @@ try {
     $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Get POST data
+    // Get POST data - simplified to only require phone, package, and price
     $phone = $_POST['phone'] ?? '';
-    $mac_address = $_POST['mac_address'] ?? '';
     $package = $_POST['package'] ?? '';
     $price = $_POST['price'] ?? '';
 
     // Validate required fields
-    if (empty($phone) || empty($mac_address) || empty($package) || empty($price)) {
+    if (empty($phone) || empty($package) || empty($price)) {
         echo json_encode([
             'success' => false,
-            'message' => 'Missing required fields: phone, mac_address, package, price'
+            'message' => 'Missing required fields: phone, package, price'
         ]);
         exit();
     }
@@ -58,16 +57,6 @@ try {
         $normalized_phone = '256' . substr($phone, 1);
     }
 
-    // Normalize and validate MAC address
-    $mac_address = normalizeMAC($mac_address);
-    if (!$mac_address) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid MAC address format'
-        ]);
-        exit();
-    }
-
     // Validate price is numeric
     if (!is_numeric($price) || $price <= 0) {
         echo json_encode([
@@ -77,43 +66,40 @@ try {
         exit();
     }
 
-    // Check for existing pending request for this MAC address
+    // Check for existing pending request for this phone number (prevent spam)
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as count 
         FROM voucher_requests 
-        WHERE mac_address = ? AND status = 'pending'
+        WHERE phone = ? AND status = 'pending' AND created_at > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
     ");
-    $stmt->execute([$mac_address]);
+    $stmt->execute([$normalized_phone]);
     $existing_requests = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
     if ($existing_requests > 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'You already have a pending payment request. Please wait for approval or contact support.'
+            'message' => 'You already have a recent pending payment request. Please wait 10 minutes before submitting another request.'
         ]);
         exit();
     }
 
-    // Generate unique request ID
-    $request_id = 'REQ_' . strtoupper(uniqid());
+    // Generate short unique request ID (8 characters)
+    $request_id = generateShortRequestId($pdo);
     $created_at = date('Y-m-d H:i:s');
-    $expires_at = date('Y-m-d H:i:s', strtotime('+24 hours')); // Request expires in 24 hours
 
     // Insert voucher request into database
     $stmt = $pdo->prepare("
         INSERT INTO voucher_requests 
-        (request_id, phone, mac_address, package, price, status, created_at, expires_at) 
-        VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
+        (request_id, phone, package, price, status, created_at) 
+        VALUES (?, ?, ?, ?, 'pending', ?)
     ");
 
     $stmt->execute([
         $request_id,
         $normalized_phone,
-        $mac_address,
         $package,
         $price,
-        $created_at,
-        $expires_at
+        $created_at
     ]);
 
     // Log the request in system_logs
@@ -123,7 +109,7 @@ try {
         VALUES (?, ?, ?, ?, ?, ?)
     ");
     
-    $action_description = "New voucher request created - Package: $package, Price: UGX $price, MAC: $mac_address";
+    $action_description = "New voucher request created - Package: $package, Price: UGX $price";
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? null;
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? null;
     
@@ -136,19 +122,18 @@ try {
         $user_agent
     ]);
 
-    // Send SMS notification to admin
+    // Send SMS notification to admin - simplified format
     $admin_phone = '+256744766410';
-    $approval_url = 'https://www.fastnetug.com/pages/approve_payment.php?request_id=' . $request_id;
+    $approval_url = 'https://www.fastnetug.com/pages/approve_payment.php';
+    $request_time = date('M j, g:i A', strtotime($created_at));
 
-    $sms_message = "NEW PAYMENT REQUEST\n" .
+    $sms_message = "FastNetUG Payment Request\n" .
         "ID: $request_id\n" .
-        "Phone: $normalized_phone\n" .
-        "MAC: $mac_address\n" .
-        "Package: $package\n" .
-        "Price: UGX $price\n" .
+        "Phone: +$normalized_phone\n" .
+        "Time: $request_time\n" .
         "Approve: $approval_url";
 
-    // Send SMS using your preferred SMS service
+    // Send SMS using SMS service
     $sms_sent = sendSMS($admin_phone, $sms_message);
 
     // Log the SMS attempt
@@ -169,7 +154,7 @@ try {
     ]);
 
     // Log successful request creation
-    error_log("Voucher request created: $request_id for phone: $normalized_phone, MAC: $mac_address, Package: $package");
+    error_log("Voucher request created: $request_id for phone: $normalized_phone, Package: $package");
 
     echo json_encode([
         'success' => true,
@@ -178,7 +163,6 @@ try {
         'phone' => $normalized_phone,
         'package' => $package,
         'price' => $price,
-        'expires_at' => $expires_at,
         'sms_sent' => $sms_sent
     ]);
 
@@ -197,39 +181,32 @@ try {
 }
 
 /**
- * Normalize MAC address to standard format
+ * Generate short unique request ID
  */
-function normalizeMAC($mac) {
-    // Remove any whitespace
-    $mac = trim($mac);
+function generateShortRequestId($pdo) {
+    $max_attempts = 10;
+    $attempts = 0;
     
-    // Handle MikroTik template variable
-    if ($mac === '$(mac)' || empty($mac)) {
-        // Generate a fallback MAC-like identifier
-        $mac = 'XX:XX:XX:XX:XX:XX';
+    do {
+        // Generate 8-character ID: 2 letters + 6 digits
+        $letters = chr(rand(65, 90)) . chr(rand(65, 90)); // AA-ZZ
+        $numbers = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT); // 000000-999999
+        $request_id = $letters . $numbers;
+        
+        // Check if this ID already exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM voucher_requests WHERE request_id = ?");
+        $stmt->execute([$request_id]);
+        $exists = $stmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
+        
+        $attempts++;
+    } while ($exists && $attempts < $max_attempts);
+    
+    if ($exists) {
+        // Fallback to timestamp-based ID if we can't generate unique one
+        $request_id = 'FN' . date('His') . rand(10, 99);
     }
     
-    // Remove any non-hex characters except : and -
-    $mac = preg_replace('/[^0-9A-Fa-f:-]/', '', $mac);
-    
-    // Handle different MAC formats
-    if (strlen($mac) === 12) {
-        // Format: 001122334455 -> 00:11:22:33:44:55
-        $mac = implode(':', str_split($mac, 2));
-    } elseif (strlen($mac) === 17) {
-        // Already in correct format with separators
-        $mac = str_replace('-', ':', $mac);
-    } else {
-        // Invalid length, return false
-        return false;
-    }
-    
-    // Final validation
-    if (preg_match('/^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/', $mac)) {
-        return strtolower($mac);
-    }
-    
-    return false;
+    return $request_id;
 }
 
 /**
@@ -291,11 +268,11 @@ function sendSMS_AfricasTalking($phone, $message)
 function getVoucherTable($package) {
     $package_lower = strtolower($package);
     
-    if (strpos($package_lower, 'daily') !== false || strpos($package_lower, '24') !== false || strpos($package_lower, '1d') !== false) {
+    if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
         return 'daily_vouchers';
-    } elseif (strpos($package_lower, 'weekly') !== false || strpos($package_lower, '7') !== false || strpos($package_lower, '1w') !== false) {
+    } elseif (strpos($package_lower, 'week') !== false) {
         return 'weekly_vouchers';
-    } elseif (strpos($package_lower, 'monthly') !== false || strpos($package_lower, '30') !== false || strpos($package_lower, '1m') !== false) {
+    } elseif (strpos($package_lower, 'month') !== false) {
         return 'monthly_vouchers';
     }
     
@@ -309,11 +286,11 @@ function getVoucherTable($package) {
 function getProfileCode($package) {
     $package_lower = strtolower($package);
     
-    if (strpos($package_lower, 'daily') !== false || strpos($package_lower, '24') !== false || strpos($package_lower, '1d') !== false) {
+    if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
         return '1D';
-    } elseif (strpos($package_lower, 'weekly') !== false || strpos($package_lower, '7') !== false || strpos($package_lower, '1w') !== false) {
+    } elseif (strpos($package_lower, 'week') !== false) {
         return '1W';
-    } elseif (strpos($package_lower, 'monthly') !== false || strpos($package_lower, '30') !== false || strpos($package_lower, '1m') !== false) {
+    } elseif (strpos($package_lower, 'month') !== false) {
         return '1M';
     }
     
@@ -329,7 +306,7 @@ function cleanExpiredRequests($pdo) {
         $stmt = $pdo->prepare("
             UPDATE voucher_requests 
             SET status = 'expired' 
-            WHERE status = 'pending' AND expires_at < NOW()
+            WHERE status = 'pending' AND created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)
         ");
         $stmt->execute();
         
@@ -345,7 +322,7 @@ function cleanExpiredRequests($pdo) {
                 'system_action',
                 null,
                 'system_cleanup',
-                "Expired $affected_rows pending voucher requests"
+                "Expired $affected_rows pending voucher requests older than 24 hours"
             ]);
         }
         
@@ -355,7 +332,3 @@ function cleanExpiredRequests($pdo) {
         return 0;
     }
 }
-
-// Uncomment the line below to run cleanup on each request (not recommended for production)
-// cleanExpiredRequests($pdo);
-?>

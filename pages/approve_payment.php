@@ -14,147 +14,231 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-$request_id = $_GET['request_id'] ?? '';
 $action = $_POST['action'] ?? '';
+$request_id = $_POST['request_id'] ?? '';
 $message = '';
-$request_details = null;
 
-// Fetch request details
-if (!empty($request_id)) {
-    $stmt = $pdo->prepare("
-        SELECT * FROM payment_requests 
-        WHERE request_id = ? AND status = 'pending' AND expires_at > NOW()
-    ");
-    $stmt->execute([$request_id]);
-    $request_details = $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-// Handle approval/rejection
-if (!empty($action) && !empty($request_id) && $request_details) {
+// Handle approval/rejection actions
+if (!empty($action) && !empty($request_id)) {
     if ($action === 'approve') {
-        // Generate voucher code
-        $voucher_code = generateVoucherCode();
-        $duration_hours = getDurationHours($request_details['package_name']);
-        $voucher_expires = date('Y-m-d H:i:s', strtotime("+{$duration_hours} hours"));
-
-        try {
-            $pdo->beginTransaction();
-
-            // Update payment request
-            $updateStmt = $pdo->prepare("
-                UPDATE payment_requests 
-                SET status = 'approved', voucher_code = ?, approved_at = NOW(), approved_by = 'admin' 
-                WHERE request_id = ?
-            ");
-            $updateStmt->execute([$voucher_code, $request_id]);
-
-            // Insert voucher code
-            $voucherStmt = $pdo->prepare("
-                INSERT INTO voucher_codes 
-                (voucher_code, package_name, package_price, duration_hours, expires_at, created_by_request_id) 
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
-            $voucherStmt->execute([
-                $voucher_code,
-                $request_details['package_name'],
-                $request_details['package_price'],
-                $duration_hours,
-                $voucher_expires,
-                $request_id
-            ]);
-
-            // Log the action
-            $logStmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description, ip_address) 
-                VALUES ('payment_approval', ?, 'admin', ?, ?)
-            ");
-            $logStmt->execute([
-                $request_id,
-                "Payment approved and voucher {$voucher_code} generated for {$request_details['phone']}",
-                $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-            ]);
-
-            $pdo->commit();
-
-            // Send voucher to customer
-            $sms_message = "FastNetUG: Your payment has been approved! Your voucher code is: {$voucher_code}. Valid for {$request_details['package_name']}. Use this code to login.";
-            sendSMS($request_details['phone'], $sms_message);
-
-            $message = "Payment approved successfully! Voucher code {$voucher_code} has been sent to {$request_details['phone']}.";
-            $request_details['status'] = 'approved';
-            $request_details['voucher_code'] = $voucher_code;
-        } catch (Exception $e) {
-            $pdo->rollback();
-            $message = "Error approving payment: " . $e->getMessage();
-        }
+        $message = approveRequest($pdo, $request_id);
     } elseif ($action === 'reject') {
         $reject_reason = $_POST['reject_reason'] ?? 'No reason provided';
+        $message = rejectRequest($pdo, $request_id, $reject_reason);
+    }
+}
 
-        try {
-            $updateStmt = $pdo->prepare("
-                UPDATE payment_requests 
-                SET status = 'rejected', approved_at = NOW(), approved_by = 'admin', notes = ? 
-                WHERE request_id = ?
-            ");
-            $updateStmt->execute([$reject_reason, $request_id]);
+// Fetch all requests
+$requests = fetchAllRequests($pdo);
 
-            // Log the action
-            $logStmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description, ip_address) 
-                VALUES ('payment_approval', ?, 'admin', ?, ?)
-            ");
-            $logStmt->execute([
-                $request_id,
-                "Payment rejected for {$request_details['phone']}. Reason: {$reject_reason}",
-                $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-            ]);
+// Fetch inventory data
+$inventory = fetchInventory($pdo);
 
-            // Notify customer
-            $sms_message = "FastNetUG: Your payment request has been rejected. Reason: {$reject_reason}. Please contact us on 0744766410 for assistance.";
-            sendSMS($request_details['phone'], $sms_message);
+/**
+ * Approve a payment request and assign voucher
+ */
+function approveRequest($pdo, $request_id) {
+    try {
+        // Get request details
+        $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending'");
+        $stmt->execute([$request_id]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$request) {
+            return "Request not found or already processed.";
+        }
+        
+        // Determine voucher table based on package
+        $voucher_table = getVoucherTable($request['package']);
+        
+        // Get an available voucher from the appropriate table
+        $stmt = $pdo->prepare("
+            SELECT voucher_code FROM $voucher_table 
+            WHERE status = 'Available' AND price = ? 
+            ORDER BY created_at ASC 
+            LIMIT 1 FOR UPDATE
+        ");
+        $stmt->execute([$request['price']]);
+        $voucher = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$voucher) {
+            return "No available voucher codes for this package. Please generate more vouchers.";
+        }
+        
+        $voucher_code = $voucher['voucher_code'];
+        
+        $pdo->beginTransaction();
+        
+        // Update voucher status to Used and assign to user
+        $stmt = $pdo->prepare("
+            UPDATE $voucher_table 
+            SET status = 'Used', user_phone = ?, used_at = NOW() 
+            WHERE voucher_code = ?
+        ");
+        $stmt->execute([$request['phone'], $voucher_code]);
+        
+        // Update request status to approved
+        $stmt = $pdo->prepare("
+            UPDATE voucher_requests 
+            SET status = 'approved', voucher_code = ?, approved_at = NOW() 
+            WHERE request_id = ?
+        ");
+        $stmt->execute([$voucher_code, $request_id]);
+        
+        // Log the action
+        $stmt = $pdo->prepare("
+            INSERT INTO system_logs 
+            (log_type, reference_id, user_identifier, action_description, ip_address) 
+            VALUES ('voucher_approval', ?, 'admin', ?, ?)
+        ");
+        $stmt->execute([
+            $request_id,
+            "Payment approved and voucher {$voucher_code} assigned to {$request['phone']}",
+            $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ]);
+        
+        $pdo->commit();
+        
+        // Send voucher to customer
+        $sms_message = "FastNetUG: Payment approved! Your voucher code is: {$voucher_code}. Valid for {$request['package']}. Use this code to login at our hotspot.";
+        sendSMS($request['phone'], $sms_message);
+        
+        return "✅ Payment approved! Voucher {$voucher_code} sent to {$request['phone']}.";
+        
+    } catch (Exception $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollback();
+        }
+        error_log("Error approving request: " . $e->getMessage());
+        return "❌ Error approving payment: " . $e->getMessage();
+    }
+}
 
-            $message = "Payment rejected successfully. Customer has been notified.";
-            $request_details['status'] = 'rejected';
-        } catch (Exception $e) {
-            $message = "Error rejecting payment: " . $e->getMessage();
+/**
+ * Reject a payment request
+ */
+function rejectRequest($pdo, $request_id, $reason) {
+    try {
+        // Get request details
+        $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending'");
+        $stmt->execute([$request_id]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$request) {
+            return "Request not found or already processed.";
+        }
+        
+        // Update request status to rejected
+        $stmt = $pdo->prepare("
+            UPDATE voucher_requests 
+            SET status = 'rejected', approved_at = NOW(), notes = ? 
+            WHERE request_id = ?
+        ");
+        $stmt->execute([$reason, $request_id]);
+        
+        // Log the action
+        $stmt = $pdo->prepare("
+            INSERT INTO system_logs 
+            (log_type, reference_id, user_identifier, action_description, ip_address) 
+            VALUES ('voucher_approval', ?, 'admin', ?, ?)
+        ");
+        $stmt->execute([
+            $request_id,
+            "Payment rejected for {$request['phone']}. Reason: {$reason}",
+            $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ]);
+        
+        // Notify customer
+        $sms_message = "FastNetUG: Your payment request {$request_id} has been rejected. Reason: {$reason}. Contact 0744766410 for assistance.";
+        sendSMS($request['phone'], $sms_message);
+        
+        return "❌ Payment rejected. Customer has been notified.";
+        
+    } catch (Exception $e) {
+        error_log("Error rejecting request: " . $e->getMessage());
+        return "❌ Error rejecting payment: " . $e->getMessage();
+    }
+}
+
+/**
+ * Fetch all requests with pagination
+ */
+function fetchAllRequests($pdo, $limit = 50) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM voucher_requests 
+        ORDER BY 
+            CASE WHEN status = 'pending' THEN 0 ELSE 1 END,
+            created_at DESC 
+        LIMIT ?
+    ");
+    $stmt->execute([$limit]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Fetch voucher inventory from all tables
+ */
+function fetchInventory($pdo) {
+    $inventory = [];
+    $tables = ['daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
+    
+    foreach ($tables as $table) {
+        $stmt = $pdo->prepare("
+            SELECT 
+                status,
+                COUNT(*) as count,
+                SUM(CASE WHEN status = 'Available' THEN price ELSE 0 END) as available_value
+            FROM $table 
+            GROUP BY status
+        ");
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $inventory[$table] = [
+            'Available' => 0,
+            'Used' => 0,
+            'Expired' => 0,
+            'available_value' => 0
+        ];
+        
+        foreach ($results as $row) {
+            $inventory[$table][$row['status']] = $row['count'];
+            if ($row['status'] === 'Available') {
+                $inventory[$table]['available_value'] = $row['available_value'];
+            }
         }
     }
+    
+    return $inventory;
 }
 
-// Generate unique voucher code
-if (!function_exists('generateVoucherCode')) {
-    function generateVoucherCode()
-    {
-        return 'FN' . strtoupper(substr(uniqid(), -8));
+/**
+ * Helper function to determine voucher table based on package
+ */
+function getVoucherTable($package) {
+    $package_lower = strtolower($package);
+    
+    if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
+        return 'daily_vouchers';
+    } elseif (strpos($package_lower, 'week') !== false) {
+        return 'weekly_vouchers';
+    } elseif (strpos($package_lower, 'month') !== false) {
+        return 'monthly_vouchers';
     }
+    
+    return 'daily_vouchers';
 }
 
-// Get duration hours based on package name
-if (!function_exists('getDurationHours')) {
-    function getDurationHours($package_name)
-    {
-        $hours_map = [
-            '24 HOURS' => 24,
-            '1 WEEK' => 168,  // 7 * 24
-            '1 MONTH' => 720  // 30 * 24
-        ];
-
-        return $hours_map[$package_name] ?? 24;
-    }
-}
-
-// SMS function (same as in voucher_request.php)
-function sendSMS($phone, $message)
-{
+/**
+ * SMS function
+ */
+function sendSMS($phone, $message) {
     return sendSMS_AfricasTalking($phone, $message);
 }
 
-function sendSMS_AfricasTalking($phone, $message)
-{
-    $username = 'agritech_info';  // Replace with your Africa's Talking username
-    $apikey = 'atsk_1eb8e8aa4cf9f3851dabd1bf4490983972432730c57f36cfcf51980d3047884b7d19c9c3';   // Replace with your Africa's Talking API key
+function sendSMS_AfricasTalking($phone, $message) {
+    $username = 'agritech_info';
+    $apikey = 'atsk_1eb8e8aa4cf9f3851dabd1bf4490983972432730c57f36cfcf51980d3047884b7d19c9c3';
 
     $data = array(
         'username' => $username,
@@ -185,11 +269,10 @@ function sendSMS_AfricasTalking($phone, $message)
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastNetUG - Payment Approval</title>
+    <title>FastNetUG - Admin Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -201,399 +284,109 @@ function sendSMS_AfricasTalking($phone, $message)
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4299e1, #3182ce);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .request-details {
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4299e1;
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .label {
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .value {
             color: #2d3748;
         }
 
-        .actions {
-            display: grid;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-approve {
-            background: linear-gradient(135deg, #48bb78, #38a169);
-            color: white;
-        }
-
-        .btn-approve:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
-        }
-
-        .btn-reject {
-            background: linear-gradient(135deg, #f56565, #e53e3e);
-            color: white;
-        }
-
-        .btn-reject:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(245, 101, 101, 0.4);
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            font-weight: 500;
         }
 
-        .alert-success {
-            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
-            color: #22543d;
-            border-left: 4px solid #38a169;
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
         }
 
-        .alert-error {
-            background: linear-gradient(135deg, #fed7d7, #feb2b2);
-            color: #742a2a;
-            border-left: 4px solid #e53e3e;
+        .navbar h1 {
+            color: #2d3748;
+            font-size: 1.5rem;
         }
 
-        .alert-info {
-            background: linear-gradient(135deg, #bee3f8, #90cdf4);
-            color: #2a4365;
+        .navbar-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4299e1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inventory-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .inventory-card h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .inventory-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
             border-left: 4px solid #4299e1;
         }
 
-        .reject-form {
-            display: none;
-            background: #f7fafc;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
+        .inventory-title {
             font-weight: 600;
-            color: #4a5568;
+            color: #2d3748;
+            margin-bottom: 8px;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9rem;
         }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #4299e1;
-        }
-
-        .status-approved {
-            color: #38a169;
-            font-weight: 600;
-        }
-
-        .status-rejected {
-            color: #e53e3e;
-            font-weight: 600;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>FastNetUG Payment Approval</h1>
-            <p>Review and approve payment requests</p>
-        </div>
-
-        <div class="content">
-            <?php if (!empty($message)): ?>
-                <div class="alert <?php echo strpos($message, 'Error') !== false ? 'alert-error' : 'alert-success'; ?>">
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
-            <?php endif; ?>
-
-            <?php if (!$request_details): ?>
-                <div class="alert alert-error">
-                    <strong>Request not found or expired!</strong><br>
-                    The payment request you're looking for either doesn't exist, has already been processed, or has expired.
-                </div>
-            <?php else: ?>
-                <div class="request-details">
-                    <h3>Payment Request Details</h3>
-                    <div class="detail-row">
-                        <span class="label">Request ID:</span>
-                        <span class="value"><?php echo htmlspecialchars($request_details['request_id']); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Customer Phone:</span>
-                        <span class="value"><?php echo htmlspecialchars($request_details['phone']); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Device MAC Address:</span>
-                        <span class="value"><?php echo htmlspecialchars($request_details['mac_address']); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Package:</span>
-                        <span class="value"><?php echo htmlspecialchars($request_details['package_name']); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Amount:</span>
-                        <span class="value">UGX <?php echo number_format($request_details['package_price']); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Request Time:</span>
-                        <span class="value"><?php echo date('M j, Y g:i A', strtotime($request_details['created_at'])); ?></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="label">Status:</span>
-                        <span class="value <?php echo $request_details['status'] == 'approved' ? 'status-approved' : ($request_details['status'] == 'rejected' ? 'status-rejected' : ''); ?>">
-                            <?php echo ucfirst($request_details['status']); ?>
-                            <?php if ($request_details['status'] == 'approved' && !empty($request_details['voucher_code'])): ?>
-                                - Code: <?php echo htmlspecialchars($request_details['voucher_code']); ?>
-                            <?php endif; ?>
-                        </span>
-                    </div>
-                </div>
-
-                <?php if ($request_details['status'] == 'pending'): ?>
-                    <div class="actions">
-                        <form method="POST" style="display: contents;">
-                            <button type="submit" name="action" value="approve" class="btn btn-approve">
-                                ✅ Approve Payment & Generate Voucher
-                            </button>
-                        </form>
-
-                        <button type="button" class="btn btn-reject" onclick="toggleRejectForm()">
-                            ❌ Reject Payment
-                        </button>
-
-                        <div class="reject-form" id="reject-form">
-                            <form method="POST">
-                                <div class="form-group">
-                                    <label for="reject_reason">Rejection Reason:</label>
-                                    <textarea
-                                        name="reject_reason"
-                                        id="reject_reason"
-                                        class="form-control"
-                                        rows="3"
-                                        placeholder="Enter reason for rejection..."
-                                        required></textarea>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <button type="submit" name="action" value="reject" class="btn btn-reject">
-                                        Confirm Rejection
-                                    </button>
-                                    <button type="button" class="btn" onclick="toggleRejectForm()" style="background: #a0aec0; color: white;">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                <?php elseif ($request_details['status'] == 'approved'): ?>
-                    <div class="alert alert-success">
-                        <strong>✅ Payment Approved!</strong><br>
-                        Voucher code <strong><?php echo htmlspecialchars($request_details['voucher_code']); ?></strong>
-                        has been sent to the customer.
-                    </div>
-                <?php elseif ($request_details['status'] == 'rejected'): ?>
-                    <div class="alert alert-error">
-                        <strong>❌ Payment Rejected</strong><br>
-                        This request has been rejected and the customer has been notified.
-                        <?php if (!empty($request_details['notes'])): ?>
-                            <br><strong>Reason:</strong> <?php echo htmlspecialchars($request_details['notes']); ?>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-            <?php endif; ?>
-
-            <!-- Recent Requests Section -->
-            <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e2e8f0;">
-                <h3>Recent Payment Requests</h3>
-                <div style="margin-top: 20px;">
-                    <?php
-                    // Fetch recent requests
-                    $recentStmt = $pdo->prepare("
-                        SELECT request_id, phone, package_name, package_price, status, created_at 
-                        FROM payment_requests 
-                        ORDER BY created_at DESC 
-                        LIMIT 10
-                    ");
-                    $recentStmt->execute();
-                    $recentRequests = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
-                    ?>
-
-                    <?php if (empty($recentRequests)): ?>
-                        <div class="alert alert-info">
-                            No payment requests found.
-                        </div>
-                    <?php else: ?>
-                        <div style="overflow-x: auto;">
-                            <table style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background: #f7fafc;">
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Request ID</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Phone</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Package</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Amount</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Status</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Date</th>
-                                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($recentRequests as $req): ?>
-                                        <tr>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-family: monospace; font-size: 0.9rem;">
-                                                <?php echo htmlspecialchars($req['request_id']); ?>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
-                                                <?php echo htmlspecialchars($req['phone']); ?>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
-                                                <?php echo htmlspecialchars($req['package_name']); ?>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
-                                                UGX <?php echo number_format($req['package_price']); ?>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
-                                                <span class="<?php echo $req['status'] == 'approved' ? 'status-approved' : ($req['status'] == 'rejected' ? 'status-rejected' : ''); ?>">
-                                                    <?php echo ucfirst($req['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem;">
-                                                <?php echo date('M j, g:i A', strtotime($req['created_at'])); ?>
-                                            </td>
-                                            <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
-                                                <?php if ($req['status'] == 'pending'): ?>
-                                                    <a href="?request_id=<?php echo urlencode($req['request_id']); ?>"
-                                                        style="color: #4299e1; text-decoration: none; font-weight: 600;">
-                                                        Review
-                                                    </a>
-                                                <?php else: ?>
-                                                    <span style="color: #a0aec0;">-</span>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function toggleRejectForm() {
-            const form = document.getElementById('reject-form');
-            if (form.style.display === 'none' || form.style.display === '') {
-                form.style.display = 'block';
-                document.getElementById('reject_reason').focus();
-            } else {
-                form.style.display = 'none';
-            }
-        }
-
-        // Auto-refresh page every 30 seconds if viewing pending requests
-        <?php if (empty($request_id)): ?>
-            setTimeout(function() {
-                window.location.reload();
-            }, 30000);
-        <?php endif; ?>
-    </script>
-</body>
-
-</html>
-
-<?php
-// Helper function to generate voucher codes
-if (!function_exists('generateVoucherCode')) {
-    function generateVoucherCode()
-    {
-        // Generate a random 8-character alphanumeric code
-        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $code = 'FN';
-        for ($i = 0; $i < 6; $i++) {
-            $code .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        return $code;
-    }
-}
-
-// Helper function to get duration hours
-if (!function_exists('getDurationHours')) {
-    function getDurationHours($package_name)
-    {
-        $hours_map = [
-            '24 HOURS' => 24,
-            '1 WEEK' => 168,   // 7 * 24
-            '1 MONTH' => 720   // 30 * 24
-        ];
-
-        return $hours_map[$package_name] ?? 24;
-    }
-}
-?>
