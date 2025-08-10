@@ -125,7 +125,6 @@ body {
     /* Equal width for all 7 columns */
     text-align: center;
     /* Center align all content */
-    border: 1px solid #e0e1e2;
 }
 
 .btn-action:hover {
@@ -178,10 +177,16 @@ body {
 }
 
 .refreshbtn {
-    padding: 3px 6px;
-    font-size: 0.85rem;
+    padding: 4px 10px;
+    font-size: 0.9rem;
     border-radius: 5px;
-    background-color: var(--primary-color);
+    background-color: transparent;
+}
+
+.refreshbtn:hover{
+    background-color: rgba(66, 153, 225, 0.1);
+    color: var(--primary-color);
+    transform: translateY(-1px);
 }
 
 /* Table styling improvements */
@@ -274,7 +279,7 @@ body {
 }
 
 #requests-table th {
-    background-color: var(--primary-color);
+    background-color: transparent;
     /* Use your primary blue color */
     color: white;
     /* White text on colored background */

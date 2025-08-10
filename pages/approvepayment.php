@@ -428,7 +428,7 @@ if (isset($_GET['action'])) {
                                         <th>ID</th>
                                         <th>Phone Number</th>
                                         <th>Profile</th>
-                                        <th>Requested At</th>
+                                        <th>Time</th>
                                         <th>Status</th>
                                         <th>Code</th>
                                         <th class="text-center">Actions</th>
