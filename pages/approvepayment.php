@@ -193,7 +193,7 @@ if (isset($_GET['action'])) {
             $pdo->commit();
 
             // Send voucher code to user via SMS
-            $sms_message = "FastNetUG: Your voucher code is {$voucher['voucher_code']}. Valid for {$request['package']}. Use it to login at the hotspot.";
+            $sms_message = "Your voucher code is: {$voucher['voucher_code']}. Valid for {$request['package']}.Thankyou.";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
 
             // Log SMS attempt
@@ -254,7 +254,7 @@ if (isset($_GET['action'])) {
 
             // Format phone and send rejection SMS
             $formatted_phone = formatPhoneNumber($request['phone']);
-            $sms_message = "FastNetUG: Your payment request (ID: $request_id) was rejected. Reason: $reason. Contact support at 0744766410 for assistance.";
+            $sms_message = "Your payment request (ID: $request_id) was rejected. Reason: $reason. Contact support at 0744766410 for assistance.";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
 
             echo json_encode([
@@ -764,10 +764,10 @@ if (isset($_GET['action'])) {
                                 statusBadge = '<span class="status-badge status-pending">Pending</span>';
                                 actionsHtml = `
                                     <button class="btn btn-success btn-action me-1 approve-btn" data-id="${request.request_id}" title="Approve Request">
-                                        <i class="fas fa-check"></i> Approve
+                                        Approve
                                     </button>
                                     <button class="btn btn-danger btn-action reject-btn" data-id="${request.request_id}" title="Reject Request">
-                                        <i class="fas fa-times"></i> Reject
+                                        Reject
                                     </button>
                                 `;
                                 break;
