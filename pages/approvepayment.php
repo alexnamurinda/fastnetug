@@ -294,9 +294,8 @@ if (isset($_GET['action'])) {
     <!-- Navigation -->
     <nav class="navbar navbar-dark">
         <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1">
+            <span class="navbar-brand">
                 <img src="../images/FastNetUGbg.png" alt="FastNetUG Logo" class="logo-text">
-                FastNetUG Admin Dashboard
             </span>
             <span class="navbar-text">
                 <i class="fas fa-clock me-1"></i>
