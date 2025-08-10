@@ -436,7 +436,7 @@ if (isset($_GET['action'])) {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="7" class="text-center py-4">
+                                        <td colspan="6" class="text-center py-4">
                                             <i class="fas fa-spinner fa-spin me-2"></i>Loading requests...
                                         </td>
                                     </tr>
@@ -594,7 +594,7 @@ if (isset($_GET['action'])) {
                     if (data.length === 0) {
                         tbody.append(`
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
+                                <td colspan="6" class="text-center py-4 text-muted">
                                     <i class="fas fa-inbox me-2"></i>No payment requests found
                                 </td>
                             </tr>
@@ -655,7 +655,7 @@ if (isset($_GET['action'])) {
                     const tbody = $('#requests-table tbody');
                     tbody.html(`
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-danger">
+                            <td colspan="6" class="text-center py-4 text-danger">
                                 <i class="fas fa-exclamation-triangle me-2"></i>Failed to load requests
                             </td>
                         </tr>
