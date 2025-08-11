@@ -4,6 +4,9 @@ session_start();
 header('Content-Type: text/html; charset=utf-8');
 date_default_timezone_set('Africa/Kampala');
 
+// Prevent any output before JSON responses
+ob_start();
+
 // Database configuration
 $servername = "localhost";
 $username = "fastnetug_user1";
@@ -19,8 +22,13 @@ function db()
     static $pdo = null;
     global $servername, $username, $password, $dbname;
     if ($pdo === null) {
-        $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
+            $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            error_log("Database connection failed: " . $e->getMessage());
+            throw $e;
+        }
     }
     return $pdo;
 }
@@ -29,36 +37,88 @@ function db()
  * Send SMS notification to users via Africa's Talking API
  * @param string $phone - Phone number to send SMS to
  * @param string $message - SMS message content
- * @return bool - Returns true if SMS was sent successfully
+ * @return array - Returns detailed response information
  */
 function sendSMS($phone, $message)
 {
     $username = 'agritech_info';
     $apikey = 'atsk_1eb8e8aa4cf9f3851dabd1bf4490983972432730c57f36cfcf51980d3047884b7d19c9c3';
 
+    // Format message for better MTN compatibility
+    $message = trim($message);
+    
     $data = [
         'username' => $username,
         'to' => $phone,
-        'message' => $message
+        'message' => $message,
+        'from' => 'FastNetUG' // Optional sender ID
     ];
 
     // Initialize cURL for API request
     $ch = curl_init('https://api.africastalking.com/version1/messaging');
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Accept: application/json',
-        'Content-Type: application/x-www-form-urlencoded',
-        'apiKey: ' . $apikey
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query($data),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
+            'apiKey: ' . $apikey
+        ]
     ]);
 
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
     curl_close($ch);
 
-    return $httpCode === 201;
+    // Parse the API response
+    $responseData = null;
+    if ($response) {
+        $responseData = json_decode($response, true);
+    }
+
+    // Determine if SMS was successful
+    $success = false;
+    $message_status = 'Unknown';
+    $error_message = '';
+
+    if ($curlError) {
+        $error_message = "CURL Error: " . $curlError;
+    } elseif ($httpCode !== 201) {
+        $error_message = "HTTP Error: " . $httpCode;
+        if ($responseData && isset($responseData['SMSMessageData']['Message'])) {
+            $error_message .= " - " . $responseData['SMSMessageData']['Message'];
+        }
+    } elseif ($responseData && isset($responseData['SMSMessageData']['Recipients'])) {
+        // Check individual recipient status
+        $recipients = $responseData['SMSMessageData']['Recipients'];
+        if (!empty($recipients)) {
+            $recipient = $recipients[0];
+            $message_status = $recipient['status'] ?? 'Unknown';
+            $success = (strtolower($message_status) === 'success');
+            if (!$success) {
+                $error_message = "SMS Status: " . $message_status;
+                if (isset($recipient['messageParts'])) {
+                    $error_message .= " (Parts: " . $recipient['messageParts'] . ")";
+                }
+            }
+        }
+    } else {
+        $error_message = "Invalid API response format";
+    }
+
+    return [
+        'success' => $success,
+        'httpCode' => $httpCode,
+        'status' => $message_status,
+        'response' => $response,
+        'error_message' => $error_message,
+        'curl_error' => $curlError
+    ];
 }
 
 /**
@@ -81,6 +141,9 @@ function getVoucherTable($package)
  */
 function formatPhoneNumber($phone)
 {
+    // Clean phone number
+    $phone = preg_replace('/[^0-9+]/', '', $phone);
+    
     // Convert different phone number formats to +256 standard
     if (substr($phone, 0, 1) === '0') {
         return '+256' . substr($phone, 1);
@@ -105,222 +168,259 @@ function getPackageProfile($package)
     return '1D'; // Default to daily
 }
 
-// ==== AJAX HANDLERS ====
-if (isset($_GET['action'])) {
-    $pdo = db();
-
-    // Get all voucher requests with pagination and filtering
-    if ($_GET['action'] === 'get_requests') {
-        $stmt = $pdo->prepare("
-            SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at 
-            FROM voucher_requests 
-            ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC 
-            LIMIT 100
-        ");
-        $stmt->execute();
-        $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Format data for frontend display
-        foreach ($requests as &$request) {
-            $request['phone_formatted'] = formatPhoneNumber($request['phone']);
-            $request['created_at_formatted'] = date('M j, Y g:i A', strtotime($request['created_at']));
-            $request['approved_at_formatted'] = $request['approved_at'] ?
-                date('M j, Y g:i A', strtotime($request['approved_at'])) : null;
-            $request['package_profile'] = getPackageProfile($request['package']);
-        }
-
-        echo json_encode($requests);
-        exit;
+/**
+ * Send JSON response and exit
+ * @param array $data - Data to send as JSON
+ */
+function sendJsonResponse($data)
+{
+    // Clean any output buffer
+    if (ob_get_length()) {
+        ob_clean();
     }
-
-    // Get voucher inventory status (Available, Used, Total only)
-    if ($_GET['action'] === 'get_inventory') {
-        $tables = ['daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
-        $inventory = [];
-
-        foreach ($tables as $table) {
-            // Count vouchers by status (excluding expired from display)
-            $stmt = $pdo->prepare("SELECT status, COUNT(*) AS count FROM $table GROUP BY status");
-            $stmt->execute();
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Initialize inventory counters
-            $inventory[$table] = ['Available' => 0, 'Used' => 0];
-            foreach ($results as $row) {
-                if ($row['status'] === 'Available' || $row['status'] === 'Used') {
-                    $inventory[$table][$row['status']] = (int)$row['count'];
-                }
-            }
-
-            // Calculate total count (Available + Used only)
-            $inventory[$table]['Total'] = $inventory[$table]['Available'] + $inventory[$table]['Used'];
-        }
-
-        echo json_encode($inventory);
-        exit;
-    }
-
-    // Get dashboard statistics
-    if ($_GET['action'] === 'get_stats') {
-        $stats = [];
-
-        // Total requests for today only (resets each day at midnight)
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
-        $stmt->execute();
-        $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        // Count of pending requests
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
-        $stmt->execute();
-        $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-        // Revenue generated today only
-        $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
-        $stmt->execute();
-        $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
-
-        echo json_encode($stats);
-        exit;
-    }
-
-    // Approve a payment request and assign voucher
-    if ($_GET['action'] === 'approve' && !empty($_POST['id'])) {
-        $request_id = $_POST['id'];
-
-        try {
-            $pdo->beginTransaction();
-
-            // Get and lock the pending request
-            $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending' FOR UPDATE");
-            $stmt->execute([$request_id]);
-            $request = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$request) {
-                $pdo->rollBack();
-                echo json_encode(['success' => false, 'message' => 'Request not found or already processed.']);
-                exit;
-            }
-
-            $voucher_table = getVoucherTable($request['package']);
-
-            // Get and lock an available voucher
-            $stmt = $pdo->prepare("SELECT * FROM $voucher_table WHERE status = 'Available' ORDER BY created_at ASC LIMIT 1 FOR UPDATE");
-            $stmt->execute();
-            $voucher = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$voucher) {
-                $pdo->rollBack();
-                echo json_encode(['success' => false, 'message' => "No available vouchers for package '{$request['package']}'. Please generate more vouchers."]);
-                exit;
-            }
-
-            // Format phone number for SMS delivery
-            $formatted_phone = formatPhoneNumber($request['phone']);
-
-            // Mark voucher as used and assign to customer
-            $stmt = $pdo->prepare("UPDATE $voucher_table SET status = 'Used', user_phone = ?, used_at = NOW() WHERE id = ?");
-            $stmt->execute([$formatted_phone, $voucher['id']]);
-
-            // Update request status to approved
-            $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'approved', voucher_code = ?, approved_at = NOW() WHERE request_id = ?");
-            $stmt->execute([$voucher['voucher_code'], $request_id]);
-
-            // Log the approval action for audit trail
-            $stmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description, ip_address) 
-                VALUES ('voucher_approval', ?, 'admin', ?, ?)
-            ");
-            $action_description = "Approved payment request. Assigned voucher {$voucher['voucher_code']} to {$formatted_phone}";
-            $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-            $stmt->execute([$request_id, $action_description, $ip_address]);
-
-            $pdo->commit();
-
-            // Send voucher code to customer via SMS
-            $sms_message = "Your voucher code is: {$voucher['voucher_code']}. Valid for {$request['package']}.Thankyou.";
-            $sms_sent = sendSMS($formatted_phone, $sms_message);
-
-            // Log SMS delivery attempt
-            $stmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description) 
-                VALUES ('system_action', ?, ?, ?)
-            ");
-            $sms_log = $sms_sent ?
-                "Voucher SMS sent successfully to {$formatted_phone}" :
-                "Failed to send voucher SMS to {$formatted_phone}";
-            $stmt->execute([$request_id, 'system', $sms_log]);
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Request approved and voucher sent successfully.',
-                'voucher_code' => $voucher['voucher_code'],
-                'sms_sent' => $sms_sent
-            ]);
-            exit;
-        } catch (Exception $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
-            error_log("Approval error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Error approving request: ' . $e->getMessage()]);
-            exit;
-        }
-    }
-
-    // Reject a payment request with reason
-    if ($_GET['action'] === 'reject' && !empty($_POST['id']) && !empty($_POST['reason'])) {
-        $request_id = $_POST['id'];
-        $reason = trim($_POST['reason']);
-
-        try {
-            // Verify request exists and is still pending
-            $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending'");
-            $stmt->execute([$request_id]);
-            $request = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$request) {
-                echo json_encode(['success' => false, 'message' => 'Request not found or already processed.']);
-                exit;
-            }
-
-            // Update request status to rejected with reason
-            $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'rejected', notes = ?, approved_at = NOW() WHERE request_id = ?");
-            $stmt->execute([$reason, $request_id]);
-
-            // Log the rejection action
-            $stmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description, ip_address) 
-                VALUES ('voucher_approval', ?, 'admin', ?, ?)
-            ");
-            $action_description = "Rejected payment request for {$request['phone']}. Reason: $reason";
-            $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-            $stmt->execute([$request_id, $action_description, $ip_address]);
-
-            // Send rejection notification to customer
-            $formatted_phone = formatPhoneNumber($request['phone']);
-            $sms_message = "Your payment request (ID: $request_id) was rejected. Reason: $reason. Contact support at 0744766410 for assistance.";
-            $sms_sent = sendSMS($formatted_phone, $sms_message);
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Request rejected and user notified.',
-                'sms_sent' => $sms_sent
-            ]);
-            exit;
-        } catch (Exception $e) {
-            error_log("Rejection error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Error rejecting request: ' . $e->getMessage()]);
-            exit;
-        }
-    }
-
-    // Handle invalid action requests
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid action or missing parameters']);
+    
+    header('Content-Type: application/json');
+    echo json_encode($data);
     exit;
 }
 
+// ==== AJAX HANDLERS ====
+if (isset($_GET['action'])) {
+    try {
+        $pdo = db();
+
+        // Get all voucher requests with pagination and filtering
+        if ($_GET['action'] === 'get_requests') {
+            $stmt = $pdo->prepare("
+                SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at 
+                FROM voucher_requests 
+                ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC 
+                LIMIT 100
+            ");
+            $stmt->execute();
+            $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Format data for frontend display
+            foreach ($requests as &$request) {
+                $request['phone_formatted'] = formatPhoneNumber($request['phone']);
+                $request['created_at_formatted'] = date('M j, Y g:i A', strtotime($request['created_at']));
+                $request['approved_at_formatted'] = $request['approved_at'] ?
+                    date('M j, Y g:i A', strtotime($request['approved_at'])) : null;
+                $request['package_profile'] = getPackageProfile($request['package']);
+            }
+
+            sendJsonResponse($requests);
+        }
+
+        // Get voucher inventory status
+        if ($_GET['action'] === 'get_inventory') {
+            $tables = ['daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
+            $inventory = [];
+
+            foreach ($tables as $table) {
+                // Count vouchers by status
+                $stmt = $pdo->prepare("SELECT status, COUNT(*) AS count FROM $table GROUP BY status");
+                $stmt->execute();
+                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Initialize inventory counters
+                $inventory[$table] = ['Available' => 0, 'Used' => 0];
+                foreach ($results as $row) {
+                    if ($row['status'] === 'Available' || $row['status'] === 'Used') {
+                        $inventory[$table][$row['status']] = (int)$row['count'];
+                    }
+                }
+
+                // Calculate total count
+                $inventory[$table]['Total'] = $inventory[$table]['Available'] + $inventory[$table]['Used'];
+            }
+
+            sendJsonResponse($inventory);
+        }
+
+        // Get dashboard statistics
+        if ($_GET['action'] === 'get_stats') {
+            $stats = [];
+
+            // Total requests for today
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
+            $stmt->execute();
+            $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+            // Count of pending requests
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
+            $stmt->execute();
+            $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+            // Revenue generated today
+            $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
+            $stmt->execute();
+            $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
+
+            sendJsonResponse($stats);
+        }
+
+        // Approve a payment request and assign voucher
+        if ($_GET['action'] === 'approve' && !empty($_POST['id'])) {
+            $request_id = $_POST['id'];
+
+            $pdo->beginTransaction();
+
+            try {
+                // Get and lock the pending request
+                $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending' FOR UPDATE");
+                $stmt->execute([$request_id]);
+                $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$request) {
+                    throw new Exception('Request not found or already processed.');
+                }
+
+                $voucher_table = getVoucherTable($request['package']);
+
+                // Get and lock an available voucher
+                $stmt = $pdo->prepare("SELECT * FROM $voucher_table WHERE status = 'Available' ORDER BY created_at ASC LIMIT 1 FOR UPDATE");
+                $stmt->execute();
+                $voucher = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$voucher) {
+                    throw new Exception("No available vouchers for package '{$request['package']}'. Please generate more vouchers.");
+                }
+
+                // Format phone number for SMS delivery
+                $formatted_phone = formatPhoneNumber($request['phone']);
+
+                // Mark voucher as used and assign to customer
+                $stmt = $pdo->prepare("UPDATE $voucher_table SET status = 'Used', user_phone = ?, used_at = NOW() WHERE id = ?");
+                $stmt->execute([$formatted_phone, $voucher['id']]);
+
+                // Update request status to approved
+                $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'approved', voucher_code = ?, approved_at = NOW() WHERE request_id = ?");
+                $stmt->execute([$voucher['voucher_code'], $request_id]);
+
+                // Log the approval action
+                $stmt = $pdo->prepare("
+                    INSERT INTO system_logs 
+                    (log_type, reference_id, user_identifier, action_description, ip_address) 
+                    VALUES ('voucher_approval', ?, 'admin', ?, ?)
+                ");
+                $action_description = "Approved payment request. Assigned voucher {$voucher['voucher_code']} to {$formatted_phone}";
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $stmt->execute([$request_id, $action_description, $ip_address]);
+
+                $pdo->commit();
+
+                // Send voucher code to customer via SMS
+                $sms_message = "Your voucher code: {$voucher['voucher_code']}. Valid for {$request['package']}. Thank you! - FastNetUG";
+                $sms_result = sendSMS($formatted_phone, $sms_message);
+
+                // Log SMS delivery attempt
+                $stmt = $pdo->prepare("
+                    INSERT INTO system_logs 
+                    (log_type, reference_id, user_identifier, action_description) 
+                    VALUES ('system_action', ?, ?, ?)
+                ");
+                $sms_log = $sms_result['success'] ?
+                    "Voucher SMS sent successfully to {$formatted_phone}" :
+                    "Failed to send voucher SMS to {$formatted_phone}: " . $sms_result['error_message'];
+                $stmt->execute([$request_id, 'system', $sms_log]);
+
+                sendJsonResponse([
+                    'success' => true,
+                    'message' => 'Request approved successfully.' . 
+                                ($sms_result['success'] ? ' Voucher sent via SMS.' : ' SMS delivery failed: ' . $sms_result['error_message']),
+                    'voucher_code' => $voucher['voucher_code'],
+                    'sms_sent' => $sms_result['success'],
+                    'sms_status' => $sms_result['status'],
+                    'sms_error' => $sms_result['error_message']
+                ]);
+
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                error_log("Approval error: " . $e->getMessage());
+                sendJsonResponse([
+                    'success' => false,
+                    'message' => 'Error approving request: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        // Reject a payment request with reason
+        if ($_GET['action'] === 'reject' && !empty($_POST['id']) && !empty($_POST['reason'])) {
+            $request_id = $_POST['id'];
+            $reason = trim($_POST['reason']);
+
+            try {
+                // Verify request exists and is still pending
+                $stmt = $pdo->prepare("SELECT * FROM voucher_requests WHERE request_id = ? AND status = 'pending'");
+                $stmt->execute([$request_id]);
+                $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$request) {
+                    throw new Exception('Request not found or already processed.');
+                }
+
+                // Update request status to rejected with reason
+                $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'rejected', notes = ?, approved_at = NOW() WHERE request_id = ?");
+                $stmt->execute([$reason, $request_id]);
+
+                // Log the rejection action
+                $stmt = $pdo->prepare("
+                    INSERT INTO system_logs 
+                    (log_type, reference_id, user_identifier, action_description, ip_address) 
+                    VALUES ('voucher_approval', ?, 'admin', ?, ?)
+                ");
+                $action_description = "Rejected payment request for {$request['phone']}. Reason: $reason";
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $stmt->execute([$request_id, $action_description, $ip_address]);
+
+                // Send rejection notification to customer
+                $formatted_phone = formatPhoneNumber($request['phone']);
+                $sms_message = "Your payment request (ID: $request_id) was rejected. Reason: $reason. Contact support at 0744766410. - FastNetUG";
+                $sms_result = sendSMS($formatted_phone, $sms_message);
+
+                // Log SMS delivery attempt
+                $stmt = $pdo->prepare("
+                    INSERT INTO system_logs 
+                    (log_type, reference_id, user_identifier, action_description) 
+                    VALUES ('system_action', ?, ?, ?)
+                ");
+                $sms_log = $sms_result['success'] ?
+                    "Rejection SMS sent successfully to {$formatted_phone}" :
+                    "Failed to send rejection SMS to {$formatted_phone}: " . $sms_result['error_message'];
+                $stmt->execute([$request_id, 'system', $sms_log]);
+
+                sendJsonResponse([
+                    'success' => true,
+                    'message' => 'Request rejected successfully.' . 
+                                ($sms_result['success'] ? ' User notified via SMS.' : ' SMS delivery failed: ' . $sms_result['error_message']),
+                    'sms_sent' => $sms_result['success'],
+                    'sms_status' => $sms_result['status'],
+                    'sms_error' => $sms_result['error_message']
+                ]);
+
+            } catch (Exception $e) {
+                error_log("Rejection error: " . $e->getMessage());
+                sendJsonResponse([
+                    'success' => false,
+                    'message' => 'Error rejecting request: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        // Handle invalid action requests
+        sendJsonResponse(['success' => false, 'message' => 'Invalid action or missing parameters']);
+
+    } catch (Exception $e) {
+        error_log("AJAX Handler error: " . $e->getMessage());
+        sendJsonResponse(['success' => false, 'message' => 'System error: ' . $e->getMessage()]);
+    }
+}
+
+// Clear output buffer for HTML content
+if (ob_get_length()) {
+    ob_end_clean();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -378,7 +478,7 @@ if (isset($_GET['action'])) {
                 </div>
             </div>
 
-            <!-- Today's Requests Counter (resets daily at midnight) -->
+            <!-- Today's Requests Counter -->
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
@@ -393,7 +493,7 @@ if (isset($_GET['action'])) {
                 </div>
             </div>
 
-            <!-- Today's Revenue Counter (resets daily at midnight) -->
+            <!-- Today's Revenue Counter -->
             <div class="col-lg-4 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
@@ -415,10 +515,13 @@ if (isset($_GET['action'])) {
                 <div class="card main-card">
                     <div class="card-header-custom d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-list-alt me-2"></i>Payment Requests</span>
-                        <!-- Single refresh button that refreshes all data -->
-                        <button class="refreshbtn" onclick="refreshAllData()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
+                        <!-- SMS Status Indicator -->
+                        <div class="d-flex align-items-center">
+                            <span id="sms-status" class="badge bg-secondary me-2" style="display: none;"></span>
+                            <button class="refreshbtn" onclick="refreshAllData()">
+                                <i class="fas fa-sync-alt me-1"></i>Refresh
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body p-3">
                         <div class="table-responsive">
@@ -428,7 +531,6 @@ if (isset($_GET['action'])) {
                                         <th>ID</th>
                                         <th>Phone Number</th>
                                         <th>Profile</th>
-                                        <!-- <th>Time</th> -->
                                         <th>Status</th>
                                         <th>Code</th>
                                         <th class="text-center">Actions</th>
@@ -447,7 +549,7 @@ if (isset($_GET['action'])) {
                 </div>
             </div>
 
-            <!-- Voucher Inventory Section (3 categories: Available, Used, Total) -->
+            <!-- Voucher Inventory Section -->
             <div class="col-lg-4">
                 <div class="card main-card">
                     <div class="card-header-custom">
@@ -542,6 +644,23 @@ if (isset($_GET['action'])) {
         }
 
         /**
+         * Update SMS status indicator
+         * @param {string} status - SMS status to display
+         * @param {boolean} success - Whether SMS was successful
+         */
+        function updateSMSStatus(status, success = true) {
+            const indicator = document.getElementById('sms-status');
+            indicator.className = `badge me-2 ${success ? 'bg-success' : 'bg-warning'}`;
+            indicator.textContent = `SMS: ${status}`;
+            indicator.style.display = 'inline-block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 5000);
+        }
+
+        /**
          * Show auto-refresh indicator briefly
          */
         function showRefreshIndicator() {
@@ -576,8 +695,8 @@ if (isset($_GET['action'])) {
                     $('#today-count').text(data.requests_today);
                     $('#revenue-today').text('UGX ' + Number(data.revenue_today).toLocaleString());
                 })
-                .fail(function() {
-                    console.error('Failed to load statistics');
+                .fail(function(xhr) {
+                    console.error('Failed to load statistics:', xhr.responseText);
                 });
         }
 
@@ -651,7 +770,8 @@ if (isset($_GET['action'])) {
                         `);
                     });
                 })
-                .fail(function() {
+                .fail(function(xhr) {
+                    console.error('Failed to load requests:', xhr.responseText);
                     const tbody = $('#requests-table tbody');
                     tbody.html(`
                         <tr>
@@ -664,7 +784,7 @@ if (isset($_GET['action'])) {
         }
 
         /**
-         * Load and display voucher inventory (Available, Used, Total only)
+         * Load and display voucher inventory
          */
         function loadInventory() {
             $.getJSON('?action=get_inventory')
@@ -691,7 +811,7 @@ if (isset($_GET['action'])) {
                         else if (availablePercent < 50) alertClass = 'border-warning';
                         else alertClass = 'border-success';
 
-                        // Create inventory item (3 widgets: Available, Used, Total)
+                        // Create inventory item
                         container.append(`
                             <div class="inventory-item ${alertClass}">
                                 <div class="inventory-title">${title}</div>
@@ -719,7 +839,8 @@ if (isset($_GET['action'])) {
                         `);
                     });
                 })
-                .fail(function() {
+                .fail(function(xhr) {
+                    console.error('Failed to load inventory:', xhr.responseText);
                     $('#inventory-container').html(`
                         <div class="text-center py-3 text-danger">
                             <i class="fas fa-exclamation-triangle me-2"></i>Failed to load inventory
@@ -729,10 +850,9 @@ if (isset($_GET['action'])) {
         }
 
         /**
-         * Refresh all dashboard data (requests, inventory, and stats)
+         * Refresh all dashboard data
          */
         function refreshAllData() {
-            //showRefreshIndicator();
             loadRequests();
             loadInventory();
             loadStats();
@@ -751,22 +871,45 @@ if (isset($_GET['action'])) {
             const originalHtml = button.html();
             button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
 
-            $.post('?action=approve', {
-                    id: requestId
-                })
-                .done(function(response) {
-                    if (response.success) {
-                        showToast(`Request ${requestId} approved successfully! Voucher ${response.voucher_code} sent to customer.`);
-                        refreshAllData(); // Refresh all data after approval
+            $.ajax({
+                url: '?action=approve',
+                method: 'POST',
+                data: { id: requestId },
+                dataType: 'json',
+                timeout: 30000
+            })
+            .done(function(response) {
+                if (response.success) {
+                    showToast(response.message, true);
+                    
+                    // Update SMS status indicator
+                    if (response.sms_sent) {
+                        updateSMSStatus('Delivered', true);
                     } else {
-                        showToast(response.message || 'Failed to approve request', false);
-                        button.html(originalHtml).prop('disabled', false);
+                        updateSMSStatus('Failed: ' + (response.sms_error || 'Unknown error'), false);
                     }
-                })
-                .fail(function() {
-                    showToast('Network error. Please try again.', false);
+                    
+                    refreshAllData(); // Refresh all data after approval
+                } else {
+                    showToast(response.message || 'Failed to approve request', false);
                     button.html(originalHtml).prop('disabled', false);
-                });
+                }
+            })
+            .fail(function(xhr) {
+                let errorMessage = 'Network error. Please try again.';
+                
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMessage = response.message;
+                    }
+                } catch (e) {
+                    console.error('Failed to parse error response:', xhr.responseText);
+                }
+                
+                showToast(errorMessage, false);
+                button.html(originalHtml).prop('disabled', false);
+            });
         }
 
         /**
@@ -789,10 +932,10 @@ if (isset($_GET['action'])) {
             // Update live clock every second
             setInterval(updateCurrentTime, 1000);
 
-            // Auto-refresh all data every 5 seconds
+            // Auto-refresh all data every 10 seconds
             setInterval(function() {
                 refreshAllData();
-            }, 5000);
+            }, 10000);
 
             // Event handlers for approve/reject buttons
             $(document).on('click', '.approve-btn', function() {
@@ -821,24 +964,49 @@ if (isset($_GET['action'])) {
                 const originalHtml = submitBtn.html();
                 submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Rejecting...').prop('disabled', true);
 
-                $.post('?action=reject', {
+                $.ajax({
+                    url: '?action=reject',
+                    method: 'POST',
+                    data: { 
                         id: requestId,
                         reason: reason
-                    })
-                    .done(function(response) {
-                        if (response.success) {
-                            rejectModal.hide();
-                            showToast(`Request ${requestId} rejected and customer notified.`);
-                            refreshAllData(); // Refresh all data after rejection
+                    },
+                    dataType: 'json',
+                    timeout: 30000
+                })
+                .done(function(response) {
+                    if (response.success) {
+                        rejectModal.hide();
+                        showToast(response.message, true);
+                        
+                        // Update SMS status indicator
+                        if (response.sms_sent) {
+                            updateSMSStatus('Delivered', true);
                         } else {
-                            $('#reject-error').removeClass('d-none').text(response.message || 'Failed to reject request.');
+                            updateSMSStatus('Failed: ' + (response.sms_error || 'Unknown error'), false);
                         }
-                        submitBtn.html(originalHtml).prop('disabled', false);
-                    })
-                    .fail(function() {
-                        $('#reject-error').removeClass('d-none').text('Network error. Please try again.');
-                        submitBtn.html(originalHtml).prop('disabled', false);
-                    });
+                        
+                        refreshAllData(); // Refresh all data after rejection
+                    } else {
+                        $('#reject-error').removeClass('d-none').text(response.message || 'Failed to reject request.');
+                    }
+                    submitBtn.html(originalHtml).prop('disabled', false);
+                })
+                .fail(function(xhr) {
+                    let errorMessage = 'Network error. Please try again.';
+                    
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            errorMessage = response.message;
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse error response:', xhr.responseText);
+                    }
+                    
+                    $('#reject-error').removeClass('d-none').text(errorMessage);
+                    submitBtn.html(originalHtml).prop('disabled', false);
+                });
             });
 
             // Clear modal form when hidden
