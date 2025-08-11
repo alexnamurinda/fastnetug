@@ -131,10 +131,10 @@ try {
 
 
     $sms_message = "NEW PAYMENT REQUEST\n" .
-        "ID: $request_id\n" .
+        // "ID: $request_id\n" .
         "Phone: +$normalized_phone\n" .
-        "Time: $request_time\n" .
-        "Approve: $approval_url";
+        "Time: $request_time\n";
+        // "Approve: $approval_url";
 
     // Send SMS using SMS service
     $sms_sent = sendSMS($admin_phone, $sms_message);
