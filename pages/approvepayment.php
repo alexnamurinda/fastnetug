@@ -369,7 +369,7 @@ if (isset($_GET['action'])) {
         <!-- Dashboard Statistics Cards Row -->
         <div class="row mb-4">
             <!-- Pending Requests Counter -->
-            <div class="col-lg-4 col-md-6 mb-3">
+            <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
                         <div class="stats-icon pending">
@@ -384,7 +384,7 @@ if (isset($_GET['action'])) {
             </div>
 
             <!-- Today's Requests Counter (resets daily at midnight) -->
-            <div class="col-lg-4 col-md-6 mb-3">
+            <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
                         <div class="stats-icon today">
@@ -399,7 +399,7 @@ if (isset($_GET['action'])) {
             </div>
 
             <!-- Today's Revenue Counter (resets daily at midnight) -->
-            <div class="col-lg-4 col-md-6 mb-3">
+            <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
                         <div class="stats-icon revenue">
