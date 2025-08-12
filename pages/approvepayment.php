@@ -112,11 +112,11 @@ if (isset($_GET['action'])) {
     // Get all voucher requests with pagination and filtering
     if ($_GET['action'] === 'get_requests') {
         $stmt = $pdo->prepare("
-            SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at 
-            FROM voucher_requests 
-            ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC 
-            LIMIT 100
-        ");
+        SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at,
+        (SELECT COUNT(*) FROM voucher_requests vr2 WHERE vr2.phone = voucher_requests.phone) as phone_count
+        FROM voucher_requests 
+        ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC
+    ");
         $stmt->execute();
         $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -164,20 +164,25 @@ if (isset($_GET['action'])) {
     if ($_GET['action'] === 'get_stats') {
         $stats = [];
 
-        // Total requests for today only (resets each day at midnight)
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
-        $stmt->execute();
-        $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
         // Count of pending requests
         $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
         $stmt->execute();
         $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        // Revenue generated today only
+        // Total requests for today only (resets each day at midnight)
+        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
+        $stmt->execute();
+        $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+        // Revenue generated today only (resets at midnight)
         $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
         $stmt->execute();
         $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
+
+        // Monthly total revenue (resets at end of month)
+        $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
+        $stmt->execute();
+        $stats['revenue_monthly'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
 
         echo json_encode($stats);
         exit;
@@ -407,6 +412,21 @@ if (isset($_GET['action'])) {
                     </div>
                 </div>
             </div>
+
+            <!-- Monthly Revenue Counter (resets at end of month) -->
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card stats-card">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="stats-icon monthly">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1" id="revenue-monthly">UGX 0</h5>
+                            <p class="card-text text-muted mb-0">Revenue This Month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -421,7 +441,7 @@ if (isset($_GET['action'])) {
                         </button>
                     </div>
                     <div class="card-body p-3">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-container">
                             <table class="table table-hover mb-0" id="requests-table">
                                 <thead class="table-light">
                                     <tr>
@@ -575,6 +595,7 @@ if (isset($_GET['action'])) {
                     $('#pending-count').text(data.pending_requests);
                     $('#today-count').text(data.requests_today);
                     $('#revenue-today').text('UGX ' + Number(data.revenue_today).toLocaleString());
+                    $('#revenue-monthly').text('UGX ' + Number(data.revenue_monthly).toLocaleString());
                 })
                 .fail(function() {
                     console.error('Failed to load statistics');
@@ -639,8 +660,9 @@ if (isset($_GET['action'])) {
                             '<small class="text-muted">-</small>';
 
                         // Add row to table
+                        const regularClientClass = request.phone_count >= 3 ? 'regular-client' : '';
                         tbody.append(`
-                            <tr class="">
+                            <tr class="${regularClientClass}">
                                 <td><strong>${request.request_id}</strong></td>
                                 <td>${request.phone_formatted}</td>
                                 <td><span class="badge bg-secondary">${request.package_profile}</span></td>

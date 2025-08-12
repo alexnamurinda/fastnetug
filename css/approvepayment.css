@@ -65,6 +65,11 @@ body {
     color: var(--warning-color);
 }
 
+.stats-icon.monthly {
+    background: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+}
+
 /* Main content cards */
 .main-card {
     background: white;
@@ -131,6 +136,22 @@ body {
     transform: translateY(-1px);
 }
 
+/* Table container with max height and scroll */
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+    border-radius: 8px;
+}
+
+/* Regular client highlighting */
+.regular-client {
+    background-color: rgba(173, 216, 230, 0.3) !important;
+}
+
+.regular-client:hover {
+    background-color: rgba(173, 216, 230, 0.5) !important;
+}
+
 /* Voucher inventory item containers */
 .inventory-item {
     background: white;
@@ -184,7 +205,7 @@ body {
     border: 1px solid var(--primary-color);
 }
 
-.refreshbtn:hover{
+.refreshbtn:hover {
     background-color: rgba(66, 153, 225, 0.1);
     color: var(--primary-color);
     transform: translateY(-1px);
