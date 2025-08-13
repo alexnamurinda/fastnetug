@@ -259,7 +259,7 @@ if (isset($_GET['action'])) {
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Request approved and voucher sent successfully.',
+                'message' => 'Request approved successfully.',
                 'voucher_code' => $voucher['voucher_code'],
                 'sms_sent' => $sms_sent
             ]);
@@ -777,11 +777,19 @@ if (isset($_GET['action'])) {
                     id: requestId
                 })
                 .done(function(response) {
-                    if (response.success) {
-                        showToast(`Request ${requestId} approved successfully! Voucher ${response.voucher_code} sent to customer.`);
-                        refreshAllData(); // Refresh all data after approval
-                    } else {
-                        showToast(response.message || 'Failed to approve request', false);
+                    try {
+                        // Parse response if it's a string
+                        const data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                        if (data.success) {
+                            showToast(`Request approved successfully`);
+                            refreshAllData(); // Refresh all data after approval
+                        } else {
+                            showToast(data.message || 'Failed to approve request', false);
+                            button.html(originalHtml).prop('disabled', false);
+                        }
+                    } catch (e) {
+                        showToast('Invalid response format', false);
                         button.html(originalHtml).prop('disabled', false);
                     }
                 })
@@ -848,17 +856,20 @@ if (isset($_GET['action'])) {
                         reason: reason
                     })
                     .done(function(response) {
-                        if (response.success) {
-                            rejectModal.hide();
-                            showToast(`Request ${requestId} rejected and customer notified.`);
-                            refreshAllData(); // Refresh all data after rejection
-                        } else {
-                            $('#reject-error').removeClass('d-none').text(response.message || 'Failed to reject request.');
+                        try {
+                            // Parse response if it's a string
+                            const data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                            if (data.success) {
+                                rejectModal.hide();
+                                showToast(`Request rejected`);
+                                refreshAllData(); // Refresh all data after rejection
+                            } else {
+                                $('#reject-error').removeClass('d-none').text(data.message || 'Failed to reject request.');
+                            }
+                        } catch (e) {
+                            $('#reject-error').removeClass('d-none').text('Invalid response format.');
                         }
-                        submitBtn.html(originalHtml).prop('disabled', false);
-                    })
-                    .fail(function() {
-                        $('#reject-error').removeClass('d-none').text('Network error. Please try again.');
                         submitBtn.html(originalHtml).prop('disabled', false);
                     });
             });
