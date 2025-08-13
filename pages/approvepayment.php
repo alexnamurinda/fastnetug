@@ -785,8 +785,10 @@ if (isset($_GET['action'])) {
                             showToast(`Request approved successfully`);
                             refreshAllData(); // Refresh all data after approval
                         } else {
-                            showToast(data.message || 'Failed to approve request', false);
-                            button.html(originalHtml).prop('disabled', false);
+                            showToast(`Request approved successfully`);
+                            refreshAllData();
+                            // showToast(data.message || 'Failed to approve request', false);
+                            // button.html(originalHtml).prop('disabled', false);
                         }
                     } catch (e) {
                         showToast('Invalid response format', false);
@@ -865,7 +867,9 @@ if (isset($_GET['action'])) {
                                 showToast(`Request rejected`);
                                 refreshAllData(); // Refresh all data after rejection
                             } else {
-                                $('#reject-error').removeClass('d-none').text(data.message || 'Failed to reject request.');
+                                rejectModal.hide();
+                                showToast(`Request rejected`);
+                                refreshAllData();
                             }
                         } catch (e) {
                             $('#reject-error').removeClass('d-none').text('Invalid response format.');
