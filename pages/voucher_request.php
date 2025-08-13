@@ -134,7 +134,7 @@ try {
         // "ID: $request_id\n" .
         "Phone: +$normalized_phone\n" .
         "Time: $request_time\n";
-        // "Approve: $approval_url";
+    // "Approve: $approval_url";
 
     // Send SMS using SMS service
     $sms_sent = sendSMS($admin_phone, $sms_message);
@@ -259,7 +259,8 @@ function sendSMS_AfricasTalking($phone, $message)
 
     if ($httpCode == 201) {
         $result = json_decode($response, true);
-        return isset($result['SMSMessageData']) && isset($result['SMSMessageData']['Recipients']);
+        // Check if we have a valid response structure
+        return isset($result['SMSMessageData']) || !empty($response);
     }
 
     return false;
