@@ -226,8 +226,8 @@ function sendSMS($phone, $message)
  */
 function sendSMS_AfricasTalking($phone, $message)
 {
-    $username = 'agritech_info';  // Replace with your Africa's Talking username
-    $apikey = 'atsk_1eb8e8aa4cf9f3851dabd1bf4490983972432730c57f36cfcf51980d3047884b7d19c9c3';     // Replace with your Africa's Talking API key
+    $username = 'fastnetug';  // Replace with your Africa's Talking username
+    $apikey = 'atsk_55f3cd22b22762efe6a8342bcbd478239a69a4aca7588f25694cdaac498101e0d027488d';     // Replace with your Africa's Talking API key
 
     $data = array(
         'username' => $username,
