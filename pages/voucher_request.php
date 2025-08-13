@@ -38,7 +38,7 @@ try {
     if (empty($phone) || empty($package) || empty($price)) {
         echo json_encode([
             'success' => false,
-            'message' => 'Missing required fields: phone, package, price'
+            'message' => 'Missing required fields!'
         ]);
         exit();
     }
@@ -47,7 +47,7 @@ try {
     if (!preg_match('/^(0[7][0-9]{8}|256[7][0-9]{8})$/', $phone)) {
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid phone number format. Use 07xxxxxxxx or 2567xxxxxxxx'
+            'message' => 'Invalid phone number'
         ]);
         exit();
     }
@@ -62,7 +62,7 @@ try {
     if (!is_numeric($price) || $price <= 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid price value'
+            'message' => 'Invalid Price'
         ]);
         exit();
     }
@@ -79,7 +79,7 @@ try {
     if ($existing_requests > 0) {
         echo json_encode([
             'success' => false,
-            'message' => 'You already have a recent pending payment request.'
+            'message' => 'You already have a pending request!'
         ]);
         exit();
     }
@@ -141,7 +141,7 @@ try {
 
     // Log the SMS attempt
     $sms_log_description = $sms_sent ?
-        "SMS notification sent to admin successfully" :
+        "Success" :
         "Failed to send SMS notification to admin";
 
     $stmt = $pdo->prepare("

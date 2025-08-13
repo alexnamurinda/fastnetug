@@ -21,6 +21,9 @@ function db()
     if ($pdo === null) {
         $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // CRITICAL FIX: Set MySQL timezone to match PHP timezone (East Africa Time UTC+3)
+        $pdo->exec("SET time_zone = '+03:00'");
     }
     return $pdo;
 }
@@ -164,25 +167,36 @@ if (isset($_GET['action'])) {
     if ($_GET['action'] === 'get_stats') {
         $stats = [];
 
-        // Count of pending requests
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
-        $stmt->execute();
-        $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+        try {
+            // Count of pending requests
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'pending'");
+            $stmt->execute();
+            $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        // Total requests for today only (resets each day at midnight)
-        $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
-        $stmt->execute();
-        $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+            // Total requests for today - now will reset at midnight Kampala time
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
+            $stmt->execute();
+            $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-        // Revenue generated today only (resets at midnight)
-        $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
-        $stmt->execute();
-        $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
+            // Revenue generated today - now will reset at midnight Kampala time  
+            $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
+            $stmt->execute();
+            $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
 
-        // Monthly total revenue (resets at end of month)
-        $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
-        $stmt->execute();
-        $stats['revenue_monthly'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
+            // Monthly total revenue - now will reset at end of month Kampala time
+            $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
+            $stmt->execute();
+            $stats['revenue_monthly'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
+        } catch (Exception $e) {
+            error_log("Stats query error: " . $e->getMessage());
+            // Return safe defaults on error
+            $stats = [
+                'pending_requests' => 0,
+                'requests_today' => 0,
+                'revenue_today' => 0,
+                'revenue_monthly' => 0
+            ];
+        }
 
         echo json_encode($stats);
         exit;
@@ -202,7 +216,7 @@ if (isset($_GET['action'])) {
 
             if (!$request) {
                 $pdo->rollBack();
-                echo json_encode(['success' => false, 'message' => 'Request not found or already processed.']);
+                echo json_encode(['success' => false, 'message' => 'Request not found']);
                 exit;
             }
 
@@ -215,7 +229,7 @@ if (isset($_GET['action'])) {
 
             if (!$voucher) {
                 $pdo->rollBack();
-                echo json_encode(['success' => false, 'message' => "No available vouchers for package '{$request['package']}'. Please generate more vouchers."]);
+                echo json_encode(['success' => false, 'message' => "No available vouchers for package '{$request['package']}'. Try again later"]);
                 exit;
             }
 
@@ -243,7 +257,7 @@ if (isset($_GET['action'])) {
             $pdo->commit();
 
             // Send voucher code to customer via SMS
-            $sms_message = "Your voucher code is: {$voucher['voucher_code']}. Valid for {$request['package']}.Thankyou.";
+            $sms_message = "Voucher code: {$voucher['voucher_code']}. Valid for {$request['package']}";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
 
             // Log SMS delivery attempt
@@ -284,7 +298,7 @@ if (isset($_GET['action'])) {
             $request = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$request) {
-                echo json_encode(['success' => false, 'message' => 'Request not found or already processed.']);
+                echo json_encode(['success' => false, 'message' => 'Request not found']);
                 exit;
             }
 
@@ -304,7 +318,7 @@ if (isset($_GET['action'])) {
 
             // Send rejection notification to customer
             $formatted_phone = formatPhoneNumber($request['phone']);
-            $sms_message = "Request rejected. Reason: $reason. Contact support at 0744766410 for assistance.";
+            $sms_message = "Request rejected. Reason: $reason.";
             $sms_sent = sendSMS($formatted_phone, $sms_message);
 
             echo json_encode([
@@ -322,7 +336,7 @@ if (isset($_GET['action'])) {
 
     // Handle invalid action requests
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid action or missing parameters']);
+    echo json_encode(['success' => false, 'message' => 'Invalid action']);
     exit;
 }
 
