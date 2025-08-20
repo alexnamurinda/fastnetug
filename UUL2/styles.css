@@ -101,12 +101,12 @@ body {
 }
 
 .btn-warning {
-    background: #ed8936;
+    background: #48bb78;
     color: white;
 }
 
 .btn-warning:hover {
-    background: #dd6b20;
+    background: #55c985;
     transform: translateY(-2px);
 }
 
