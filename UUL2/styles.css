@@ -524,7 +524,7 @@ form {
 }
 
     .header-actions {
-        width: 100%;
+        width: 50%;
         justify-content: right;
         flex-direction: column;
     }
@@ -533,7 +533,7 @@ form {
         flex-direction: column;
         /* Stack on mobile only if needed */
         align-items: stretch;
-        gap: 15px;
+        gap: 10px;
     }
 
     .stats-grid {
