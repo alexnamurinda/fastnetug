@@ -524,7 +524,7 @@ form {
 }
 
     .header-actions {
-        width: 30%;
+        width: 35%;
         justify-content: right;
         flex-direction: column;
     }
