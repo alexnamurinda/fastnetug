@@ -390,8 +390,8 @@ if (isset($_GET['action'])) {
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
-                            <h5 class="card-title mb-1" id="pending-count">0</h5>
-                            <p class="card-text text-muted mb-0">Pending Requests</p>
+                            <h5 class="card-title mb-1" id="pending-count">0 Pending</h5>
+                            <p class="card-text text-muted mb-0">Requests</p>
                         </div>
                     </div>
                 </div>
@@ -405,8 +405,8 @@ if (isset($_GET['action'])) {
                             <i class="fas fa-calendar-day"></i>
                         </div>
                         <div>
-                            <h5 class="card-title mb-1" id="today-count">0</h5>
-                            <p class="card-text text-muted mb-0">Requests Today</p>
+                            <h5 class="card-title mb-1" id="today-count">0 Requests</h5>
+                            <p class="card-text text-muted mb-0">Today</p>
                         </div>
                     </div>
                 </div>
@@ -606,8 +606,8 @@ if (isset($_GET['action'])) {
         function loadStats() {
             $.getJSON('?action=get_stats')
                 .done(function(data) {
-                    $('#pending-count').text(data.pending_requests);
-                    $('#today-count').text(data.requests_today);
+                    $('#pending-count').text(data.pending_requests + ' Pending');
+                    $('#today-count').text(data.requests_today + ' Requests');
                     $('#revenue-today').text('UGX ' + Number(data.revenue_today).toLocaleString());
                     $('#revenue-monthly').text('UGX ' + Number(data.revenue_monthly).toLocaleString());
                 })

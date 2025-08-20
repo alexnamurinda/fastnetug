@@ -47,7 +47,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    margin-right: 15px;
+    margin-right: 20px;
 }
 
 .stats-icon.pending {
@@ -640,7 +640,7 @@ body {
     }
 
     .stats-icon {
-        margin-right: 0;
+        margin-right: 15px;
         margin-bottom: 0.5rem;
         width: 40px;
         height: 40px;
