@@ -526,6 +526,7 @@ form {
     .header-actions {
         width: 100%;
         justify-content: right;
+        flex-direction: column;
     }
 
     .search-container {
@@ -577,7 +578,7 @@ form {
     }
 
     .header {
-        padding: 15px;
+        padding: 10px;
     }
 
     .search-section,
