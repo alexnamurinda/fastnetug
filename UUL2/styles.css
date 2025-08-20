@@ -35,7 +35,7 @@ body {
     box-shadow: 0 8px 32px rgba(4, 4, 4, 0.3);
 }
 
-.logo img{
+.logo img {
     width: auto;
     height: 80px;
 }
@@ -518,10 +518,10 @@ form {
         padding: 20px 10px;
     }
 
-    .logo img{
-    width: auto;
-    height: 60px;
-}
+    .logo img {
+        width: auto;
+        height: 60px;
+    }
 
     .header-actions {
         width: 30%;
@@ -535,6 +535,13 @@ form {
         /* Stack on mobile only if needed */
         align-items: stretch;
         gap: 10px;
+    }
+
+    .stats-overview h2 {
+        color: white;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 1.3rem;
     }
 
     .stats-grid {
