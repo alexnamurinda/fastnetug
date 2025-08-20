@@ -14,8 +14,8 @@ class Database
 {
     private $host = 'localhost';
     private $db_name = 'uul_clients';
-    private $username = 'fastnetug_user1';
-    private $password = 'smartwatt@mysql123';
+    private $username = 'uul_user';
+    private $password = 'uul@mysql123';
     public $conn;
 
     public function getConnection()

@@ -5,8 +5,8 @@
  */
 
 $host = "localhost";
-$user = "fastnetug_user1";       // change if needed
-$pass = "smartwatt@mysql123";           // change if needed
+$user = "uul_user";       // change if needed
+$pass = "uul@mysql123";           // change if needed
 $db   = "uul_clients";
 
 // Connect to MySQL server
