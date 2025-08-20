@@ -530,7 +530,7 @@ form {
     }
 
     .search-container {
-        flex-direction: center;
+        flex-direction: column;
         /* Stack on mobile only if needed */
         align-items: stretch;
         gap: 15px;
