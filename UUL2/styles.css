@@ -321,7 +321,7 @@ body {
 }
 
 .btn-small {
-    padding: 8px 12px;
+    padding: 8px 8px;
     font-size: 0.8rem;
     border-radius: 6px;
 }
@@ -605,8 +605,8 @@ form {
     }
 
     .btn-small {
-        padding: 6px 10px;
-        font-size: 0.75rem;
+        padding: 6px 6px;
+        font-size: 0.7rem;
     }
 
     .stat-card {
