@@ -83,7 +83,7 @@ body {
 .btn-success {
     background: transparent;
     border: #4299e1 2px solid;
-    color: white;
+    color: #4299e1;
 }
 
 .btn-success:hover {
@@ -103,7 +103,7 @@ body {
 .btn-warning {
     background: transparent;
     border: #48bb78 2px solid;
-    color: white;
+    color: #48bb78;
 }
 
 .btn-warning:hover {
