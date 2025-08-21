@@ -173,17 +173,17 @@ if (isset($_GET['action'])) {
             $stmt->execute();
             $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Total requests for today - now will reset at midnight Kampala time
+            // Total requests for today - using DATE() to compare dates properly
             $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
             $stmt->execute();
             $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Revenue generated today - now will reset at midnight Kampala time  
+            // Revenue generated today - using DATE() to compare dates properly
             $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
             $stmt->execute();
             $stats['revenue_today'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
 
-            // Monthly total revenue - now will reset at end of month Kampala time
+            // Monthly total revenue - using proper date functions
             $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
             $stmt->execute();
             $stats['revenue_monthly'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['revenue'] ?? 0);
