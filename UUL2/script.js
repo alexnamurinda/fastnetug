@@ -7,13 +7,17 @@ let currentCategory = '';
 const categories = {
     art_paper: { name: 'Art Paper', icon: 'fas fa-palette', color: '#4299e1' },
     art_board: { name: 'Art Board', icon: 'fas fa-clipboard', color: '#48bb78' },
-    manilla: { name: 'Manilla', icon: 'fas fa-file-alt', color: '#ed8936' },
+    chip_board: { name: 'Chip Board', icon: 'fas fa-layer-group', color: '#805ad5' },
     ncr: { name: 'NCR', icon: 'fas fa-copy', color: '#9f7aea' },
-    inks: { name: 'Inks', icon: 'fas fa-tint', color: '#38b2ac' },
-    plate_cleaner: { name: 'Plate Cleaner', icon: 'fas fa-spray-can', color: '#f56565' },
+    manilla: { name: 'Manilla', icon: 'fas fa-file-alt', color: '#ed8936' },
     sticker_paper: { name: 'Sticker Paper', icon: 'fas fa-sticky-note', color: '#ec4899' },
+    chemicals: { name: 'Chemicals', icon: 'fas fa-flask', color: '#f56565' },
+    plates: { name: 'Plates', icon: 'fas fa-circle', color: '#38b2ac' },
+    resellers: { name: 'Resellers', icon: 'fas fa-store', color: '#a0aec0' },
+    operators: { name: 'Operators', icon: 'fas fa-cogs', color: '#718096' },
+    corporate_clients: { name: 'Corporate Clients', icon: 'fas fa-building', color: '#2d3748' },
     freelancers: { name: 'Freelancers', icon: 'fas fa-user-tie', color: '#ecc94b' },
-    resellers: { name: 'Resellers', icon: 'fas fa-store', color: '#a0aec0' }
+    other: { name: 'Other', icon: 'fas fa-ellipsis-h', color: '#cbd5e0' }
 };
 
 // Initialize dashboard

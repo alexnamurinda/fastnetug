@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UUL Ltd Customer Database Creation Script in PHP
  * Run this file with `php create_uul_db.php` to set up the schema
@@ -34,10 +35,11 @@ CREATE TABLE IF NOT EXISTS clients (
     phone VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(191) NULL,
     company VARCHAR(191) NULL,
-    category ENUM(
-        'art_paper', 'art_board', 'manilla', 'ncr', 'inks',
-        'plate_cleaner', 'sticker_paper', 'freelancers', 'resellers'
-    ) NOT NULL,
+category ENUM(
+    'art_paper', 'art_board', 'chip_board', 'ncr', 'manilla',
+    'sticker_paper', 'chemicals', 'plates', 'resellers', 'operators',
+    'corporate_clients', 'freelancers', 'other'
+) NOT NULL,
     address TEXT NULL,
     notes TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -145,7 +147,9 @@ SQL;
 if (!mysqli_multi_query($conn, $coreSQL)) {
     die("❌ Error creating schema: " . mysqli_error($conn));
 }
-do { mysqli_store_result($conn); } while (mysqli_more_results($conn) && mysqli_next_result($conn));
+do {
+    mysqli_store_result($conn);
+} while (mysqli_more_results($conn) && mysqli_next_result($conn));
 echo "✅ Core schema + sample data + views created.<br>";
 
 // --- STEP 3: Stored Procedures
@@ -227,4 +231,3 @@ echo "✅ Triggers created.<br>";
 echo "🎉 UUL Ltd Customer Database fully created with all tables, views, procedures, and triggers.<br>";
 
 mysqli_close($conn);
-?>
