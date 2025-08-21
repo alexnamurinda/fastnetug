@@ -174,7 +174,7 @@ if (isset($_GET['action'])) {
             $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
             // Total requests for today - now will reset at midnight Kampala time
-            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+03:00')) = DATE(NOW())");
             $stmt->execute();
             $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
