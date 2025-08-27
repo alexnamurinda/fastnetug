@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Add Product Modal -->
+        <div id="addProductModal" class="modal">
+            <div class="modal-content">
+                <span class="close-add">&times;</span>
+                <h3>Add New Product</h3>
+                <form id="addProductForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="productCategory">Category</label>
+                            <select id="productCategory" name="product_category" required>
+                                <option value="">Select Category</option>
+                                <option value="Chemicals">Chemicals</option>
+                                <option value="Art Papers">Art Papers</option>
+                                <option value="Art Boards">Art Boards</option>
+                                <option value="Chip Board">Chip Board</option>
+                                <option value="Plates">Plates</option>
+                                <option value="Bond Papers">Bond Papers</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input type="text" id="productName" name="product_name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="offloadDate">Date of Offload</label>
+                            <input type="date" id="offloadDate" name="offload_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="manufactureDate">Manufacture Date</label>
+                            <input type="date" id="manufactureDate" name="manufacture_date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="date" id="expiryDate" name="expiry_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consignmentTrack">Consignment Track Number</label>
+                            <input type="text" id="consignmentTrack" name="consignment_track" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="initialQuantity">Initial Quantity</label>
+                            <input type="number" id="initialQuantity" name="initial_quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Filter and Search Section -->
+        <div class="filter-section">
+            <h2 style="text-align: center;">UUL - Stock Management</h2>
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Search products...">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="Chemicals">Chemicals</option>
+                    <option value="Art Papers">Art Papers</option>
+                    <option value="Art Boards">Art Boards</option>
+                    <option value="Chip Board">Chip Board</option>
+                    <option value="Plates">Plates</option>
+                    <option value="Bond Papers">Bond Papers</option>
+                    <option value="Other">Other</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">All Items</option>
+                    <option value="expired">Expired Items</option>
+                    <option value="expiring_soon">Expiring Soon (30 days)</option>
+                    <option value="slow_moving">Slow Moving (90+ days)</option>
+                </select>
+                <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                <button id="showAddFormBtn" class="btn btn-primary">+ Add Product</button>
+            </div>
+        </div>
+
+        <!-- Stock Table -->
+        <div class="table-section">
+            <div class="table-responsive">
+                <table id="stockTable">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Product Name</th>
+                            <th>Consignment No.</th>
+                            <th>Offload Date</th>
+                            <th>Current Qty</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message" class="message" style="display: none;"></div>
+    </div>
+
+    <!-- Update Quantity Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Update Product Quantity</h3>
+            <form id="updateForm">
+                <input type="hidden" id="updateProductId">
+                <div class="form-group">
+                    <label>Product: <span id="updateProductName"></span></label>
+                </div>
+                <div class="form-group">
+                    <label for="currentQuantity">Current Quantity</label>
+                    <input type="number" id="currentQuantity" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="updateNotes">Update Notes (Optional)</label>
+                    <textarea id="updateNotes" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Quantity</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
