@@ -171,8 +171,10 @@ class StockManager {
         }
 
         this.tableBody.innerHTML = products.map(product => {
-            const remainingDays = this.calculateRemainingDays(product.expiry_date);
-            const status = this.getProductStatusByExpiry(remainingDays);
+            const remainingDays = product.expiry_date && product.expiry_date !== '0000-00-00'
+                ? this.calculateRemainingDays(product.expiry_date)
+                : null;
+            const status = this.getProductStatusByExpiry(product.expiry_date);
 
             return `
             <tr>
@@ -181,7 +183,7 @@ class StockManager {
                 <td>${product.consignment_track}</td>
                 <td>${this.formatDate(product.offload_date)}</td>
                 <td>${product.current_quantity}</td>
-                <td><span class="status-badge ${status.class}">${status.text} (${remainingDays} days)</span></td>
+                <td><span class="status-badge ${status.class}">${status.text}${remainingDays !== null ? ` (${remainingDays} days)` : ''}</span></td>
                 <td>
                     <div class="action-buttons">
                         <button class="btn btn-update" onclick="stockManager.openUpdateModal(${product.id}, '${product.product_name}', ${product.current_quantity})">Update</button>
@@ -232,7 +234,16 @@ class StockManager {
         return Math.floor(timeDiff / (1000 * 3600 * 24));
     }
 
-    getProductStatusByExpiry(remainingDays) {
+    getProductStatusByExpiry(expiryDate) {
+        if (!expiryDate || expiryDate === '0000-00-00' || expiryDate === null) {
+            return { class: 'status-na', text: 'N/A' };
+        }
+
+        const today = new Date();
+        const expiry = new Date(expiryDate);
+        const timeDiff = expiry.getTime() - today.getTime();
+        const remainingDays = Math.floor(timeDiff / (1000 * 3600 * 24));
+
         if (remainingDays < 0) {
             return { class: 'status-expired', text: 'Expired' };
         }

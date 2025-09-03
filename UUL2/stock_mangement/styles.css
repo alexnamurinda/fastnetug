@@ -17,6 +17,11 @@ body {
     padding: 20px;
 }
 
+.status-na {
+    background-color: #6c757d;
+    color: white;
+}
+
 /* Header */
 header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

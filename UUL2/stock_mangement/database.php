@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS products (
                 $data['product_name'],
                 $data['offload_date'],
                 $data['manufacture_date'],
-                $data['expiry_date'],
+                !empty($data['expiry_date']) ? $data['expiry_date'] : null,
                 $data['consignment_track'],
                 $data['initial_quantity'],
                 $data['initial_quantity'],
@@ -413,7 +413,7 @@ try {
                     break;
                 default:
                     // Default POST action is to add product
-                    $required = ['product_category', 'product_name', 'offload_date', 'manufacture_date', 'expiry_date', 'consignment_track', 'initial_quantity'];
+                    $required = ['product_category', 'product_name', 'offload_date', 'manufacture_date', 'consignment_track', 'initial_quantity'];
                     $data = $_POST;
 
                     // Validate required fields
