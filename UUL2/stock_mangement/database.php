@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS products (
     product_name VARCHAR(255) NOT NULL,
     offload_date DATE NOT NULL,
     manufacture_date DATE NOT NULL,
-    expiry_date DATE NOT NULL,
+    expiry_date DATE NULL,
     consignment_track VARCHAR(100) NOT NULL,
     initial_quantity INT NOT NULL DEFAULT 0,
     current_quantity INT NOT NULL DEFAULT 0,
