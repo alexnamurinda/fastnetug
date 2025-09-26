@@ -615,7 +615,7 @@ if (isset($_GET['action'])) {
                     console.error('Failed to load statistics');
                 });
         }
-
+ 
         /**
          * Load and display payment requests in table format
          */

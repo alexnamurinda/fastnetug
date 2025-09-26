@@ -116,7 +116,7 @@
                             <div class="area-contact">
                                 <p><strong>Area Contact:</strong> Alex Namurinda</p>
                                 <div class="contact-buttons">
-                                    <a href="tel:0744766410" class="btn btn-sm btn-primary">
+                                    <a href="tel:0756585769" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
                                     <a href="https://wa.me/256744766410" class="btn btn-sm btn-success" target="_blank">
@@ -174,7 +174,7 @@
                             <div class="area-contact">
                                 <p><strong>Area Contact:</strong> Alex Namurinda</p>
                                 <div class="contact-buttons">
-                                    <a href="tel:0744766410" class="btn btn-sm btn-primary">
+                                    <a href="tel:0756585769" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
                                     <a href="https://wa.me/256744766410" class="btn btn-sm btn-success" target="_blank">
@@ -373,7 +373,7 @@
                         <div class="hostel-agent">
                             <p><strong>For New Hostels:</strong> Contact Us</p>
                             <div class="agent-contact">
-                                <a href="tel:0744766410" class="btn btn-sm btn-outline-primary">
+                                <a href="tel:0756585769" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
                                 <a href="https://wa.me/256744766410" class="btn btn-sm btn-outline-success" target="_blank">
@@ -449,7 +449,7 @@
                     <p class="cta-subtitle">Find your nearest FastNetUG agent or contact our support team to get started with high-speed internet today!</p>
                 </div>
                 <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
-                    <a href="tel:0744766410" class="btn btn-light btn-lg">
+                    <a href="tel:0756585769" class="btn btn-light btn-lg">
                         <i class="fas fa-phone-alt"></i> Call Now
                     </a>
                     <a href="https://wa.me/256744766410" class="btn btn-success btn-lg" target="_blank">

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FastNetUG > Status</title>
+$(if refresh-timeout)
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="$(refresh-timeout-secs)">
+$(endif)
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="expires" content="-1" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
+<!-- Bootstrap CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome for Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: transparent;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.main-card {
+    border: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.main-logo {
+    max-width: 200px;
+    height: auto;
+}
+
+.message-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.fastnet-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.fastnet-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+</style>
+
+<script language="JavaScript">
+<!--
+$(if advert-pending == 'yes')
+    var popup = '';
+    function focusAdvert() {
+        if (window.focus) popup.focus();
+    }
+    function openAdvert() {
+        popup = open('$(link-advert)', 'hotspot_advert', '');
+        setTimeout("focusAdvert()", 1000);
+    }
+$(endif)
+//-->
+</script>
+</head>
+
+<body
+$(if advert-pending == 'yes')
+    onLoad="openAdvert()"
+$(endif)
+>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+            <!-- Single Combined Card -->
+            <div class="card main-card shadow-lg">
+                <div class="card-body text-center p-5">
+                    <!-- Logo -->
+                    <div class="logo-section mb-4">
+                        <img src="img/logo.png" alt="FastNetUG" class="main-logo img-fluid"/>
+                    </div>
+
+                    <!-- Message -->
+                    <div class="message-section">
+                        $(if login-by == 'trial')
+                        <p class="message-text">
+                            <i class="fas fa-clock text-info me-2"></i>
+                            Welcome to a trial plan for 2 minutes. Kindly use it to visit us at 
+                            <a href="https://fastnetug.com" target="_blank" class="fastnet-link">fastnetug.com</a> 
+                            for more packages.
+                        </p>
+                        $(else)
+                        <p class="message-text">
+                            <i class="fas fa-heart text-success me-2"></i>
+                            Thanks for your support! Kindly visit us at 
+                            <a href="https://fastnetug.com" target="_blank" class="fastnet-link">fastnetug.com</a> 
+                            for more packages.
+                        </p>
+                        $(endif)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

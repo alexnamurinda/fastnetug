@@ -84,7 +84,7 @@
                     <p class="hero-text">Stay connected with fast, secure, and affordable WiFi plans tailored for student hostels, homes, and businesses across Uganda.</p>
                     <div class="hero-buttons">
                         <a href="#packages" class="btn btn-primary btn-lg">Buy Voucher</a>
-                        <a href="tel:0744766410" class="btn btn-primary btn-lg" style="background: transparent; border: 1px solid white;">
+                        <a href="tel:0756585769" class="btn btn-primary btn-lg" style="background: transparent; border: 1px solid white;">
                             <i class="fas fa-phone-alt me-2" style="color: #fff;"></i>Call Us Now
                         </a>
                     </div>
@@ -418,7 +418,7 @@
                     <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala. Get connected today!</p>
                 </div>
                 <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
-                    <a href="tel:0744766410" class="btn btn-light btn-lg" title="Call Us">
+                    <a href="tel:0756585769" class="btn btn-light btn-lg" title="Call Us">
                         <i class="fas fa-phone-alt"></i>
                         <span>Call Now</span>
                     </a>

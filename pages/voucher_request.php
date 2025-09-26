@@ -124,7 +124,7 @@ try {
     ]);
 
     // Send SMS notification to admin - simplified format
-    $admin_phone = '+256744766410';
+    $admin_phone = '+256756585769';
     $approval_url = 'https://www.fastnetug.com/pages/approvepayment.php';
     date_default_timezone_set('Africa/Kampala');
     $request_time = date('M j, g:i A', strtotime($created_at));

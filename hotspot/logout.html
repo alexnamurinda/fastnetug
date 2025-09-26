@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FastNetUG > Logout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="expires" content="-1" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
+<!-- Bootstrap CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome for Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<!-- Custom CSS -->
+<link rel="stylesheet" type="text/css" href="mainstyle.css">
+</head>
+
+<body>
+<!-- WhatsApp Floating Button -->
+<div class="whatsapp-float">
+    <a href="https://wa.me/256744766410" target="_blank" class="whatsapp-btn">
+        <i class="fab fa-whatsapp"></i>
+        <span class="tooltip">Need Help? Chat with us!</span>
+    </a>
+</div>
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-xl-5">
+            <!-- Single Combined Card -->
+            <div class="card main-card shadow-lg">
+                <div class="card-body text-center p-4">
+                    <!-- 1. Logo -->
+                    <div class="logo-section mb-4">
+                        <img src="img/logo.png" alt="FastNetUG" class="main-logo img-fluid"/>
+                    </div>
+
+                    <!-- 2. Logout Success Message -->
+                    <div class="voucher-section mb-4">
+                        <h5 class="mb-3 text-dark">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            You have been logged out successfully
+                        </h5>
+                    </div>
+
+                    <!-- 3. Session Details -->
+                    <div class="package-section mb-4">
+                        <div class="session-details">
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">User:</div>
+                                <div class="col-8 text-start">$(username)</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">IP Address:</div>
+                                <div class="col-8 text-start">$(ip)</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">MAC:</div>
+                                <div class="col-8 text-start">$(mac)</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">UL | DL:</div>
+                                <div class="col-8 text-start">$(bytes-in-nice) | $(bytes-out-nice)</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">Active:</div>
+                                <div class="col-8 text-start">$(uptime)</div>
+                            </div>
+                            $(if remain-bytes-total)
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">Remaining Quota:</div>
+                                <div class="col-8 text-start text-success">$(remain-bytes-total-nice)</div>
+                            </div>
+                            $(endif)
+                            $(if session-time-left)
+                            <div class="row mb-2">
+                                <div class="col-4 text-end fw-bold">Time Left:</div>
+                                <div class="col-8 text-start text-warning">$(session-time-left)</div>
+                            </div>
+                            $(endif)
+                        </div>
+                    </div>
+
+                    <!-- 4. Login Again Button
+                    <div class="voucher-section mb-4">
+                        <form action="$(link-login)" name="login" onSubmit="return openLogin()">
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-dark-blue btn-lg">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login Again
+                                </button>
+                            </div>
+                        </form>
+                    </div> -->
+
+                    <!-- 5. More Packages -->
+                    <div class="more-packages-section mb-4">
+                        <p class="mb-0">
+                            <a href="https://fastnetug.com" target="_blank" class="text-decoration-none" style="font-size: larger;">Our Packages >></a>
+                        </p>
+                    </div>
+
+                    <!-- 6. Help Section -->
+                    <div class="help-section mb-4">
+                        <p class="mb-0">
+                            Need help? Call/WhatsApp 
+                            <a href="tel:0756585769" class="help-link">0756585769</a>
+                        </p>
+                    </div>
+
+                    <!-- 7. All Rights Reserved -->
+                    <div class="rights-section">
+                        <small class="text-muted">&copy; 2025 FastNetUG. All rights reserved.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<script language="JavaScript">
+<!--
+    function openLogin() {
+        if (window.name != 'hotspot_logout') return true;
+        open('$(link-login)', '_blank', '');
+        window.close();
+        return false;
+    }
+//-->
+</script>
+
+<script>
+// Auto-focus on login button
+document.addEventListener('DOMContentLoaded', function() {
+    const loginBtn = document.querySelector('button[type="submit"]');
+    if (loginBtn) {
+        loginBtn.focus();
+    }
+});
+</script>
+
+</body>
+</html>

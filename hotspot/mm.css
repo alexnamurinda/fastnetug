@@ -1,0 +1,172 @@
+/* Payment Widget Styling */
+.payment-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+ 
+  backdrop-filter: blur(70px);
+  max-width: 400px;
+  margin: 50px auto;
+  font-family: Open sans, sans-serif;
+  background-color: rgba(255, 255, 255, 0.345);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+
+.widget-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+/* Image Container */
+.images-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  }
+
+.images-container img {
+  width: 50px;
+  height: 50px;
+  border-radius: 2px;
+  transition: transform 0.3s;
+}
+
+.images-container img:hover {
+  transform: scale(1.1);
+}
+
+/* Input Group */
+.input-group {
+  width: 95%;
+  margin-bottom: 10px;
+  margin-left: 1px;
+}
+
+.input-group label {
+  display: block;
+  border: none;
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 5px;
+  background-color: #fdfdfd9a;
+  
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  outline: none;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #3498db;
+  background-color: #fff;
+}
+.input-label {
+  font-size: 16px;
+  color: #000000;
+  margin-bottom: 5px;
+  display: block;
+  background-color: none;
+}
+
+/* Package Selection */
+.package-selection {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.payment-widget {
+  font-size: 16px;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.pd{
+  font-weight: bold;
+  color: #f39c12;
+  font-size: 16px;
+}
+.price-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-btn {
+  padding: 12px;
+  background-color: #27ae5f;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.price-btn:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+.price-btn.active {
+  background-color: #f39c12; 
+  color: #fff; 
+  transform: scale(1.05); 
+}
+
+.price-btn:active {
+  transform: scale(0.98);    /* Shrinks button when clicked */
+}
+
+
+/* Buy Button */
+.btn-buy {
+  padding: 12px 25px;
+  background-color: #27ae60;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.btn-buy:hover {
+  background-color: #2ecc71;
+}
+p{
+  margin: 0;
+  padding: 10px;
+  text-align: center;
+  color: #000000;
+  
+  font-style: italic;
+}
+span{
+  text-align: center;
+}
+.phone{
+  background-color: none;
+}
+.trial {
+  text-align: center;
+  font-size: 16px;
+  color: #f39c12;
+  font-weight: bold;
+  margin-top: 20px;
+}

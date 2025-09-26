@@ -1,0 +1,781 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>FastNetUG > Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="expires" content="-1" />
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
+
+<style>
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+    background: transparent;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Container */
+.container {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/* Main Card */
+.main-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-body {
+    padding: 40px 30px;
+    text-align: center;
+}
+
+/* Logo Section */
+.logo-section {
+    margin-bottom: 20px;
+}
+
+.main-logo {
+    max-width: 230px;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.main-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Voucher Section */
+.voucher-section {
+    margin-bottom: 20px;
+}
+
+.voucher-section h5 {
+    color: #2d3748;
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+/* Form Styles */
+.form-control {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4299e1;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Button Styles */
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(66, 153, 225, 0.4);
+}
+
+.btn-lg {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    width: 100%;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+}
+
+.btn-success:hover {
+    box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 2px solid #a0aec0;
+    color: #4a5568;
+}
+
+.btn-outline-secondary:hover {
+    background: #a0aec0;
+    color: white;
+}
+
+/* Package Section */
+.package-section {
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    padding: 25px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+}
+
+.package-btn1, .package-btn2, .package-btn3{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px 20px;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+.package-btn1{
+    background: linear-gradient(135deg, #42e1ac, #3fb588);
+}
+.package-btn2{
+    background: linear-gradient(135deg, #cd9d3c, #9d853c);
+}
+.package-btn3{
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+.package-btn1:hover, .package-btn2:hover, .package-btn3:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(113, 131, 145, 0.3);
+}
+
+.package-btn:last-child {
+    margin-bottom: 0;
+}
+
+.package-text {
+    flex: 1;
+    text-align: left;
+}
+
+.package-icon {
+    margin-left: 10px;
+    font-size: 1.2rem;
+}
+
+/* Package Separators */
+.package-separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
+    margin: 15px 0;
+}
+
+/* Trial Section */
+.trial-section {
+    margin-bottom: 25px;
+    padding: 15px 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.trial-link {
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.trial-link:hover {
+    color: #3182ce;
+    text-decoration: underline;
+}
+
+/* Payment Widget */
+.payment-widget {
+    background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+    border: 2px solid #4299e1;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 25px rgba(66, 153, 225, 0.15);
+}
+
+.provider-logos {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.provider-logos img {
+    height: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.selected-package-info {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #48bb78;
+}
+
+.selected-package-info p {
+    margin: 0;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.phone-input-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+    text-align: left;
+}
+
+.response-message {
+    margin-top: 15px;
+}
+
+/* Alert Styles */
+.alert {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border: none;
+    font-weight: 500;
+    position: relative;
+}
+
+.copyable-icon {
+    cursor: pointer;
+    color: #4299e1;
+    margin-left: 5px;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+}
+
+.copyable-icon:hover {
+    color: #3182ce;
+    transform: scale(1.1);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fed7d7, #feb2b2);
+    color: #742a2a;
+    border-left: 4px solid #e53e3e;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+    color: #22543d;
+    border-left: 4px solid #38a169;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #bee3f8, #90cdf4);
+    color: #2a4365;
+    border-left: 4px solid #4299e1;
+}
+
+/* Close button for persistent alerts */
+.alert-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* More Packages Section */
+.more-packages-section {
+    margin-bottom: 25px;
+}
+
+.more-packages-section a {
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.more-packages-section a:hover {
+    color: #3182ce;
+    text-decoration: underline;
+}
+
+/* Help Section */
+.help-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.help-link {
+    color: #ed8936;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.help-link:hover {
+    color: #dd6b20;
+    text-decoration: underline;
+}
+
+/* Rights Section */
+.rights-section {
+    margin-bottom: 0;
+}
+
+.rights-section small {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* Icons (Using Unicode symbols) */
+.fa-sign-in-alt::before { content: '→'; }
+.fa-shopping-cart::before { content: '🛒'; }
+.fa-credit-card::before { content: '💳'; }
+.fa-times::before { content: '×'; }
+.fa-check::before { content: '✓'; }
+.fa-globe::before { content: '🌐'; }
+.fab-whatsapp::before { content: '💬'; }
+.fa-mobile-alt::before { content: '📱'; }
+.fa-exclamation-triangle::before { content: '⚠'; }
+.fa-check-circle::before { content: '✅'; }
+.fa-info-circle::before { content: 'ℹ'; }
+.fa-spinner::before { content: '⟳'; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .card-body {
+        padding: 30px 20px;
+    }
+    
+    .main-logo {
+        max-width: 150px;
+    }
+    
+    .package-btn {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .package-text {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    .package-icon {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        max-width: 100%;
+    }
+    
+    .card-body {
+        padding: 25px 15px;
+    }
+    
+    .form-control {
+        font-size: 1rem;
+        padding: 12px 16px;
+    }
+    
+    .main-logo {
+        max-width: 120px;
+    }
+    
+    .payment-widget {
+        padding: 20px;
+    }
+    
+    .provider-logos {
+        gap: 15px;
+    }
+    
+    .provider-logos img {
+        height: 30px;
+    }
+}
+
+/* Animation for spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Loading state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Smooth transitions */
+.package-btn, .btn, .form-control, .main-logo {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+</head>
+
+<body>
+<!-- Main Content -->
+<div class="container">
+    <!-- Single Combined Card -->
+    <div class="main-card">
+        <div class="card-body">
+            <!-- 1. Logo -->
+            <div class="logo-section">
+                <img src="img/logo.png" alt="FastNetUG" class="main-logo"/>
+            </div>
+
+            <!-- 2. Enter Voucher to Continue -->
+            <div class="voucher-section">
+                <h3 style="color: red;">System is under maintenance!</h3>
+                <h5>NB: If you were previously connected, WhatsApp us (0756585769) with your Voucher code</h5><br>
+                <h5>New connection resume sun 07/09/2025 at 11am</h5>
+                <br>
+                <h5>We highly regret the inconvinience caused and hope to serve you bett</h5>
+                <!-- <h5>Enter Voucher to Continue</h5> -->
+                
+                $(if chap-id)
+                <form name="sendinkv" action="$(link-login-only)" method="post">
+                    <input type="hidden" name="username" />
+                    <input type="hidden" name="password" />
+                    <input type="hidden" name="dst" value="$(link-orig)" />
+                    <input type="hidden" name="popup" value="true" />
+                </form>
+
+                <script type="text/javascript" src="/md5.js"></script>
+                <script type="text/javascript">
+                <!--
+                    function doLoginkv() {
+                        document.sendinkv.username.value = document.loginkv.usernamekv.value;
+                        document.sendinkv.password.value = hexMD5('$(chap-id)' + document.loginkv.usernamekv.value + '$(chap-challenge)');
+                        document.sendinkv.submit();
+                        return false;
+                    }
+                //-->
+                </script>
+                $(endif)
+
+                <form autocomplete="off" name="loginkv" action="$(link-login-only)" method="post"
+                $(if chap-id) onSubmit="return doLoginkv()" $(endif)>
+                    <input type="hidden" name="dst" value="$(link-orig)" />
+                    <input type="hidden" name="popup" value="true" />
+                    
+                    <input name="usernamekv" type="text" class="form-control" 
+                           placeholder="Enter voucher code" value="$(username)" required/>
+                    
+                    <input id="pass" name="passwordkv" type="hidden"/>
+                    
+                    <button type="submit" class="btn btn-lg">
+                        Login
+                    </button>
+                    
+                    $(if error)
+                    <div class="alert alert-danger">
+                        <span>⚠</span>
+                        Invalid voucher!
+                    </div>
+                    $(endif)
+                </form>
+            </div>
+
+            <!-- 3. Free Trial -->
+            <div class="trial-section">
+                $(if trial == 'yes')
+                <p>
+                    Free trial for 2 minutes 
+                    <a href="$(link-login-only)?dst=$(link-orig-esc)&amp;username=T-$(mac-esc)" 
+                       class="trial-link">Click here</a>
+                </p>
+                $(endif)
+            </div>
+
+            <!-- 4. Package Section -->
+            <div class="package-section">
+                <h3>Select a Package</h3>
+                <br />
+                <button class="package-btn1" data-package="24 HOURS|1000" onclick="selectPackage(this)">
+                    <span class="package-text">24 Hours - UGX 1,000</span>                    
+                </button>
+                
+                <div class="package-separator"></div>
+                
+                <button class="package-btn2" data-package="1 WEEK|6000" onclick="selectPackage(this)">
+                    <span class="package-text">1 Week - UGX 6,000</span>                    
+                </button>
+                
+                <div class="package-separator"></div>
+                
+                <button class="package-btn3" data-package="1 MONTH|20000" onclick="selectPackage(this)">
+                    <span class="package-text">1 Month - UGX 20,000</span>
+                </button>
+                
+                <h4><a href="https://fastnetug.com" target="_blank" style="text-decoration:none; color:inherit;">See All</a></h4>
+
+            </div>
+
+            <!-- Mobile Money Payment Widget (Initially Hidden) -->
+            <div class="payment-widget" id="payment-widget" style="display: none;">
+                <div class="provider-logos">
+                    <img src="./img/at.png" alt="Airtel" />
+                    <img src="./img/mtn.jpeg" alt="MTN" />
+                </div>
+                
+                <div class="selected-package-info" id="selected-package-info">
+                    <p id="package-details"></p>
+                </div>
+                
+                <div class="phone-input-section">
+                    <label>Enter your phone number to make payment</label>
+                    <input type="tel" id="phone" class="form-control" minlength="10" maxlength="12" 
+                           placeholder="e.g. 0741234560" required>
+                </div>
+                
+                <div style="display: grid; gap: 15px;">
+                    <button class="btn btn-success" id="btn-buy">
+                        Continue
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="hidePaymentWidget()">
+                        Cancel
+                    </button>
+                </div>
+
+                <div id="response-message" class="response-message"></div>                  
+                
+                <input type="hidden" id="hidden-package-data">
+            </div>
+
+            <!-- 6. Help Section -->
+            <div class="help-section">
+                <p>
+                    Need help? Call/WhatsApp 
+                    <a href="tel:0756585769" class="help-link">0756585769</a>
+                </p>
+            </div>
+
+            <!-- 7. All Rights Reserved -->
+            <div class="rights-section">
+                <small>&copy; 2025 FastNetUG. All rights reserved.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-focus on voucher field
+document.addEventListener('DOMContentLoaded', function() {
+    const voucherInput = document.querySelector('input[name="usernamekv"]');
+    if (voucherInput) {
+        voucherInput.focus();
+    }
+    
+    // Initialize payment widget functionality
+    initializePaymentWidget();
+});
+
+// Package Selection and Payment Widget Functions
+function selectPackage(button) {
+    const packageData = button.getAttribute('data-package');
+    const [duration, amount] = packageData.split('|');
+    
+    // Store package data
+    document.getElementById('hidden-package-data').value = packageData;
+    
+    // Update package details display
+    document.getElementById('package-details').textContent = `${duration} for UGX ${amount}`;
+    
+    // Show payment widget
+    document.getElementById('payment-widget').style.display = 'block';
+    
+    // Scroll to payment widget
+    document.getElementById('payment-widget').scrollIntoView({ behavior: 'smooth' });
+    
+    // Focus on phone input
+    setTimeout(() => {
+        document.getElementById('phone').focus();
+    }, 500);
+}
+
+function hidePaymentWidget() {
+    document.getElementById('payment-widget').style.display = 'none';
+    document.getElementById('phone').value = '';
+    document.getElementById('response-message').innerHTML = '';
+}
+
+function initializePaymentWidget() {
+    const btnBuy = document.getElementById('btn-buy');
+    const phoneInput = document.getElementById('phone');
+    const responseMessage = document.getElementById('response-message');
+    const hiddenPackageData = document.getElementById('hidden-package-data');
+
+    // Display message function with persistent option
+    const displayMessage = (type, message, persistent = false) => {
+        let alertClass = 'alert-info';
+        let icon = 'ℹ';
+        
+        if (type === 'success') {
+            alertClass = 'alert-success';
+            icon = '✅';
+        } else if (type === 'error') {
+            alertClass = 'alert-danger';
+            icon = '⚠';
+        } else if (type === 'loading') {
+            alertClass = 'alert-info';
+            icon = '';
+        }
+        
+        const closeButton = persistent ? 
+            '<button class="alert-close" onclick="this.parentElement.remove()">×</button>' : '';
+        
+        responseMessage.innerHTML = `
+            <div class="alert ${alertClass}">
+                ${closeButton}
+                <span class="${type === 'loading' ? 'fa-spinner' : ''}">${icon}</span> ${message}
+            </div>
+        `;
+        
+        // Auto-remove non-persistent messages
+        if (!persistent && type !== 'loading') {
+            setTimeout(() => {
+                if (responseMessage.innerHTML.includes(message)) {
+                    responseMessage.innerHTML = '';
+                }
+            }, 10000);
+        }
+    };
+
+    // Buy button click handler
+    btnBuy.addEventListener('click', () => {
+        const phone = phoneInput.value.trim();
+        const packageData = hiddenPackageData.value;
+
+        if (!phone || !packageData) {
+            displayMessage('error', 'Please enter a valid phone number.');
+            return;
+        }
+
+        // Validate phone number format (Uganda format)
+        const phoneRegex = /^(0[7][0-9]{8}|256[7][0-9]{8})$/;
+        if (!phoneRegex.test(phone)) {
+            displayMessage('error', 'Please enter a valid Ugandan phone number (e.g., 0741234567).');
+            return;
+        }
+
+        const [duration, amount] = packageData.split('|');
+        
+        displayMessage('loading', 'Processing payment request... Please wait.');
+
+        // Disable buy button to prevent double submission
+        btnBuy.disabled = true;
+
+        // Prepare data for backend - simplified without MAC address
+        const formData = new FormData();
+        formData.append('phone', phone);
+        formData.append('package', duration);
+        formData.append('price', amount);
+
+        // Send data to the backend
+        fetch('https://www.fastnetug.com/pages/voucher_request.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            btnBuy.disabled = false;
+            
+            if (data.success) {
+                // Show persistent success message with payment instructions
+                const successMessage = `Request submitted. Please deposit UGX ${amount} to <strong>0756585769</strong> to receive a voucher`;
+                displayMessage('success', successMessage, true);
+                
+                // Clear form but keep widget visible for user reference
+                phoneInput.value = '';
+                
+                // Log successful request
+                console.log('Payment request created:', data.request_id);
+                
+            } else {
+                displayMessage('error', data.message || 'Failed to create payment request. Please try again.');
+            }
+        })
+        .catch(error => {
+            btnBuy.disabled = false;
+            console.error('Payment request error:', error);
+            displayMessage('error', 'Network error. Please check your connection and try again.');
+        });
+    });
+
+    // Enter key support for phone input
+    phoneInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            btnBuy.click();
+        }
+    });
+}
+</script>
+
+</body>
+</html>
