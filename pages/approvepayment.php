@@ -72,6 +72,7 @@ function sendSMS($phone, $message)
 function getVoucherTable($package)
 {
     $package = strtolower($package);
+    if (strpos($package, '5 hours') !== false || strpos($package, '5hours') !== false) return 'hourly_vouchers';
     if (strpos($package, 'week') !== false) return 'weekly_vouchers';
     if (strpos($package, 'month') !== false) return 'monthly_vouchers';
     return 'daily_vouchers';
@@ -103,6 +104,7 @@ function formatPhoneNumber($phone)
 function getPackageProfile($package)
 {
     $package = strtolower($package);
+    if (strpos($package, '5 hours') !== false || strpos($package, '5hours') !== false) return '5H';
     if (strpos($package, 'week') !== false || strpos($package, '7') !== false) return '1W';
     if (strpos($package, 'month') !== false || strpos($package, '30') !== false) return '1M';
     return '1D'; // Default to daily
@@ -138,7 +140,7 @@ if (isset($_GET['action'])) {
 
     // Get voucher inventory status (Available, Used, Total only)
     if ($_GET['action'] === 'get_inventory') {
-        $tables = ['daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
+        $tables = ['hourly_vouchers', 'daily_vouchers', 'weekly_vouchers', 'monthly_vouchers'];
         $inventory = [];
 
         foreach ($tables as $table) {
@@ -615,7 +617,7 @@ if (isset($_GET['action'])) {
                     console.error('Failed to load statistics');
                 });
         }
- 
+
         /**
          * Load and display payment requests in table format
          */
@@ -710,6 +712,7 @@ if (isset($_GET['action'])) {
 
                     // Map table names to user-friendly titles
                     const tableNames = {
+                        'hourly_vouchers': 'Short Pass (5 Hours)',
                         'daily_vouchers': 'Daily Vouchers (24 Hours)',
                         'weekly_vouchers': 'Weekly Vouchers (1 Week)',
                         'monthly_vouchers': 'Monthly Vouchers (1 Month)'

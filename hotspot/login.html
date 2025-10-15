@@ -156,20 +156,29 @@ body {
     border: 1px solid #e2e8f0;
 }
 
-.package-btn1, .package-btn2, .package-btn3{
+/* Package Grid Layout */
+.package-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.package-btn1, .package-btn2, .package-btn3, .package-btn4{
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 15px 20px;
+    padding: 20px 15px;
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-bottom: 15px;
+    text-align: center;
 }
 .package-btn1{
     background: linear-gradient(135deg, #42e1ac, #3fb588);
@@ -180,8 +189,11 @@ body {
 .package-btn3{
     background: linear-gradient(135deg, #4299e1, #3182ce);
 }
+.package-btn4{
+    background: linear-gradient(135deg, #1d844f, #26a098);
+}
 
-.package-btn1:hover, .package-btn2:hover, .package-btn3:hover {
+.package-btn1:hover, .package-btn2:hover, .package-btn3:hover, .package-btn4:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(113, 131, 145, 0.3);
 }
@@ -199,13 +211,13 @@ body {
     margin-left: 10px;
     font-size: 1.2rem;
 }
-
+/* 
 /* Package Separators */
-.package-separator {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
-    margin: 15px 0;
-}
+/* .package-separator { */
+    /* height: 1px; */
+    /* background: linear-gradient(90deg, transparent, #cbd5e0, transparent); */
+    /* margin: 15px 0; */
+/* } */
 
 /* Trial Section */
 .trial-section {
@@ -396,6 +408,18 @@ body {
 .fa-spinner::before { content: '⟳'; }
 
 /* Responsive Design */
+@media (max-width: 576px) {
+    .package-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .package-btn1, .package-btn2, .package-btn3, .package-btn4 {
+        padding: 15px 12px;
+        font-size: 0.9rem;
+    }
+}
+
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -554,28 +578,35 @@ body {
             </div>
 
             <!-- 4. Package Section -->
-            <div class="package-section">
-                <h3>Select a Package</h3>
-                <br />
-                <button class="package-btn1" data-package="24 HOURS|1000" onclick="selectPackage(this)">
-                    <span class="package-text">24 Hours - UGX 1,000</span>                    
-                </button>
-                
-                <div class="package-separator"></div>
-                
-                <button class="package-btn2" data-package="1 WEEK|6000" onclick="selectPackage(this)">
-                    <span class="package-text">1 Week - UGX 6,000</span>                    
-                </button>
-                
-                <div class="package-separator"></div>
-                
-                <button class="package-btn3" data-package="1 MONTH|20000" onclick="selectPackage(this)">
-                    <span class="package-text">1 Month - UGX 20,000</span>
-                </button>
-                
-                <h4><a href="https://fastnetug.com" target="_blank" style="text-decoration:none; color:inherit;">See All</a></h4>
-
-            </div>
+<!-- 4. Package Section -->
+<div class="package-section">
+    <h3>Select a Package</h3>
+    <br />
+    
+    <div class="package-grid">
+        <button class="package-btn4" data-package="5 HOURS|500" onclick="selectPackage(this)">
+            <span class="package-text">5 Hours</span>
+            <span style="font-size: 1.2rem; margin-top: 5px;">UGX 500</span>
+        </button>
+        
+        <button class="package-btn1" data-package="24 HOURS|1000" onclick="selectPackage(this)">
+            <span class="package-text">24 Hours</span>
+            <span style="font-size: 1.2rem; margin-top: 5px;">UGX 1,000</span>
+        </button>
+        
+        <button class="package-btn2" data-package="1 WEEK|6000" onclick="selectPackage(this)">
+            <span class="package-text">1 Week</span>
+            <span style="font-size: 1.2rem; margin-top: 5px;">UGX 6,000</span>
+        </button>
+        
+        <button class="package-btn3" data-package="1 MONTH|20000" onclick="selectPackage(this)">
+            <span class="package-text">1 Month</span>
+            <span style="font-size: 1.2rem; margin-top: 5px;">UGX 20,000</span>
+        </button>
+    </div>
+    
+    <h4><a href="https://fastnetug.com" target="_blank" style="text-decoration:none; color:inherit;">See All</a></h4>
+</div>
 
             <!-- Mobile Money Payment Widget (Initially Hidden) -->
             <div class="payment-widget" id="payment-widget" style="display: none;">
@@ -608,44 +639,23 @@ body {
                 <input type="hidden" id="hidden-package-data">
             </div>
 
-            <!-- Number Change Alert Modal -->
-            <div class="modal fade" id="numberChangeModal" tabindex="-1" style="backdrop-filter: blur(5px);">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        <div class="modal-header" style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white; border-radius: 20px 20px 0 0; border: none; padding: 25px;">
-                            <h5 class="modal-title fw-bold">
-                                <i class="fas fa-exclamation-circle me-2"></i>Important Notice
-                            </h5>
-                        </div>
-                        <div class="modal-body text-center" style="padding: 30px;">
-                            <div class="mb-4">
-                                <i class="fas fa-mobile-alt" style="font-size: 3rem; color: #4299e1; margin-bottom: 20px;"></i>
-                            </div>                            
-                            <p class="mb-3" style="color: #4a5568;">Our Official business number has changed. Please deposit to:</p>
-                            <div class="alert alert-info" style="background: linear-gradient(135deg, #bee3f8, #90cdf4); border: none; border-radius: 15px; color: #2a4365;">
-                                <h4 class="fw-bold mb-0">
-                                    <i class="fas fa-phone me-2"></i>0756585769
-                                </h4>
-                            </div>
-                            <small class="text-muted">
-                                <s>Old number: 0744766410</s>
-                            </small>
-                        </div>
-                        <div class="modal-footer" style="border: none; padding: 20px 30px 30px;">
-                            <button type="button" class="btn btn-lg w-100" style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; border-radius: 12px; padding: 15px;" onclick="proceedWithPayment()">
-                                <i class="fas fa-check me-2"></i>Got it, Continue
-                            </button>
-                        </div>
+            <!-- Simple Modal HTML (replace your existing modal) -->
+            <div id="numberChangeModal" class="simple-modal">
+                <div class="modal-overlay" onclick="closeModal()"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Important Notice</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Our payment number has changed. Kindly deposit to:</p>
+                        <div class="new-number">0756585769</div>
+                        <small class="old-number">Old number: 0744766410</small>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="proceedWithPayment()" class="continue-btn">Got it, Continue</button>
                     </div>
                 </div>
             </div>
-
-            <style>
-            .modal-backdrop {
-                backdrop-filter: blur(5px);
-                background-color: rgba(0,0,0,0.5);
-            }
-            </style>
 
             <!-- 6. Help Section -->
             <div class="help-section">
@@ -659,211 +669,299 @@ body {
             <div class="rights-section">
                 <small>&copy; 2025 FastNetUG. All rights reserved.</small>
             </div>
-        </div>
-    </div>
-</div>
 
-<script>
-// Auto-focus on voucher field
-document.addEventListener('DOMContentLoaded', function() {
-    const voucherInput = document.querySelector('input[name="usernamekv"]');
-    if (voucherInput) {
-        voucherInput.focus();
-    }
-    
-    // Initialize payment widget functionality
-    initializePaymentWidget();
-});
-
-// Package Selection and Payment Widget Functions
-function selectPackage(button) {
-    const packageData = button.getAttribute('data-package');
-    const [duration, amount] = packageData.split('|');
-    
-    // Store package data
-    document.getElementById('hidden-package-data').value = packageData;
-    
-    // Update package details display
-    document.getElementById('package-details').textContent = `${duration} for UGX ${amount}`;
-    
-    // Show payment widget
-    document.getElementById('payment-widget').style.display = 'block';
-    
-    // Scroll to payment widget
-    document.getElementById('payment-widget').scrollIntoView({ behavior: 'smooth' });
-    
-    // Focus on phone input
-    setTimeout(() => {
-        document.getElementById('phone').focus();
-    }, 500);
-}
-
-function hidePaymentWidget() {
-    document.getElementById('payment-widget').style.display = 'none';
-    document.getElementById('phone').value = '';
-    document.getElementById('response-message').innerHTML = '';
-}
-
-function initializePaymentWidget() {
-    const btnBuy = document.getElementById('btn-buy');
-    const phoneInput = document.getElementById('phone');
-    const responseMessage = document.getElementById('response-message');
-    const hiddenPackageData = document.getElementById('hidden-package-data');
-
-    // Display message function with persistent option
-    const displayMessage = (type, message, persistent = false) => {
-        let alertClass = 'alert-info';
-        let icon = 'ℹ';
-        
-        if (type === 'success') {
-            alertClass = 'alert-success';
-            icon = '✅';
-        } else if (type === 'error') {
-            alertClass = 'alert-danger';
-            icon = '⚠';
-        } else if (type === 'loading') {
-            alertClass = 'alert-info';
-            icon = '';
-        }
-        
-        const closeButton = persistent ? 
-            '<button class="alert-close" onclick="this.parentElement.remove()">×</button>' : '';
-        
-        responseMessage.innerHTML = `
-            <div class="alert ${alertClass}">
-                ${closeButton}
-                <span class="${type === 'loading' ? 'fa-spinner' : ''}">${icon}</span> ${message}
-            </div>
-        `;
-        
-        // Auto-remove non-persistent messages
-        if (!persistent && type !== 'loading') {
-            setTimeout(() => {
-                if (responseMessage.innerHTML.includes(message)) {
-                    responseMessage.innerHTML = '';
-                }
-            }, 10000);
-        }
-    };
-
-    // Buy button click handler
-    btnBuy.addEventListener('click', () => {
-        const phone = phoneInput.value.trim();
-        const packageData = hiddenPackageData.value;
-
-        if (!phone || !packageData) {
-            displayMessage('error', 'Please enter a valid phone number.');
-            return;
-        }
-
-        // Validate phone number format (Uganda format)
-        const phoneRegex = /^(0[7][0-9]{8}|256[7][0-9]{8})$/;
-        if (!phoneRegex.test(phone)) {
-            displayMessage('error', 'Please enter a valid Ugandan phone number (e.g., 0741234567).');
-            return;
-        }
-
-        const [duration, amount] = packageData.split('|');
-        
-        displayMessage('loading', 'Processing payment request... Please wait.');
-
-        // Disable buy button to prevent double submission
-        btnBuy.disabled = true;
-
-        // Prepare data for backend - simplified without MAC address
-        const formData = new FormData();
-        formData.append('phone', phone);
-        formData.append('package', duration);
-        formData.append('price', amount);
-
-        // Send data to the backend
-        fetch('https://www.fastnetug.com/pages/voucher_request.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            btnBuy.disabled = false;
-            
-            if (data.success) {
-                // Show persistent success message with payment instructions
-                const successMessage = `Request submitted. Please deposit UGX ${amount} to <strong>0756585769</strong> to receive a voucher`;
-                displayMessage('success', successMessage, true);
-                
-                // Clear form but keep widget visible for user reference
-                phoneInput.value = '';
-                
-                // Log successful request
-                console.log('Payment request created:', data.request_id);
-                
-            } else {
-                displayMessage('error', data.message || 'Failed to create payment request. Please try again.');
+            <style>
+            /* Simple Modal Styles */
+            .simple-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                align-items: center;
+                justify-content: center;
             }
-        })
-        .catch(error => {
-            btnBuy.disabled = false;
-            console.error('Payment request error:', error);
-            displayMessage('error', 'Network error. Please check your connection and try again.');
-        });
-    });
 
-    // Enter key support for phone input
-    phoneInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            btnBuy.click();
-        }
-    });
-}
-</script>
+            .simple-modal.show {
+                display: flex;
+            }
 
-<script>
-// Store the selected package data temporarily
-let pendingPackageData = null;
+            .modal-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(3px);
+            }
 
-// Modified selectPackage function to show modal first
-function selectPackage(button) {
-    pendingPackageData = {
-        button: button,
-        packageData: button.getAttribute('data-package')
-    };
-    
-    // Show the number change modal
-    const modal = new bootstrap.Modal(document.getElementById('numberChangeModal'));
-    modal.show();
-}
+            .modal-content {
+                background: white;
+                border-radius: 15px;
+                max-width: 400px;
+                width: 90%;
+                margin: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                position: relative;
+                z-index: 1;
+            }
 
-// Function to proceed after user acknowledges the number change
-function proceedWithPayment() {
-    if (!pendingPackageData) return;
-    
-    const { button, packageData } = pendingPackageData;
-    const [duration, amount] = packageData.split('|');
-    
-    // Store package data
-    document.getElementById('hidden-package-data').value = packageData;
-    
-    // Update package details display with new number
-    document.getElementById('package-details').textContent = `${duration} for UGX ${amount}`;
-    
-    // Show payment widget
-    document.getElementById('payment-widget').style.display = 'block';
-    
-    // Hide the modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('numberChangeModal'));
-    modal.hide();
-    
-    // Scroll to payment widget
-    document.getElementById('payment-widget').scrollIntoView({ behavior: 'smooth' });
-    
-    // Focus on phone input
-    setTimeout(() => {
-        document.getElementById('phone').focus();
-    }, 500);
-    
-    // Clear pending data
-    pendingPackageData = null;
-}
-</script>
+            .modal-header {
+                background: linear-gradient(135deg, #4299e1, #3182ce);
+                color: white;
+                padding: 20px;
+                border-radius: 15px 15px 0 0;
+                text-align: center;
+            }
+
+            .modal-header h3 {
+                margin: 0;
+                font-size: 1.3rem;
+            }
+
+            .modal-body {
+                padding: 25px;
+                text-align: center;
+            }
+
+            .modal-body p {
+                margin: 0 0 15px 0;
+                color: #4a5568;
+            }
+
+            .new-number {
+                background: #e6fffa;
+                border: 2px solid #4fd1c7;
+                padding: 15px;
+                border-radius: 10px;
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #234e52;
+                margin: 15px 0;
+            }
+
+            .old-number {
+                color: red;
+                font-size: 16px;
+                text-decoration: line-through;
+            }
+
+            .modal-footer {
+                padding: 20px 25px 25px;
+            }
+
+            .continue-btn {
+                width: 100%;
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white;
+                border: none;
+                padding: 15px;
+                border-radius: 10px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .continue-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+            }
+
+            /* Mobile responsiveness */
+            @media (max-width: 480px) {
+                .modal-content {
+                    width: 95%;
+                    margin: 10px;
+                }
+                
+                .modal-header {
+                    padding: 15px;
+                }
+                
+                .modal-body {
+                    padding: 20px;
+                }
+                
+                .new-number {
+                    font-size: 1.3rem;
+                    padding: 12px;
+                }
+            }
+            </style>
+
+            <script>
+            // Clean JavaScript - Replace ALL your existing script tags with this single one
+            let pendingPackageData = null;
+
+            // Package Selection Function
+            function selectPackage(button) {
+                const packageData = button.getAttribute('data-package');
+                
+                // Store package data
+                pendingPackageData = {
+                    packageData: packageData
+                };
+                
+                // Show modal
+                const modal = document.getElementById('numberChangeModal');
+                modal.classList.add('show');
+                document.body.style.overflow = '';
+            }
+
+            // Close modal function
+            function closeModal() {
+                const modal = document.getElementById('numberChangeModal');
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+                pendingPackageData = null;
+            }
+
+            // Proceed with payment after modal
+            function proceedWithPayment() {
+                if (!pendingPackageData) return;
+                
+                const { packageData } = pendingPackageData;
+                const [duration, amount] = packageData.split('|');
+                
+                // Close modal
+                closeModal();
+                
+                // Show payment widget
+                document.getElementById('hidden-package-data').value = packageData;
+                document.getElementById('package-details').textContent = `${duration} for UGX ${amount}`;
+                document.getElementById('payment-widget').style.display = 'block';
+                
+                // Scroll to widget
+                document.getElementById('payment-widget').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                
+                // Focus phone input
+                setTimeout(() => {
+                    document.getElementById('phone').focus();
+                }, 600);
+            }
+
+            // Hide payment widget
+            function hidePaymentWidget() {
+                document.getElementById('payment-widget').style.display = 'none';
+                document.getElementById('phone').value = '';
+                document.getElementById('response-message').innerHTML = '';
+            }
+
+            // Initialize when page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                // Focus voucher input
+                const voucherInput = document.querySelector('input[name="usernamekv"]');
+                if (voucherInput) {
+                    voucherInput.focus();
+                }
+                
+                // Initialize payment widget
+                initializePaymentWidget();
+            });
+
+            function initializePaymentWidget() {
+                const btnBuy = document.getElementById('btn-buy');
+                const phoneInput = document.getElementById('phone');
+                const responseMessage = document.getElementById('response-message');
+                const hiddenPackageData = document.getElementById('hidden-package-data');
+
+                // Display message function
+                const displayMessage = (type, message, persistent = false) => {
+                    let alertClass = 'alert-info';
+                    let icon = 'ℹ';
+                    
+                    if (type === 'success') {
+                        alertClass = 'alert-success';
+                        icon = '✅';
+                    } else if (type === 'error') {
+                        alertClass = 'alert-danger';
+                        icon = '⚠';
+                    } else if (type === 'loading') {
+                        alertClass = 'alert-info';
+                        icon = '⟳';
+                    }
+                    
+                    const closeButton = persistent ? 
+                        '<button class="alert-close" onclick="this.parentElement.remove()">×</button>' : '';
+                    
+                    responseMessage.innerHTML = `
+                        <div class="alert ${alertClass}">
+                            ${closeButton}
+                            <span class="${type === 'loading' ? 'fa-spinner' : ''}">${icon}</span> ${message}
+                        </div>
+                    `;
+                    
+                    if (!persistent && type !== 'loading') {
+                        setTimeout(() => {
+                            if (responseMessage.innerHTML.includes(message)) {
+                                responseMessage.innerHTML = '';
+                            }
+                        }, 8000);
+                    }
+                };
+
+                // Buy button handler
+                btnBuy.addEventListener('click', () => {
+                    const phone = phoneInput.value.trim();
+                    const packageData = hiddenPackageData.value;
+
+                    if (!phone || !packageData) {
+                        displayMessage('error', 'Please enter a valid phone number.');
+                        return;
+                    }
+
+                    const phoneRegex = /^(0[7][0-9]{8}|256[7][0-9]{8})$/;
+                    if (!phoneRegex.test(phone)) {
+                        displayMessage('error', 'Please enter a valid Ugandan phone number (e.g., 0741234567).');
+                        return;
+                    }
+
+                    const [duration, amount] = packageData.split('|');
+                    displayMessage('loading', 'Processing payment request... Please wait.');
+                    btnBuy.disabled = true;
+
+                    const formData = new FormData();
+                    formData.append('phone', phone);
+                    formData.append('package', duration);
+                    formData.append('price', amount);
+
+                    fetch('https://www.fastnetug.com/pages/voucher_request.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        btnBuy.disabled = false;
+                        
+                        if (data.success) {
+                            const successMessage = `Request submitted. Please deposit UGX ${amount} to <strong>0756585769</strong> to receive a voucher`;
+                            displayMessage('success', successMessage, true);
+                            phoneInput.value = '';
+                        } else {
+                            displayMessage('error', data.message || 'Failed to create payment request. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        btnBuy.disabled = false;
+                        displayMessage('error', 'Network error. Please check your connection and try again.');
+                    });
+                });
+
+                // Enter key support
+                phoneInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        btnBuy.click();
+                    }
+                });
+            }
+            </script>
 
 </body>
 </html>

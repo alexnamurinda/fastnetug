@@ -273,7 +273,9 @@ function getVoucherTable($package)
 {
     $package_lower = strtolower($package);
 
-    if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
+    if (strpos($package_lower, '5 hours') !== false || strpos($package_lower, '5hours') !== false) {
+        return 'hourly_vouchers';
+    } elseif (strpos($package_lower, '24 hours') !== false || strpos($package_lower, '24hours') !== false) {
         return 'daily_vouchers';
     } elseif (strpos($package_lower, 'week') !== false) {
         return 'weekly_vouchers';
@@ -292,7 +294,9 @@ function getProfileCode($package)
 {
     $package_lower = strtolower($package);
 
-    if (strpos($package_lower, 'hours') !== false || strpos($package_lower, '24') !== false) {
+    if (strpos($package_lower, '5 hours') !== false || strpos($package_lower, '5hours') !== false) {
+        return '5H';
+    } elseif (strpos($package_lower, '24 hours') !== false || strpos($package_lower, '24hours') !== false) {
         return '1D';
     } elseif (strpos($package_lower, 'week') !== false) {
         return '1W';
