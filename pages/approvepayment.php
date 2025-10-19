@@ -1029,17 +1029,24 @@ if (isset($_GET['action'])) {
                 } = window.jspdf;
                 const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation for better table fit
 
-                // Add company logo/header
+                // Get page width for centering
+                const pageWidth = doc.internal.pageSize.getWidth();
+
+                // Add company logo/header (centered)
                 doc.setFontSize(20);
                 doc.setTextColor(66, 153, 225);
                 doc.setFont(undefined, 'bold');
-                doc.text('FastNetUG', 14, 15);
+                doc.text('FastNetUG', pageWidth / 2, 15, {
+                    align: 'center'
+                });
 
                 doc.setFontSize(16);
                 doc.setTextColor(45, 55, 72);
-                doc.text('Requests Payment Report', 14, 24);
+                doc.text('Payment Requests Report', pageWidth / 2, 24, {
+                    align: 'center'
+                });
 
-                // Add generation date and time
+                // Add generation date and time (centered)
                 doc.setFontSize(9);
                 doc.setTextColor(100);
                 doc.setFont(undefined, 'normal');
@@ -1054,7 +1061,9 @@ if (isset($_GET['action'])) {
                     second: '2-digit',
                     hour12: true
                 });
-                doc.text('Generated: ' + dateStr, 14, 30);
+                doc.text('Generated: ' + dateStr, pageWidth / 2, 30, {
+                    align: 'center'
+                });
 
                 // Prepare table data from the HTML table
                 const tableData = [];
@@ -1090,10 +1099,9 @@ if (isset($_GET['action'])) {
                     return;
                 }
 
-                // Add summary statistics at the top
+                // Add summary statistics at the top (centered)
                 doc.setFontSize(9);
                 doc.setTextColor(100);
-                doc.text('Total Requests: ' + tableData.length, 14, 36);
 
                 // Count requests by status
                 const statusCounts = {};
@@ -1102,10 +1110,16 @@ if (isset($_GET['action'])) {
                     statusCounts[status] = (statusCounts[status] || 0) + 1;
                 });
 
-                let summaryX = 80;
+                // Build summary string
+                let summaryText = 'Total Requests: ' + tableData.length + '  |  ';
+                const statusParts = [];
                 Object.entries(statusCounts).forEach(([status, count]) => {
-                    doc.text(`${status}: ${count}`, summaryX, 36);
-                    summaryX += 40;
+                    statusParts.push(`${status}: ${count}`);
+                });
+                summaryText += statusParts.join('  |  ');
+
+                doc.text(summaryText, pageWidth / 2, 36, {
+                    align: 'center'
                 });
 
                 // Generate table in PDF
