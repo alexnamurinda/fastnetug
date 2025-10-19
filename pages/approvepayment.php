@@ -175,10 +175,15 @@ if (isset($_GET['action'])) {
             $stmt->execute();
             $stats['pending_requests'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Total requests for today - using DATE() to compare dates properly
-            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE DATE(created_at) = CURDATE()");
+            // Refund requests count for this month
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS count FROM voucher_requests WHERE status = 'refund' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
             $stmt->execute();
-            $stats['requests_today'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+            $stats['refund_requests_monthly'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+
+            // Refund amount for this month
+            $stmt = $pdo->prepare("SELECT SUM(price) AS amount FROM voucher_requests WHERE status = 'refund' AND MONTH(approved_at) = MONTH(CURDATE()) AND YEAR(approved_at) = YEAR(CURDATE())");
+            $stmt->execute();
+            $stats['refund_amount_monthly'] = (float)($stmt->fetch(PDO::FETCH_ASSOC)['amount'] ?? 0);
 
             // Revenue generated today - using DATE() to compare dates properly
             $stmt = $pdo->prepare("SELECT SUM(price) AS revenue FROM voucher_requests WHERE status = 'approved' AND DATE(approved_at) = CURDATE()");
@@ -205,8 +210,9 @@ if (isset($_GET['action'])) {
     }
 
     // Approve a payment request and assign voucher
-    if ($_GET['action'] === 'approve' && !empty($_POST['id'])) {
+    if ($_GET['action'] === 'approve' && !empty($_POST['id']) && !empty($_POST['approval_type'])) {
         $request_id = $_POST['id'];
+        $approval_type = $_POST['approval_type']; // 'new' or 'refund'
 
         try {
             $pdo->beginTransaction();
@@ -242,17 +248,21 @@ if (isset($_GET['action'])) {
             $stmt = $pdo->prepare("UPDATE $voucher_table SET status = 'Used', user_phone = ?, used_at = NOW() WHERE id = ?");
             $stmt->execute([$formatted_phone, $voucher['id']]);
 
-            // Update request status to approved
-            $stmt = $pdo->prepare("UPDATE voucher_requests SET status = 'approved', voucher_code = ?, approved_at = NOW() WHERE request_id = ?");
-            $stmt->execute([$voucher['voucher_code'], $request_id]);
+            // Determine the status based on approval type
+            $status = ($approval_type === 'refund') ? 'refund' : 'approved';
+
+            // Update request status
+            $stmt = $pdo->prepare("UPDATE voucher_requests SET status = ?, voucher_code = ?, approved_at = NOW() WHERE request_id = ?");
+            $stmt->execute([$status, $voucher['voucher_code'], $request_id]);
 
             // Log the approval action for audit trail
             $stmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description, ip_address) 
-                VALUES ('voucher_approval', ?, 'admin', ?, ?)
-            ");
-            $action_description = "Approved payment request. Assigned voucher {$voucher['voucher_code']} to {$formatted_phone}";
+            INSERT INTO system_logs 
+            (log_type, reference_id, user_identifier, action_description, ip_address) 
+            VALUES ('voucher_approval', ?, 'admin', ?, ?)
+        ");
+            $action_type_text = ($approval_type === 'refund') ? 'Refunded' : 'Approved';
+            $action_description = "{$action_type_text} payment request. Assigned voucher {$voucher['voucher_code']} to {$formatted_phone}";
             $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
             $stmt->execute([$request_id, $action_description, $ip_address]);
 
@@ -264,10 +274,10 @@ if (isset($_GET['action'])) {
 
             // Log SMS delivery attempt
             $stmt = $pdo->prepare("
-                INSERT INTO system_logs 
-                (log_type, reference_id, user_identifier, action_description) 
-                VALUES ('system_action', ?, ?, ?)
-            ");
+            INSERT INTO system_logs 
+            (log_type, reference_id, user_identifier, action_description) 
+            VALUES ('system_action', ?, ?, ?)
+        ");
             $sms_log = $sms_sent ?
                 "Voucher SMS sent successfully to {$formatted_phone}" :
                 "Failed to send voucher SMS to {$formatted_phone}";
@@ -275,19 +285,19 @@ if (isset($_GET['action'])) {
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Request approved successfully.',
+                'message' => $action_type_text . ' successfully.',
                 'voucher_code' => $voucher['voucher_code'],
-                'sms_sent' => $sms_sent
+                'sms_sent' => $sms_sent,
+                'approval_type' => $approval_type
             ]);
             exit;
         } catch (Exception $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             error_log("Approval error: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Error approving request: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Error processing request: ' . $e->getMessage()]);
             exit;
         }
     }
-
     // Reject a payment request with reason
     if ($_GET['action'] === 'reject' && !empty($_POST['id']) && !empty($_POST['reason'])) {
         $request_id = $_POST['id'];
@@ -399,16 +409,17 @@ if (isset($_GET['action'])) {
                 </div>
             </div>
 
-            <!-- Today's Requests Counter (resets daily at midnight) -->
+            <!-- Refund Requests Counter (resets monthly) -->
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card stats-card">
                     <div class="card-body d-flex align-items-center">
-                        <div class="stats-icon today">
-                            <i class="fas fa-calendar-day"></i>
+                        <div class="stats-icon refund">
+                            <i class="fas fa-undo"></i>
                         </div>
                         <div>
-                            <h5 class="card-title mb-1" id="today-count">0 Requests</h5>
-                            <p class="card-text text-muted mb-0">Today</p>
+                            <h5 class="card-title mb-1" id="refund-count">0 Refunds</h5>
+                            <p class="card-text text-muted mb-0" id="refund-amount">UGX 0</p>
+                            <small class="text-muted" style="font-size: 0.75rem;">This Month</small>
                         </div>
                     </div>
                 </div>
@@ -535,6 +546,47 @@ if (isset($_GET['action'])) {
         </div>
     </div>
 
+    <!-- Modal for Approving Payment Requests -->
+    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="approve-form" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel">
+                        <i class="fas fa-check-circle me-2"></i>Approve Payment Request
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="approve-request-id" name="id">
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-tag me-1"></i>Select Approval Type
+                        </label>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-success approval-type-btn" data-type="new">
+                                <i class="fas fa-plus-circle me-2"></i>NEW - Regular Sale
+                            </button>
+                            <button type="button" class="btn btn-danger approval-type-btn" data-type="refund">
+                                <i class="fas fa-undo me-2"></i>REFUND - No Revenue Count
+                            </button>
+                        </div>
+                        <input type="hidden" id="approval-type" name="approval_type">
+                        <div class="form-text mt-2">NEW: Counts as revenue | REFUND: No revenue impact</div>
+                    </div>
+
+                    <div class="alert alert-danger d-none" id="approve-error"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="approve-confirm-btn" disabled>
+                        <i class="fas fa-check me-1"></i>Confirm Approval
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Success/Error Toast Notifications -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="actionToast" class="toast" role="alert">
@@ -554,6 +606,7 @@ if (isset($_GET['action'])) {
     <script>
         // Initialize Bootstrap components
         const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+        const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
         const actionToast = new bootstrap.Toast(document.getElementById('actionToast'));
 
         /**
@@ -609,7 +662,8 @@ if (isset($_GET['action'])) {
             $.getJSON('?action=get_stats')
                 .done(function(data) {
                     $('#pending-count').text(data.pending_requests + ' Pending');
-                    $('#today-count').text(data.requests_today + ' Requests');
+                    $('#refund-count').text(data.refund_requests_monthly + ' Refunds');
+                    $('#refund-amount').text('UGX ' + Number(data.refund_amount_monthly).toLocaleString());
                     $('#revenue-today').text('UGX ' + Number(data.revenue_today).toLocaleString());
                     $('#revenue-monthly').text('UGX ' + Number(data.revenue_monthly).toLocaleString());
                 })
@@ -664,6 +718,10 @@ if (isset($_GET['action'])) {
                             case 'rejected':
                                 statusBadge = '<span class="status-badge status-rejected">Rejected</span>';
                                 actionsHtml = '<small class="text-muted">Rejected</small>';
+                                break;
+                            case 'refund':
+                                statusBadge = '<span class="status-badge status-refund">Refund</span>';
+                                actionsHtml = '<small class="text-muted">Refunded</small>';
                                 break;
                             default:
                                 statusBadge = `<span class="status-badge">${request.status}</span>`;
@@ -782,42 +840,18 @@ if (isset($_GET['action'])) {
          * @param {string} requestId - The request ID to approve
          */
         function handleApprove(requestId) {
-            if (!confirm(`Are you sure you want to approve request ${requestId}? This will send a voucher code to the customer.`)) {
-                return;
-            }
+            $('#approve-request-id').val(requestId);
+            $('#approval-type').val('');
+            $('#approve-error').addClass('d-none').text('');
+            $('#approve-confirm-btn').prop('disabled', true);
 
-            const button = $(`.approve-btn[data-id="${requestId}"]`);
-            const originalHtml = button.html();
-            button.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+            // Reset button selection
+            $('.approval-type-btn').removeClass('btn-success btn-danger').addClass('btn-outline-secondary');
 
-            $.post('?action=approve', {
-                    id: requestId
-                })
-                .done(function(response) {
-                    try {
-                        // Parse response if it's a string
-                        const data = typeof response === 'string' ? JSON.parse(response) : response;
-
-                        if (data.success) {
-                            showToast(`Request approved successfully`);
-                            refreshAllData(); // Refresh all data after approval
-                        } else {
-                            showToast(`Request approved successfully`);
-                            refreshAllData();
-                            // showToast(data.message || 'Failed to approve request', false);
-                            // button.html(originalHtml).prop('disabled', false);
-                        }
-                    } catch (e) {
-                        showToast('Invalid response format', false);
-                        button.html(originalHtml).prop('disabled', false);
-                    }
-                })
-                .fail(function() {
-                    showToast('Network error. Please try again.', false);
-                    button.html(originalHtml).prop('disabled', false);
-                });
+            approveModal.show();
         }
 
+        
         /**
          * Handle rejection of a payment request
          * @param {string} requestId - The request ID to reject
@@ -900,6 +934,78 @@ if (isset($_GET['action'])) {
                 $('#reject-reason').val('');
                 $('#reject-error').addClass('d-none').text('');
             });
+        });
+
+
+        // Handle approval type button selection
+        $(document).on('click', '.approval-type-btn', function() {
+            const type = $(this).data('type');
+            $('#approval-type').val(type);
+
+            // Update button styling
+            $('.approval-type-btn').removeClass('btn-success btn-danger').addClass('btn-outline-secondary');
+
+            if (type === 'new') {
+                $(this).removeClass('btn-outline-secondary').addClass('btn-success');
+            } else {
+                $(this).removeClass('btn-outline-secondary').addClass('btn-danger');
+            }
+
+            // Enable confirm button
+            $('#approve-confirm-btn').prop('disabled', false);
+        });
+
+        // Handle approve form submission
+        $('#approve-form').on('submit', function(e) {
+            e.preventDefault();
+
+            const requestId = $('#approve-request-id').val();
+            const approvalType = $('#approval-type').val();
+
+            if (!approvalType) {
+                $('#approve-error').removeClass('d-none').text('Please select an approval type.');
+                return;
+            }
+
+            const submitBtn = $('#approve-confirm-btn');
+            const originalHtml = submitBtn.html();
+            submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i>Processing...').prop('disabled', true);
+
+            $.post('?action=approve', {
+                    id: requestId,
+                    approval_type: approvalType
+                })
+                .done(function(response) {
+                    try {
+                        const data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                        if (data.success) {
+                            approveModal.hide();
+                            const message = approvalType === 'refund' ?
+                                'Request refunded successfully' :
+                                'Request approved successfully';
+                            showToast(message);
+                            refreshAllData();
+                        } else {
+                            $('#approve-error').removeClass('d-none').text(data.message || 'Failed to process request');
+                        }
+                    } catch (e) {
+                        $('#approve-error').removeClass('d-none').text('Invalid response format.');
+                    }
+                    submitBtn.html(originalHtml).prop('disabled', false);
+                })
+                .fail(function() {
+                    $('#approve-error').removeClass('d-none').text('Network error. Please try again.');
+                    submitBtn.html(originalHtml).prop('disabled', false);
+                });
+        });
+
+        // Clear approve modal form when hidden
+        $('#approveModal').on('hidden.bs.modal', function() {
+            $('#approval-type').val('');
+            $('#approve-error').addClass('d-none').text('');
+            $('.approval-type-btn').removeClass('btn-success btn-danger').addClass('btn-outline-secondary');
+            $('#approve-confirm-btn').prop('disabled', true);
         });
 
         // Keyboard shortcuts

@@ -70,6 +70,11 @@ body {
     color: #8B4513;
 }
 
+.stats-icon.refund {
+    background: rgba(237, 137, 54, 0.1);
+    color: var(--warning-color);
+}
+
 /* Main content cards */
 .main-card {
     background: white;
@@ -113,6 +118,12 @@ body {
     background: rgba(229, 62, 62, 0.1);
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
+}
+
+.status-refund {
+    background: rgba(237, 137, 54, 0.1);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
 }
 
 /* Compact action buttons for approve/reject */
@@ -780,4 +791,23 @@ body {
     .inventory-item:hover {
         transform: none;
     }
+}
+
+
+/* Approval type selection buttons */
+.approval-type-btn {
+    padding: 1rem;
+    font-weight: 600;
+    text-align: left;
+    border-width: 2px;
+    transition: all 0.3s ease;
+}
+
+.approval-type-btn:hover {
+    transform: translateX(5px);
+}
+
+.approval-type-btn.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #dee2e6;
 }

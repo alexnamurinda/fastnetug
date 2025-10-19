@@ -119,7 +119,7 @@ try {
             phone VARCHAR(15) NOT NULL,
             package VARCHAR(100) NOT NULL,
             price DECIMAL(10,2) NOT NULL,
-            status ENUM('pending', 'approved', 'rejected', 'expired') DEFAULT 'pending',
+            status ENUM('pending', 'approved', 'rejected', 'refund', 'expired') DEFAULT 'pending',
             voucher_code VARCHAR(50) NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             approved_at TIMESTAMP NULL,
