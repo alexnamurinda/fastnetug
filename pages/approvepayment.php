@@ -1022,31 +1022,35 @@ if (isset($_GET['action'])) {
         /**
          * Download requests table as PDF
          */
+        /**
+         * Download requests table as PDF - Centered Layout
+         */
         function downloadTablePDF() {
             try {
                 const {
                     jsPDF
                 } = window.jspdf;
-                const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation for better table fit
+                const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation (297mm x 210mm)
 
-                // Get page width for centering
-                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageWidth = doc.internal.pageSize.getWidth(); // 297mm
+                const pageHeight = doc.internal.pageSize.getHeight(); // 210mm
+                const centerX = pageWidth / 2;
 
-                // Add company logo/header (centered)
+                // Add company logo/header - CENTERED
                 doc.setFontSize(20);
                 doc.setTextColor(66, 153, 225);
                 doc.setFont(undefined, 'bold');
-                doc.text('FastNetUG', pageWidth / 2, 15, {
+                doc.text('FastNetUG', centerX, 15, {
                     align: 'center'
                 });
 
                 doc.setFontSize(16);
                 doc.setTextColor(45, 55, 72);
-                doc.text('Payment Requests Report', pageWidth / 2, 24, {
+                doc.text('Payment Requests Report', centerX, 24, {
                     align: 'center'
                 });
 
-                // Add generation date and time (centered)
+                // Add generation date and time - CENTERED
                 doc.setFontSize(9);
                 doc.setTextColor(100);
                 doc.setFont(undefined, 'normal');
@@ -1061,7 +1065,7 @@ if (isset($_GET['action'])) {
                     second: '2-digit',
                     hour12: true
                 });
-                doc.text('Generated: ' + dateStr, pageWidth / 2, 30, {
+                doc.text('Generated: ' + dateStr, centerX, 32, {
                     align: 'center'
                 });
 
@@ -1099,7 +1103,7 @@ if (isset($_GET['action'])) {
                     return;
                 }
 
-                // Add summary statistics at the top (centered)
+                // Add summary statistics - CENTERED
                 doc.setFontSize(9);
                 doc.setTextColor(100);
 
@@ -1110,59 +1114,66 @@ if (isset($_GET['action'])) {
                     statusCounts[status] = (statusCounts[status] || 0) + 1;
                 });
 
-                // Build summary string
-                let summaryText = 'Total Requests: ' + tableData.length + '  |  ';
-                const statusParts = [];
+                // Build summary text
+                let summaryText = `Total Requests: ${tableData.length}  |  `;
+                const statusTexts = [];
                 Object.entries(statusCounts).forEach(([status, count]) => {
-                    statusParts.push(`${status}: ${count}`);
+                    statusTexts.push(`${status}: ${count}`);
                 });
-                summaryText += statusParts.join('  |  ');
+                summaryText += statusTexts.join('  |  ');
 
-                doc.text(summaryText, pageWidth / 2, 36, {
+                doc.text(summaryText, centerX, 40, {
                     align: 'center'
                 });
 
-                // Generate table in PDF
+                // Calculate table width and center it
+                const tableWidth = 240; // Total width of table
+                const tableStartX = (pageWidth - tableWidth) / 2; // Center the table
+
+                // Generate table in PDF - CENTERED
                 doc.autoTable({
-                    startY: 42,
+                    startY: 46,
                     head: [
                         ['Request ID', 'Phone Number', 'Package', 'Status', 'Voucher Code']
                     ],
                     body: tableData,
                     theme: 'grid',
                     styles: {
-                        fontSize: 8,
-                        cellPadding: 3,
+                        fontSize: 9,
+                        cellPadding: 4,
                         overflow: 'linebreak',
                         halign: 'center',
-                        valign: 'middle'
+                        valign: 'middle',
+                        lineWidth: 0.1,
+                        lineColor: [200, 200, 200]
                     },
                     headStyles: {
                         fillColor: [66, 153, 225],
                         textColor: [255, 255, 255],
                         fontStyle: 'bold',
                         halign: 'center',
-                        fontSize: 9
+                        fontSize: 10,
+                        cellPadding: 5
                     },
                     columnStyles: {
                         0: {
-                            cellWidth: 30,
+                            cellWidth: 35,
                             halign: 'center'
                         }, // Request ID
                         1: {
-                            cellWidth: 50,
+                            cellWidth: 55,
                             halign: 'center'
                         }, // Phone Number
                         2: {
-                            cellWidth: 25,
+                            cellWidth: 30,
                             halign: 'center'
                         }, // Package
                         3: {
-                            cellWidth: 30,
+                            cellWidth: 35,
                             halign: 'center'
                         }, // Status
                         4: {
-                            cellWidth: 50,
+                            cellWidth: 55,
                             halign: 'center'
                         } // Voucher Code
                     },
@@ -1170,9 +1181,10 @@ if (isset($_GET['action'])) {
                         fillColor: [247, 250, 252]
                     },
                     margin: {
-                        left: 14,
-                        right: 14
+                        left: tableStartX,
+                        right: tableStartX
                     },
+                    tableWidth: tableWidth,
                     didParseCell: function(data) {
                         // Color code status cells
                         if (data.column.index === 3 && data.section === 'body') {
@@ -1194,27 +1206,36 @@ if (isset($_GET['action'])) {
                     }
                 });
 
-                // Add footer with page numbers and company info
+                // Add footer with page numbers and company info - CENTERED
                 const pageCount = doc.internal.getNumberOfPages();
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
 
-                    // Page number
+                    // Page number - CENTER
                     doc.setFontSize(8);
                     doc.setTextColor(150);
                     doc.text(
                         'Page ' + i + ' of ' + pageCount,
-                        doc.internal.pageSize.getWidth() / 2,
-                        doc.internal.pageSize.getHeight() - 10, {
+                        centerX,
+                        pageHeight - 10, {
                             align: 'center'
                         }
                     );
 
-                    // Company info
+                    // Company info - LEFT
                     doc.text(
-                        'FastNetUG - Payment Requests',
-                        14,
-                        doc.internal.pageSize.getHeight() - 10
+                        'FastNetUG',
+                        20,
+                        pageHeight - 10
+                    );
+
+                    // Timestamp - RIGHT
+                    doc.text(
+                        dateStr.split(',')[0], // Just the date part
+                        pageWidth - 20,
+                        pageHeight - 10, {
+                            align: 'right'
+                        }
                     );
                 }
 
