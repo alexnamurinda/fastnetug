@@ -417,9 +417,8 @@ if (isset($_GET['action'])) {
                             <i class="fas fa-undo"></i>
                         </div>
                         <div>
-                            <h5 class="card-title mb-1" id="refund-count">0 Refunds</h5>
+                            <h5 class="card-title mb-1" id="refund-count">0 Refunds This Month</h5>
                             <p class="card-text text-muted mb-0" id="refund-amount">UGX 0</p>
-                            <small class="text-muted" style="font-size: 0.75rem;">This Month</small>
                         </div>
                     </div>
                 </div>
@@ -461,10 +460,10 @@ if (isset($_GET['action'])) {
             <div class="col-lg-8">
                 <div class="card main-card">
                     <div class="card-header-custom d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-list-alt me-2"></i>Payment Requests</span>
-                        <!-- Single refresh button that refreshes all data -->
-                        <button class="refreshbtn" onclick="refreshAllData()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        <span><i class="fas fa-list-alt me-2"></i>Requests Payment Form</span>
+                        <!-- Download PDF button -->
+                        <button class="downloadbtn" onclick="downloadTablePDF()">
+                            <i class="fas fa-download me-1"></i>Download
                         </button>
                     </div>
                     <div class="card-body p-3">
@@ -602,6 +601,9 @@ if (isset($_GET['action'])) {
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jsPDF and autoTable for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         // Initialize Bootstrap components
@@ -851,7 +853,7 @@ if (isset($_GET['action'])) {
             approveModal.show();
         }
 
-        
+
         /**
          * Handle rejection of a payment request
          * @param {string} requestId - The request ID to reject
@@ -1016,6 +1018,209 @@ if (isset($_GET['action'])) {
                 refreshAllData();
             }
         });
+
+        /**
+         * Download requests table as PDF
+         */
+        function downloadTablePDF() {
+            try {
+                const {
+                    jsPDF
+                } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation for better table fit
+
+                // Add company logo/header
+                doc.setFontSize(20);
+                doc.setTextColor(66, 153, 225);
+                doc.setFont(undefined, 'bold');
+                doc.text('FastNetUG', 14, 15);
+
+                doc.setFontSize(16);
+                doc.setTextColor(45, 55, 72);
+                doc.text('Requests Payment Report', 14, 24);
+
+                // Add generation date and time
+                doc.setFontSize(9);
+                doc.setTextColor(100);
+                doc.setFont(undefined, 'normal');
+                const now = new Date();
+                const dateStr = now.toLocaleString('en-US', {
+                    timeZone: 'Africa/Kampala',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+                doc.text('Generated: ' + dateStr, 14, 30);
+
+                // Prepare table data from the HTML table
+                const tableData = [];
+                const rows = $('#requests-table tbody tr');
+
+                // Check if there are any rows with actual data
+                if (rows.length === 0 || rows.first().find('td').length === 1) {
+                    showToast('No data available to download', false);
+                    return;
+                }
+
+                // Extract data from each row
+                rows.each(function() {
+                    const row = $(this);
+                    // Skip rows with loading/error messages (colspan rows)
+                    if (row.find('td').length === 1) return;
+
+                    const id = row.find('td:eq(0)').text().trim();
+                    const phone = row.find('td:eq(1)').text().trim();
+                    const profile = row.find('td:eq(2)').text().trim();
+                    const status = row.find('td:eq(3)').text().trim();
+                    const code = row.find('td:eq(4)').text().trim() || 'N/A';
+
+                    // Only add rows with valid data
+                    if (id && phone) {
+                        tableData.push([id, phone, profile, status, code]);
+                    }
+                });
+
+                // Check if we have data to export
+                if (tableData.length === 0) {
+                    showToast('No requests available to download', false);
+                    return;
+                }
+
+                // Add summary statistics at the top
+                doc.setFontSize(9);
+                doc.setTextColor(100);
+                doc.text('Total Requests: ' + tableData.length, 14, 36);
+
+                // Count requests by status
+                const statusCounts = {};
+                tableData.forEach(row => {
+                    const status = row[3];
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                });
+
+                let summaryX = 80;
+                Object.entries(statusCounts).forEach(([status, count]) => {
+                    doc.text(`${status}: ${count}`, summaryX, 36);
+                    summaryX += 40;
+                });
+
+                // Generate table in PDF
+                doc.autoTable({
+                    startY: 42,
+                    head: [
+                        ['Request ID', 'Phone Number', 'Package', 'Status', 'Voucher Code']
+                    ],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 3,
+                        overflow: 'linebreak',
+                        halign: 'center',
+                        valign: 'middle'
+                    },
+                    headStyles: {
+                        fillColor: [66, 153, 225],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fontSize: 9
+                    },
+                    columnStyles: {
+                        0: {
+                            cellWidth: 30,
+                            halign: 'center'
+                        }, // Request ID
+                        1: {
+                            cellWidth: 50,
+                            halign: 'center'
+                        }, // Phone Number
+                        2: {
+                            cellWidth: 25,
+                            halign: 'center'
+                        }, // Package
+                        3: {
+                            cellWidth: 30,
+                            halign: 'center'
+                        }, // Status
+                        4: {
+                            cellWidth: 50,
+                            halign: 'center'
+                        } // Voucher Code
+                    },
+                    alternateRowStyles: {
+                        fillColor: [247, 250, 252]
+                    },
+                    margin: {
+                        left: 14,
+                        right: 14
+                    },
+                    didParseCell: function(data) {
+                        // Color code status cells
+                        if (data.column.index === 3 && data.section === 'body') {
+                            const status = data.cell.text[0].toLowerCase();
+                            if (status === 'pending') {
+                                data.cell.styles.textColor = [66, 153, 225];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (status === 'approved') {
+                                data.cell.styles.textColor = [72, 187, 120];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (status === 'rejected') {
+                                data.cell.styles.textColor = [229, 62, 62];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (status === 'refund') {
+                                data.cell.styles.textColor = [237, 137, 54];
+                                data.cell.styles.fontStyle = 'bold';
+                            }
+                        }
+                    }
+                });
+
+                // Add footer with page numbers and company info
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+
+                    // Page number
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    doc.text(
+                        'Page ' + i + ' of ' + pageCount,
+                        doc.internal.pageSize.getWidth() / 2,
+                        doc.internal.pageSize.getHeight() - 10, {
+                            align: 'center'
+                        }
+                    );
+
+                    // Company info
+                    doc.text(
+                        'FastNetUG - Payment Requests',
+                        14,
+                        doc.internal.pageSize.getHeight() - 10
+                    );
+                }
+
+                // Generate filename with timestamp
+                const timestamp = now.toISOString().slice(0, 10).replace(/-/g, '') + '_' +
+                    String(now.getHours()).padStart(2, '0') +
+                    String(now.getMinutes()).padStart(2, '0') +
+                    String(now.getSeconds()).padStart(2, '0');
+                const filename = 'FastNetUG_Payment_Requests_' + timestamp + '.pdf';
+
+                // Save the PDF
+                doc.save(filename);
+
+                showToast('PDF downloaded successfully: ' + tableData.length + ' requests', true);
+
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                showToast('Failed to generate PDF: ' + error.message, false);
+            }
+        }
     </script>
 </body>
 

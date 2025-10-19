@@ -208,18 +208,32 @@ body {
     font-weight: 500;
 }
 
-.refreshbtn {
-    padding: 4px 10px;
+.downloadbtn {
+    padding: 6px 14px;
     font-size: 0.9rem;
     border-radius: 5px;
-    background-color: transparent;
-    border: 1px solid var(--primary-color);
+    background-color: var(--success-color);
+    border: 1px solid var(--success-color);
+    color: white;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    cursor: pointer;
 }
 
-.refreshbtn:hover {
-    background-color: rgba(66, 153, 225, 0.1);
-    color: var(--primary-color);
-    transform: translateY(-1px);
+.downloadbtn:hover {
+    background-color: #38a169;
+    border-color: #38a169;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+}
+
+.downloadbtn:active {
+    transform: translateY(0);
+}
+
+.downloadbtn i {
+    font-size: 0.85rem;
+    margin-right: 4px;
 }
 
 /* Table styling improvements */
@@ -628,9 +642,20 @@ body {
         padding: 0 0.75rem;
     }
 
-    .refreshbtn {
-        padding: 3px 5px;
+    .downloadbtn {
+        padding: 5px 10px;
         font-size: 0.8rem;
+    }
+
+    .card-header-custom {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+
+    .card-header-custom .downloadbtn {
+        width: 100%;
+        margin-top: 0.5rem;
     }
 
     .navbar-text {
