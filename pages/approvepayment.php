@@ -117,11 +117,11 @@ if (isset($_GET['action'])) {
     // Get all voucher requests with pagination and filtering
     if ($_GET['action'] === 'get_requests') {
         $stmt = $pdo->prepare("
-        SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at,
-        (SELECT COUNT(*) FROM voucher_requests vr2 WHERE vr2.phone = voucher_requests.phone) as phone_count
-        FROM voucher_requests 
-        ORDER BY FIELD(status, 'pending', 'approved', 'rejected') ASC, created_at DESC
-    ");
+    SELECT request_id, phone, package, price, created_at, status, notes, voucher_code, approved_at,
+    (SELECT COUNT(*) FROM voucher_requests vr2 WHERE vr2.phone = voucher_requests.phone) as phone_count
+    FROM voucher_requests 
+    ORDER BY FIELD(status, 'pending', 'approved', 'refund', 'rejected') ASC, created_at DESC
+");
         $stmt->execute();
         $requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
