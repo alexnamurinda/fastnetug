@@ -4,7 +4,7 @@ let apps = [
         id: 1,
         name: 'Client Database',
         description: 'Manage customer relationships and communications',
-        url: 'https://fastnetug.com/UUL2/',
+        url: 'https://fastnetug.com/UUL Apps/client_database',
         category: 'sales',
         icon: 'users',
         badge: 'Active'
