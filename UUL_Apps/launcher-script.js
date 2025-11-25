@@ -18,15 +18,15 @@ let apps = [
         icon: 'boxes',
         badge: 'New'
     },
-    // {
-    //     id: 3,
-    //     name: 'Invoice Generator',
-    //     description: 'Create professional invoices',
-    //     url: '#',
-    //     category: 'finance',
-    //     icon: 'file-invoice-dollar',
-    //     badge: 'Active'
-    // },
+    {
+        id: 3,
+        name: 'Aging inventory',
+        description: 'Monitor and manage aging stock',
+        url: 'https://fastnetug.com/UUL_Apps/stock_management',
+        category: 'operations',
+        icon: 'file-invoice-dollar',
+        badge: 'Active'
+    },
     // {
     //     id: 4,
     //     name: 'Sales Analytics',
