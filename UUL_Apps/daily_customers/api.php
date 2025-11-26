@@ -6,8 +6,8 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'uul_user');
+define('DB_PASS', 'uul@mysql123');
 define('DB_NAME', 'sales_dashboard');
 
 // Create database connection
@@ -82,24 +82,24 @@ function getDashboardStats($conn)
     $totalClients = $conn->query("SELECT COUNT(*) as count FROM clients")->fetch_assoc()['count'];
 
     // Total clients last month
-    $clientsLastMonth = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date <= '$lastMonth'")->fetch_assoc()['count'];
+    $clientsLastMonth = $conn->query("SELECT COUNT(*) as count FROM clients WHERE created_at <= '$lastMonth'")->fetch_assoc()['count'];
     $clientsChange = $clientsLastMonth > 0 ? round((($totalClients - $clientsLastMonth) / $clientsLastMonth) * 100, 1) : 0;
 
-    // Today's orders
-    $todayOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales WHERE sale_date = '$today'")->fetch_assoc()['count'];
+    // Today's orders (count of records)
+    $todayOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales WHERE sale_date = '$today'")->fetch_assoc()['count'];
 
     // Yesterday's orders
-    $yesterdayOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales WHERE sale_date = '$yesterday'")->fetch_assoc()['count'];
+    $yesterdayOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales WHERE sale_date = '$yesterday'")->fetch_assoc()['count'];
     $ordersChange = $yesterdayOrders > 0 ? round((($todayOrders - $yesterdayOrders) / $yesterdayOrders) * 100, 1) : 0;
 
     // Total orders
-    $totalOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales")->fetch_assoc()['count'];
+    $totalOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales")->fetch_assoc()['count'];
 
     // New clients today
-    $newClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date = '$today'")->fetch_assoc()['count'];
+    $newClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE DATE(created_at) = '$today'")->fetch_assoc()['count'];
 
     // New clients this week
-    $weeklyNewClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date >= '$lastWeek'")->fetch_assoc()['count'];
+    $weeklyNewClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE created_at >= '$lastWeek'")->fetch_assoc()['count'];
 
     echo json_encode([
         'success' => true,
@@ -120,10 +120,10 @@ function getDashboardStats($conn)
 function getClients($conn)
 {
     $sql = "SELECT c.*, 
-        (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
-        COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders
-        FROM clients c 
-        ORDER BY c.client_name ASC";
+            (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
+            COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders
+            FROM clients c 
+            ORDER BY c.client_name ASC";
 
     $result = $conn->query($sql);
     $clients = [];
@@ -155,6 +155,7 @@ function addClient($conn)
     $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
 
+    // Check if client exists
     $check = $conn->query("SELECT id FROM clients WHERE LOWER(client_name) = LOWER('$name')");
     if ($check->num_rows > 0) {
         echo json_encode(['success' => false, 'message' => 'Client already exists']);
@@ -171,20 +172,18 @@ function addClient($conn)
     }
 }
 
-
-
 function updateClient($conn)
 {
     $id = intval($_POST['id']);
     $name = $conn->real_escape_string(trim($_POST['name']));
-    $phone = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
+    $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
 
     $sql = "UPDATE clients 
-        SET client_name = '$name', 
-            contact = '$phone', 
-            sales_person = '$salesPerson' 
-        WHERE id = $id";
+            SET client_name = '$name', 
+                contact = '$contact', 
+                sales_person = '$salesPerson' 
+            WHERE id = $id";
 
     if ($conn->query($sql)) {
         echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
@@ -197,8 +196,7 @@ function deleteClient($conn)
 {
     $id = intval($_GET['id']);
 
-    // Also delete related sales records
-    $conn->query("DELETE FROM daily_sales WHERE customer_id = $id");
+    // Related sales records will be deleted automatically due to ON DELETE CASCADE
 
     if ($conn->query("DELETE FROM clients WHERE id = $id")) {
         echo json_encode(['success' => true, 'message' => 'Client deleted successfully']);
@@ -231,20 +229,23 @@ function uploadSales($conn)
 
         foreach ($data as $row) {
             $customerName = $conn->real_escape_string(trim($row['customer_name'] ?? $row['CUSTOMER_NAME'] ?? $row['Customer Name'] ?? ''));
-            $count = intval($row['count'] ?? $row['COUNT'] ?? $row['Count'] ?? 0);
+            $method = $conn->real_escape_string(trim($row['method'] ?? $row['METHOD'] ?? $row['Method'] ?? 'C'));
+            $discussion = $conn->real_escape_string(trim($row['discussion'] ?? $row['DISCUSSION'] ?? $row['Discussion'] ?? ''));
+            $feedback = $conn->real_escape_string(trim($row['feedback'] ?? $row['FEEDBACK'] ?? $row['Feedback'] ?? ''));
+            $salesValue = floatval($row['sales_value'] ?? $row['SALES_VALUE'] ?? $row['Sales Value'] ?? 0);
 
-            if (empty($customerName) || $count <= 0) continue;
+            if (empty($customerName)) continue;
 
             // Check if client exists
-            $checkClient = $conn->query("SELECT id FROM clients WHERE LOWER(customer_name) = LOWER('$customerName')");
+            $checkClient = $conn->query("SELECT id FROM clients WHERE LOWER(client_name) = LOWER('$customerName')");
 
             $isNewClient = false;
             $clientId = null;
 
             if ($checkClient->num_rows == 0) {
                 // Add new client
-                $conn->query("INSERT INTO clients (customer_name, phone_number, sales_person, first_order_date) 
-                             VALUES ('$customerName', '', '', '$today')");
+                $conn->query("INSERT INTO clients (client_type, client_name, contact, address, sales_person) 
+                             VALUES ('Regular', '$customerName', '', '', '')");
                 $clientId = $conn->insert_id;
                 $newClientsCount++;
                 $isNewClient = true;
@@ -253,11 +254,10 @@ function uploadSales($conn)
             }
 
             // Add daily sale
-            $isNewInt = $isNewClient ? 1 : 0;
-            $conn->query("INSERT INTO daily_sales (sale_date, customer_name, customer_id, order_count, is_new_client) 
-                         VALUES ('$today', '$customerName', $clientId, $count, $isNewInt)");
+            $conn->query("INSERT INTO daily_sales (sale_date, client_id, method, discussion, feedback, sales_value) 
+                         VALUES ('$today', $clientId, '$method', '$discussion', '$feedback', $salesValue)");
 
-            $totalOrders += $count;
+            $totalOrders++;
         }
 
         // Update upload history
@@ -282,14 +282,20 @@ function getSalesHistory($conn)
     $dateFrom = $_GET['dateFrom'] ?? date('Y-m-d', strtotime('-30 days'));
     $dateTo = $_GET['dateTo'] ?? date('Y-m-d');
 
-    $sql = "SELECT * FROM daily_sales 
-            WHERE sale_date BETWEEN '$dateFrom' AND '$dateTo'
-            ORDER BY sale_date DESC, customer_name ASC";
+    $sql = "SELECT ds.*, c.client_name as customer_name,
+            (SELECT COUNT(*) FROM daily_sales ds2 WHERE ds2.client_id = ds.client_id AND ds2.id < ds.id) as is_new_client
+            FROM daily_sales ds
+            LEFT JOIN clients c ON ds.client_id = c.id
+            WHERE ds.sale_date BETWEEN '$dateFrom' AND '$dateTo'
+            ORDER BY ds.sale_date DESC, c.client_name ASC";
 
     $result = $conn->query($sql);
     $sales = [];
 
     while ($row = $result->fetch_assoc()) {
+        // is_new_client = 1 if this is the first sale for this client, 0 otherwise
+        $row['is_new_client'] = ($row['is_new_client'] == 0) ? 1 : 0;
+        $row['order_count'] = 1; // For compatibility with frontend
         $sales[] = $row;
     }
 
@@ -300,10 +306,11 @@ function getRecentSales($conn)
 {
     $limit = intval($_GET['limit'] ?? 10);
 
-    $sql = "SELECT sale_date, customer_name, SUM(order_count) as order_count
-            FROM daily_sales 
-            GROUP BY sale_date, customer_name
-            ORDER BY sale_date DESC, order_count DESC
+    $sql = "SELECT ds.sale_date, c.client_name as customer_name, COUNT(*) as order_count
+            FROM daily_sales ds
+            LEFT JOIN clients c ON ds.client_id = c.id
+            GROUP BY ds.sale_date, c.client_name
+            ORDER BY ds.sale_date DESC, order_count DESC
             LIMIT $limit";
 
     $result = $conn->query($sql);
@@ -323,7 +330,7 @@ function getSalesChart($conn)
     $days = intval($_GET['days'] ?? 30);
     $startDate = date('Y-m-d', strtotime("-$days days"));
 
-    $sql = "SELECT sale_date, SUM(order_count) as total_orders
+    $sql = "SELECT sale_date, COUNT(*) as total_orders
             FROM daily_sales 
             WHERE sale_date >= '$startDate'
             GROUP BY sale_date
@@ -345,9 +352,10 @@ function getTopClients($conn)
 {
     $limit = intval($_GET['limit'] ?? 10);
 
-    $sql = "SELECT customer_name, SUM(order_count) as total_orders
-            FROM daily_sales 
-            GROUP BY customer_name
+    $sql = "SELECT c.client_name as customer_name, COUNT(*) as total_orders
+            FROM daily_sales ds
+            LEFT JOIN clients c ON ds.client_id = c.id
+            GROUP BY c.client_name
             ORDER BY total_orders DESC
             LIMIT $limit";
 
@@ -367,9 +375,9 @@ function getSalesByPerson($conn)
 {
     $sql = "SELECT 
                 COALESCE(c.sales_person, 'Unassigned') as sales_person,
-                SUM(ds.order_count) as total_orders
+                COUNT(*) as total_orders
             FROM daily_sales ds
-            LEFT JOIN clients c ON ds.customer_id = c.id
+            LEFT JOIN clients c ON ds.client_id = c.id
             GROUP BY COALESCE(c.sales_person, 'Unassigned')
             ORDER BY total_orders DESC
             LIMIT 10";
