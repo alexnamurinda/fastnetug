@@ -3,8 +3,8 @@
  * DATABASE AUTO-CREATION
  ******************************/
 $servername = "localhost";
-$username   = "root";
-$password   = "";
+$username   = "uul_user";
+$password   = "uul@mysql123";
 $dbname     = "general_clients";
 
 // 1. Connect to MySQL server
