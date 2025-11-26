@@ -27,15 +27,15 @@ let apps = [
         icon: 'file-invoice-dollar',
         badge: 'Active'
     },
-    // {
-    //     id: 4,
-    //     name: 'Sales Analytics',
-    //     description: 'Track sales performance',
-    //     url: '#',
-    //     category: 'sales',
-    //     icon: 'chart-line',
-    //     badge: 'Active'
-    // },
+    {
+        id: 4,
+        name: 'Sales Analytics',
+        description: 'Track sales performance Daily',
+        url: 'https://fastnetug.com/UUL_Apps/daily_customers',
+        category: 'sales',
+        icon: 'chart-line',
+        badge: 'Active'
+    },
     // {
     //     id: 5,
     //     name: 'HR Portal',
