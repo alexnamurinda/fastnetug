@@ -4,7 +4,8 @@ define('DB_USER', 'uul_user');
 define('DB_PASS', 'uul@mysql123');
 define('DB_NAME', 'sales_dashboard');
 
-function setupDatabase() {
+function setupDatabase()
+{
     try {
         $conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
 
@@ -27,9 +28,10 @@ function setupDatabase() {
         createClientsTable($conn);
         createDailySalesTable($conn);
         createUploadHistoryTable($conn);
+        createSalesPersonsTable($conn);      // ADD THIS
+        createDailyReportsTable($conn);      // ADD THIS
 
         return $conn;
-
     } catch (Exception $e) {
         die(json_encode([
             'success' => false,
@@ -38,7 +40,8 @@ function setupDatabase() {
     }
 }
 
-function createClientsTable($conn) {
+function createClientsTable($conn)
+{
 
     $sql = "CREATE TABLE IF NOT EXISTS clients (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +63,8 @@ function createClientsTable($conn) {
     }
 }
 
-function createDailySalesTable($conn) {
+function createDailySalesTable($conn)
+{
 
     $sql = "CREATE TABLE IF NOT EXISTS daily_sales (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -83,7 +87,8 @@ function createDailySalesTable($conn) {
     }
 }
 
-function createUploadHistoryTable($conn) {
+function createUploadHistoryTable($conn)
+{
 
     $sql = "CREATE TABLE IF NOT EXISTS upload_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -100,7 +105,56 @@ function createUploadHistoryTable($conn) {
     }
 }
 
-function getDbConnection() {
+function createSalesPersonsTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS sales_persons (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        passcode VARCHAR(255) NOT NULL,
+        role ENUM('salesperson','supervisor') DEFAULT 'salesperson',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        INDEX idx_name (name),
+        INDEX idx_role (role)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating sales_persons table: " . $conn->error);
+    }
+}
+
+function createDailyReportsTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS daily_reports (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        report_date DATE NOT NULL,
+        client_id INT NOT NULL,
+        sales_person_id INT NOT NULL,
+        method ENUM('M','C') NOT NULL,
+        discussion TEXT,
+        feedback TEXT,
+        approved ENUM('pending','approved','rejected') DEFAULT 'pending',
+        approved_by INT DEFAULT NULL,
+        approved_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        INDEX idx_report_date (report_date),
+        INDEX idx_client_id (client_id),
+        INDEX idx_sales_person_id (sales_person_id),
+        INDEX idx_approved (approved),
+        
+        FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+        FOREIGN KEY (sales_person_id) REFERENCES sales_persons(id) ON DELETE CASCADE,
+        FOREIGN KEY (approved_by) REFERENCES sales_persons(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating daily_reports table: " . $conn->error);
+    }
+}
+
+function getDbConnection()
+{
     return setupDatabase();
 }
 
@@ -116,4 +170,3 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
         $conn->close();
     }
 }
-?>

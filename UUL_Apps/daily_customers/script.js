@@ -1,5 +1,8 @@
 // API Configuration
 const API_URL = 'api.php';
+// Authentication API Configuration
+const AUTH_API_URL = 'report_api.php';
+let currentUser = null;
 
 // Global variables
 let salesChart, topClientsChart, salesPersonChart, monthlyChart, acquisitionChart, distributionChart;
@@ -12,11 +15,25 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function initializeApp() {
+    // Check session first
+    checkUserSession();
+
     // Set today's date for filters
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('dateFrom')) {
         document.getElementById('dateFrom').value = today;
         document.getElementById('dateTo').value = today;
+    }
+    if (document.getElementById('reportDateFrom')) {
+        document.getElementById('reportDateFrom').value = today;
+        document.getElementById('reportDateTo').value = today;
+    }
+    if (document.getElementById('reportDate')) {
+        document.getElementById('reportDate').value = today;
+    }
+    if (document.getElementById('approvalDateFrom')) {
+        document.getElementById('approvalDateFrom').value = today;
+        document.getElementById('approvalDateTo').value = today;
     }
 
     // Initialize charts
@@ -103,6 +120,17 @@ function navigateToPage(page) {
             break;
         case 'upload':
             loadUploadHistory();
+            break;
+        case 'reports':                    // ADD THIS
+            loadMyReports();
+            loadReportStats();
+            break;
+        case 'approvals':                  // ADD THIS
+            loadAllReports();
+            loadSalesPersons();
+            break;
+        case 'manage':                     // ADD THIS
+            loadSalesPersons();
             break;
     }
 }
@@ -630,4 +658,449 @@ function closeModal(modalId) {
 function showNotification(message, type) {
     // Simple notification - can be enhanced
     alert(message);
+}
+
+
+// ===== AUTHENTICATION FUNCTIONS =====
+
+async function checkUserSession() {
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=checkSession`);
+        const data = await response.json();
+
+        if (data.success && data.loggedIn) {
+            currentUser = data.user;
+            hideLoginModal();
+            updateUIForUser();
+            loadDashboardData();
+        } else {
+            showLoginModal();
+        }
+    } catch (error) {
+        console.error('Error checking session:', error);
+        showLoginModal();
+    }
+}
+
+async function loginUser() {
+    const passcode = document.getElementById('loginPasscode').value;
+
+    if (!passcode) {
+        showNotification('Please enter passcode', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'login');
+    formData.append('passcode', passcode);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            currentUser = data.user;
+            hideLoginModal();
+            updateUIForUser();
+            loadDashboardData();
+            showNotification('Login successful', 'success');
+        } else {
+            showNotification(data.message, 'error');
+            document.getElementById('loginPasscode').value = '';
+        }
+    } catch (error) {
+        showNotification('Login failed', 'error');
+    }
+}
+
+async function logoutUser() {
+    try {
+        await fetch(`${AUTH_API_URL}?action=logout`);
+        currentUser = null;
+        showLoginModal();
+        // Hide all pages
+        document.querySelectorAll('.page-content').forEach(p => {
+            p.style.display = 'none';
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+}
+
+function showLoginModal() {
+    document.getElementById('loginModal').classList.add('active');
+}
+
+function hideLoginModal() {
+    document.getElementById('loginModal').classList.remove('active');
+    document.getElementById('loginPasscode').value = '';
+}
+
+function updateUIForUser() {
+    if (!currentUser) return;
+
+    // Update user profile display
+    document.querySelector('.user-profile span').textContent = currentUser.name;
+    document.querySelector('.user-profile img').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=4F46E5&color=fff`;
+
+    // Show/hide navigation based on role
+    if (currentUser.role === 'supervisor') {
+        document.getElementById('approvalsLink').style.display = 'flex';
+        document.getElementById('manageLink').style.display = 'flex';
+    } else {
+        document.getElementById('approvalsLink').style.display = 'none';
+        document.getElementById('manageLink').style.display = 'none';
+    }
+}
+
+// ===== REPORT FUNCTIONS =====
+
+function showAddReportModal() {
+    document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('reportClient').value = '';
+    document.getElementById('reportMethod').value = 'C';
+    document.getElementById('reportDiscussion').value = '';
+    document.getElementById('reportFeedback').value = '';
+
+    // Load clients for dropdown
+    loadClientsForReport();
+
+    openModal('addReportModal');
+}
+
+async function loadClientsForReport() {
+    try {
+        const response = await fetch(`${API_URL}?action=getClients`);
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('reportClient');
+            select.innerHTML = '<option value="">Select Client</option>' +
+                data.clients.map(c => `<option value="${c.id}">${c.client_name}</option>`).join('');
+        }
+    } catch (error) {
+        console.error('Error loading clients:', error);
+    }
+}
+
+async function submitReport() {
+    const reportDate = document.getElementById('reportDate').value;
+    const clientId = document.getElementById('reportClient').value;
+    const method = document.getElementById('reportMethod').value;
+    const discussion = document.getElementById('reportDiscussion').value;
+    const feedback = document.getElementById('reportFeedback').value;
+
+    if (!reportDate || !clientId) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'addReport');
+    formData.append('reportDate', reportDate);
+    formData.append('clientId', clientId);
+    formData.append('method', method);
+    formData.append('discussion', discussion);
+    formData.append('feedback', feedback);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            closeModal('addReportModal');
+            loadMyReports();
+            loadReportStats();
+            showNotification('Report submitted successfully', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error submitting report', 'error');
+    }
+}
+
+async function loadMyReports() {
+    const dateFrom = document.getElementById('reportDateFrom').value;
+    const dateTo = document.getElementById('reportDateTo').value;
+    const search = document.getElementById('reportSearch').value;
+
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayMyReports(data.reports);
+        }
+    } catch (error) {
+        console.error('Error loading reports:', error);
+    }
+}
+
+function displayMyReports(reports) {
+    const tbody = document.getElementById('reportsTableBody');
+
+    if (!reports || reports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No reports found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = reports.map(report => `
+        <tr>
+            <td>${report.report_date}</td>
+            <td><strong>${report.client_name}</strong><br><small>${report.client_type}</small></td>
+            <td>${report.method === 'M' ? 'Met' : 'Call'}</td>
+            <td>${report.discussion || '-'}</td>
+            <td>${report.feedback || '-'}</td>
+            <td><span class="status-badge ${report.approved}">
+                ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
+            </span></td>
+        </tr>
+    `).join('');
+}
+
+function filterMyReports() {
+    loadMyReports();
+}
+
+async function loadReportStats() {
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getReportStats`);
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('todayReportsCount').textContent = data.stats.todayReports;
+            document.getElementById('monthReportsCount').textContent = data.stats.monthReports;
+            document.getElementById('pendingCount').textContent = data.stats.pending;
+            document.getElementById('approvedCount').textContent = data.stats.approved;
+        }
+    } catch (error) {
+        console.error('Error loading report stats:', error);
+    }
+}
+
+async function exportMyReports() {
+    const dateFrom = document.getElementById('reportDateFrom').value;
+    const dateTo = document.getElementById('reportDateTo').value;
+    const search = document.getElementById('reportSearch').value;
+
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const ws = XLSX.utils.json_to_sheet(data.reports.map(r => ({
+                'Date': r.report_date,
+                'Client': r.client_name,
+                'Type': r.client_type,
+                'Method': r.method === 'M' ? 'Met' : 'Call',
+                'Discussion': r.discussion,
+                'Feedback': r.feedback,
+                'Status': r.approved
+            })));
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'My Reports');
+            XLSX.writeFile(wb, `my_reports_${dateFrom}_to_${dateTo}.xlsx`);
+        }
+    } catch (error) {
+        showNotification('Error exporting reports', 'error');
+    }
+}
+
+// ===== APPROVAL FUNCTIONS (SUPERVISOR) =====
+
+async function loadAllReports() {
+    const salesPersonId = document.getElementById('approvalSalesPerson').value;
+    const status = document.getElementById('approvalStatus').value;
+    const dateFrom = document.getElementById('approvalDateFrom').value;
+    const dateTo = document.getElementById('approvalDateTo').value;
+
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getAllReports&salesPersonId=${salesPersonId}&status=${status}&dateFrom=${dateFrom}&dateTo=${dateTo}`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayApprovals(data.reports);
+        }
+    } catch (error) {
+        console.error('Error loading reports:', error);
+    }
+}
+
+function displayApprovals(reports) {
+    const tbody = document.getElementById('approvalsTableBody');
+
+    if (!reports || reports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">No reports found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = reports.map(report => `
+        <tr>
+            <td>${report.report_date}</td>
+            <td><strong>${report.sales_person_name}</strong></td>
+            <td><strong>${report.client_name}</strong><br><small>${report.client_type}</small></td>
+            <td>${report.method === 'M' ? 'Met' : 'Call'}</td>
+            <td>${report.discussion || '-'}</td>
+            <td>${report.feedback || '-'}</td>
+            <td><span class="status-badge ${report.approved}">
+                ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
+            </span></td>
+            <td>
+                ${report.approved === 'pending' ? `
+                    <button class="action-btn" onclick="approveReport(${report.id})">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="rejectReport(${report.id})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                ` : '-'}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function filterApprovals() {
+    loadAllReports();
+}
+
+async function approveReport(reportId) {
+    if (!confirm('Approve this report?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'approveReport');
+    formData.append('reportId', reportId);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            loadAllReports();
+            showNotification('Report approved', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error approving report', 'error');
+    }
+}
+
+async function rejectReport(reportId) {
+    if (!confirm('Reject this report?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'rejectReport');
+    formData.append('reportId', reportId);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            loadAllReports();
+            showNotification('Report rejected', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error rejecting report', 'error');
+    }
+}
+
+// ===== USER MANAGEMENT FUNCTIONS (SUPERVISOR) =====
+
+function showAddPersonModal() {
+    document.getElementById('personName').value = '';
+    document.getElementById('personPasscode').value = '';
+    document.getElementById('personRole').value = 'salesperson';
+    openModal('addPersonModal');
+}
+
+async function submitPerson() {
+    const name = document.getElementById('personName').value;
+    const passcode = document.getElementById('personPasscode').value;
+    const role = document.getElementById('personRole').value;
+
+    if (!name || !passcode) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'addSalesPerson');
+    formData.append('name', name);
+    formData.append('passcode', passcode);
+    formData.append('role', role);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            closeModal('addPersonModal');
+            loadSalesPersons();
+            showNotification('Sales person added successfully', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error adding sales person', 'error');
+    }
+}
+
+async function loadSalesPersons() {
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getSalesPersons`);
+        const data = await response.json();
+
+        if (data.success) {
+            displaySalesPersons(data.persons);
+            populateApprovalSalesPersonFilter(data.persons);
+        }
+    } catch (error) {
+        console.error('Error loading sales persons:', error);
+    }
+}
+
+function displaySalesPersons(persons) {
+    const tbody = document.getElementById('personsTableBody');
+
+    if (!persons || persons.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;">No sales persons found</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = persons.map(person => `
+        <tr>
+            <td><strong>${person.name}</strong></td>
+            <td><span class="status-badge ${person.role}">${person.role}</span></td>
+            <td>${new Date(person.created_at).toLocaleDateString()}</td>
+        </tr>
+    `).join('');
+}
+
+function populateApprovalSalesPersonFilter(persons) {
+    const filter = document.getElementById('approvalSalesPerson');
+    if (!filter) return;
+
+    const salespeople = persons.filter(p => p.role === 'salesperson');
+    filter.innerHTML = '<option value="">All Sales Persons</option>' +
+        salespeople.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 }

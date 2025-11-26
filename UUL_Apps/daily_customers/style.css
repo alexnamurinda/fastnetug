@@ -755,6 +755,7 @@ body {
         opacity: 0;
         transform: translateY(-50px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -830,6 +831,43 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
+/* ===== STATUS BADGES ===== */
+.status-badge.pending {
+    background: rgba(249, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.status-badge.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--secondary-color);
+}
+
+.status-badge.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.status-badge.salesperson {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-color);
+}
+
+.status-badge.supervisor {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8B5CF6;
+}
+
+/* ===== LOGIN MODAL CENTERED ===== */
+#loginModal .modal-content {
+    max-width: 400px;
+}
+
+/* ===== FORM TEXTAREA ===== */
+.form-control[rows] {
+    resize: vertical;
+    min-height: 80px;
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 
 /* Tablets and below (max-width: 1024px) */
@@ -837,23 +875,23 @@ body {
     :root {
         --sidebar-width: 240px;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .charts-row {
         grid-template-columns: 1fr;
     }
-    
+
     .analytics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .upload-section {
         grid-template-columns: 1fr;
     }
-    
+
     .search-box input {
         width: 200px;
     }
@@ -864,83 +902,83 @@ body {
     .sidebar {
         transform: translateX(-100%);
     }
-    
+
     .sidebar.active {
         transform: translateX(0);
     }
-    
+
     .main-content {
         margin-left: 0;
     }
-    
+
     .menu-toggle {
         display: block;
     }
-    
+
     .header {
         padding: 0 16px;
     }
-    
+
     .page-title {
         font-size: 20px;
     }
-    
+
     .search-box {
         display: none;
     }
-    
+
     .user-profile span {
         display: none;
     }
-    
+
     .page-content {
         padding: 20px 16px;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
-    
+
     .charts-row {
         gap: 16px;
     }
-    
+
     .chart-card {
         padding: 16px;
     }
-    
+
     .analytics-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .page-actions {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .search-filter {
         flex-direction: column;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .btn-primary,
     .btn-secondary {
         width: 100%;
         justify-content: center;
     }
-    
+
     .table-container {
         overflow-x: auto;
     }
-    
+
     .data-table {
         min-width: 600px;
     }
-    
+
     .modal-content {
         width: 95%;
         margin: 20px;
@@ -952,36 +990,36 @@ body {
     .header {
         height: 60px;
     }
-    
+
     .page-title {
         font-size: 18px;
     }
-    
+
     .stat-card {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .stat-details h3 {
         font-size: 28px;
     }
-    
+
     .chart-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 12px;
     }
-    
+
     .chart-header select {
         width: 100%;
     }
-    
+
     .activity-item {
         flex-direction: column;
         gap: 12px;
         text-align: center;
     }
-    
+
     .data-table th,
     .data-table td {
         padding: 12px 8px;
@@ -994,11 +1032,11 @@ body {
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     .charts-row {
         grid-template-columns: 1.5fr 1fr;
     }
-    
+
     .analytics-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1006,21 +1044,22 @@ body {
 
 /* Print styles */
 @media print {
+
     .sidebar,
     .header,
     .page-actions,
     .action-btn {
         display: none;
     }
-    
+
     .main-content {
         margin-left: 0;
     }
-    
+
     .page-content {
         padding: 0;
     }
-    
+
     .stat-card,
     .chart-card,
     .table-container {
