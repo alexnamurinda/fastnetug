@@ -23,7 +23,7 @@ $conn->set_charset('utf8mb4');
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 // Route to appropriate handler
-switch($action) {
+switch ($action) {
     case 'getDashboardStats':
         getDashboardStats($conn);
         break;
@@ -71,35 +71,36 @@ $conn->close();
 
 // ===== DASHBOARD FUNCTIONS =====
 
-function getDashboardStats($conn) {
+function getDashboardStats($conn)
+{
     $today = date('Y-m-d');
     $yesterday = date('Y-m-d', strtotime('-1 day'));
     $lastMonth = date('Y-m-d', strtotime('-30 days'));
     $lastWeek = date('Y-m-d', strtotime('-7 days'));
-    
+
     // Total clients
     $totalClients = $conn->query("SELECT COUNT(*) as count FROM clients")->fetch_assoc()['count'];
-    
+
     // Total clients last month
     $clientsLastMonth = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date <= '$lastMonth'")->fetch_assoc()['count'];
     $clientsChange = $clientsLastMonth > 0 ? round((($totalClients - $clientsLastMonth) / $clientsLastMonth) * 100, 1) : 0;
-    
+
     // Today's orders
     $todayOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales WHERE sale_date = '$today'")->fetch_assoc()['count'];
-    
+
     // Yesterday's orders
     $yesterdayOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales WHERE sale_date = '$yesterday'")->fetch_assoc()['count'];
     $ordersChange = $yesterdayOrders > 0 ? round((($todayOrders - $yesterdayOrders) / $yesterdayOrders) * 100, 1) : 0;
-    
+
     // Total orders
     $totalOrders = $conn->query("SELECT COALESCE(SUM(order_count), 0) as count FROM daily_sales")->fetch_assoc()['count'];
-    
+
     // New clients today
     $newClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date = '$today'")->fetch_assoc()['count'];
-    
+
     // New clients this week
     $weeklyNewClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE first_order_date >= '$lastWeek'")->fetch_assoc()['count'];
-    
+
     echo json_encode([
         'success' => true,
         'stats' => [
@@ -116,83 +117,90 @@ function getDashboardStats($conn) {
 
 // ===== CLIENT FUNCTIONS =====
 
-function getClients($conn) {
+function getClients($conn)
+{
     $sql = "SELECT c.*, 
-            (SELECT MAX(sale_date) FROM daily_sales WHERE customer_name = c.customer_name) as last_order_date,
-            COALESCE((SELECT SUM(order_count) FROM daily_sales WHERE customer_name = c.customer_name), 0) as total_orders
-            FROM clients c 
-            ORDER BY c.customer_name ASC";
-    
+        (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
+        COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders
+        FROM clients c 
+        ORDER BY c.client_name ASC";
+
     $result = $conn->query($sql);
     $clients = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $clients[] = $row;
     }
-    
+
     echo json_encode(['success' => true, 'clients' => $clients]);
 }
 
-function getClient($conn) {
+function getClient($conn)
+{
     $id = intval($_GET['id']);
     $result = $conn->query("SELECT * FROM clients WHERE id = $id");
-    
-    if($row = $result->fetch_assoc()) {
+
+    if ($row = $result->fetch_assoc()) {
         echo json_encode(['success' => true, 'client' => $row]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Client not found']);
     }
 }
 
-function addClient($conn) {
+function addClient($conn)
+{
+    $clientType = $conn->real_escape_string(trim($_POST['clientType'] ?? 'Regular'));
     $name = $conn->real_escape_string(trim($_POST['name']));
-    $phone = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
+    $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
+    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
-    $today = date('Y-m-d');
-    
-    // Check if client exists
-    $check = $conn->query("SELECT id FROM clients WHERE LOWER(customer_name) = LOWER('$name')");
-    if($check->num_rows > 0) {
+
+    $check = $conn->query("SELECT id FROM clients WHERE LOWER(client_name) = LOWER('$name')");
+    if ($check->num_rows > 0) {
         echo json_encode(['success' => false, 'message' => 'Client already exists']);
         return;
     }
-    
-    $sql = "INSERT INTO clients (customer_name, phone_number, sales_person, first_order_date) 
-            VALUES ('$name', '$phone', '$salesPerson', '$today')";
-    
-    if($conn->query($sql)) {
+
+    $sql = "INSERT INTO clients (client_type, client_name, contact, address, sales_person) 
+            VALUES ('$clientType', '$name', '$contact', '$address', '$salesPerson')";
+
+    if ($conn->query($sql)) {
         echo json_encode(['success' => true, 'message' => 'Client added successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error adding client']);
     }
 }
 
-function updateClient($conn) {
+
+
+function updateClient($conn)
+{
     $id = intval($_POST['id']);
     $name = $conn->real_escape_string(trim($_POST['name']));
     $phone = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
-    
+
     $sql = "UPDATE clients 
-            SET customer_name = '$name', 
-                phone_number = '$phone', 
-                sales_person = '$salesPerson' 
-            WHERE id = $id";
-    
-    if($conn->query($sql)) {
+        SET client_name = '$name', 
+            contact = '$phone', 
+            sales_person = '$salesPerson' 
+        WHERE id = $id";
+
+    if ($conn->query($sql)) {
         echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error updating client']);
     }
 }
 
-function deleteClient($conn) {
+function deleteClient($conn)
+{
     $id = intval($_GET['id']);
-    
+
     // Also delete related sales records
     $conn->query("DELETE FROM daily_sales WHERE customer_id = $id");
-    
-    if($conn->query("DELETE FROM clients WHERE id = $id")) {
+
+    if ($conn->query("DELETE FROM clients WHERE id = $id")) {
         echo json_encode(['success' => true, 'message' => 'Client deleted successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error deleting client']);
@@ -201,38 +209,39 @@ function deleteClient($conn) {
 
 // ===== SALES FUNCTIONS =====
 
-function uploadSales($conn) {
+function uploadSales($conn)
+{
     $data = json_decode($_POST['data'], true);
-    
-    if(!$data || !is_array($data)) {
+
+    if (!$data || !is_array($data)) {
         echo json_encode(['success' => false, 'message' => 'Invalid data']);
         return;
     }
-    
+
     $today = date('Y-m-d');
     $newClientsCount = 0;
     $totalOrders = 0;
-    
+
     $conn->begin_transaction();
-    
+
     try {
         // Record upload
         $conn->query("INSERT INTO upload_history (upload_date, new_clients, total_orders) VALUES ('$today', 0, 0)");
         $uploadId = $conn->insert_id;
-        
-        foreach($data as $row) {
+
+        foreach ($data as $row) {
             $customerName = $conn->real_escape_string(trim($row['customer_name'] ?? $row['CUSTOMER_NAME'] ?? $row['Customer Name'] ?? ''));
             $count = intval($row['count'] ?? $row['COUNT'] ?? $row['Count'] ?? 0);
-            
-            if(empty($customerName) || $count <= 0) continue;
-            
+
+            if (empty($customerName) || $count <= 0) continue;
+
             // Check if client exists
             $checkClient = $conn->query("SELECT id FROM clients WHERE LOWER(customer_name) = LOWER('$customerName')");
-            
+
             $isNewClient = false;
             $clientId = null;
-            
-            if($checkClient->num_rows == 0) {
+
+            if ($checkClient->num_rows == 0) {
                 // Add new client
                 $conn->query("INSERT INTO clients (customer_name, phone_number, sales_person, first_order_date) 
                              VALUES ('$customerName', '', '', '$today')");
@@ -242,116 +251,120 @@ function uploadSales($conn) {
             } else {
                 $clientId = $checkClient->fetch_assoc()['id'];
             }
-            
+
             // Add daily sale
             $isNewInt = $isNewClient ? 1 : 0;
             $conn->query("INSERT INTO daily_sales (sale_date, customer_name, customer_id, order_count, is_new_client) 
                          VALUES ('$today', '$customerName', $clientId, $count, $isNewInt)");
-            
+
             $totalOrders += $count;
         }
-        
+
         // Update upload history
         $conn->query("UPDATE upload_history SET new_clients = $newClientsCount, total_orders = $totalOrders WHERE id = $uploadId");
-        
+
         $conn->commit();
-        
+
         echo json_encode([
-            'success' => true, 
+            'success' => true,
             'message' => 'Data uploaded successfully',
             'newClients' => $newClientsCount,
             'totalOrders' => $totalOrders
         ]);
-        
-    } catch(Exception $e) {
+    } catch (Exception $e) {
         $conn->rollback();
         echo json_encode(['success' => false, 'message' => 'Error uploading data: ' . $e->getMessage()]);
     }
 }
 
-function getSalesHistory($conn) {
+function getSalesHistory($conn)
+{
     $dateFrom = $_GET['dateFrom'] ?? date('Y-m-d', strtotime('-30 days'));
     $dateTo = $_GET['dateTo'] ?? date('Y-m-d');
-    
+
     $sql = "SELECT * FROM daily_sales 
             WHERE sale_date BETWEEN '$dateFrom' AND '$dateTo'
             ORDER BY sale_date DESC, customer_name ASC";
-    
+
     $result = $conn->query($sql);
     $sales = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $sales[] = $row;
     }
-    
+
     echo json_encode(['success' => true, 'sales' => $sales]);
 }
 
-function getRecentSales($conn) {
+function getRecentSales($conn)
+{
     $limit = intval($_GET['limit'] ?? 10);
-    
+
     $sql = "SELECT sale_date, customer_name, SUM(order_count) as order_count
             FROM daily_sales 
             GROUP BY sale_date, customer_name
             ORDER BY sale_date DESC, order_count DESC
             LIMIT $limit";
-    
+
     $result = $conn->query($sql);
     $sales = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $sales[] = $row;
     }
-    
+
     echo json_encode(['success' => true, 'sales' => $sales]);
 }
 
 // ===== CHART FUNCTIONS =====
 
-function getSalesChart($conn) {
+function getSalesChart($conn)
+{
     $days = intval($_GET['days'] ?? 30);
     $startDate = date('Y-m-d', strtotime("-$days days"));
-    
+
     $sql = "SELECT sale_date, SUM(order_count) as total_orders
             FROM daily_sales 
             WHERE sale_date >= '$startDate'
             GROUP BY sale_date
             ORDER BY sale_date ASC";
-    
+
     $result = $conn->query($sql);
     $labels = [];
     $values = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $labels[] = date('M d', strtotime($row['sale_date']));
         $values[] = intval($row['total_orders']);
     }
-    
+
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
 }
 
-function getTopClients($conn) {
+function getTopClients($conn)
+{
     $limit = intval($_GET['limit'] ?? 10);
-    
+
     $sql = "SELECT customer_name, SUM(order_count) as total_orders
             FROM daily_sales 
             GROUP BY customer_name
             ORDER BY total_orders DESC
             LIMIT $limit";
-    
+
     $result = $conn->query($sql);
     $labels = [];
     $values = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $labels[] = $row['customer_name'];
         $values[] = intval($row['total_orders']);
     }
-    
+
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
 }
 
-function getSalesByPerson($conn) {
+function getSalesByPerson($conn)
+{
     $sql = "SELECT 
                 COALESCE(c.sales_person, 'Unassigned') as sales_person,
                 SUM(ds.order_count) as total_orders
@@ -360,31 +373,30 @@ function getSalesByPerson($conn) {
             GROUP BY COALESCE(c.sales_person, 'Unassigned')
             ORDER BY total_orders DESC
             LIMIT 10";
-    
+
     $result = $conn->query($sql);
     $labels = [];
     $values = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $labels[] = $row['sales_person'];
         $values[] = intval($row['total_orders']);
     }
-    
+
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
 }
 
 // ===== UPLOAD HISTORY =====
 
-function getUploadHistory($conn) {
+function getUploadHistory($conn)
+{
     $sql = "SELECT * FROM upload_history ORDER BY upload_date DESC LIMIT 20";
     $result = $conn->query($sql);
     $uploads = [];
-    
-    while($row = $result->fetch_assoc()) {
+
+    while ($row = $result->fetch_assoc()) {
         $uploads[] = $row;
     }
-    
+
     echo json_encode(['success' => true, 'uploads' => $uploads]);
 }
-
-?>
