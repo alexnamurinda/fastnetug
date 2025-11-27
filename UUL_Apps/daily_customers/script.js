@@ -86,10 +86,10 @@ function setupEventListeners() {
 }
 
 // Close sidebar when clicking outside on mobile
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menuToggle');
-    
+
     if (window.innerWidth <= 768) {
         if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
             sidebar.classList.remove('active');
@@ -242,8 +242,8 @@ function displayClients(clients) {
         <td><strong>${client.client_name}</strong></td>
         <td>${client.contact || '-'}</td>
         <td>${client.sales_person || '-'}</td>
-        <td><strong>${client.total_orders || 0}</strong></td>
-        <td>${client.last_order_date || '-'}</td>
+        // <td><strong>${client.total_orders || 0}</strong></td>
+        // <td>${client.last_order_date || '-'}</td>
             <td>
                 <button class="action-btn" onclick="editClient(${client.id})">
                     <i class="fas fa-edit"></i>
