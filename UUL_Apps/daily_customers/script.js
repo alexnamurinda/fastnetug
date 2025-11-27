@@ -86,10 +86,10 @@ function setupEventListeners() {
 }
 
 // Close sidebar when clicking outside on mobile
-document.addEventListener('click', function (e) {
+document.addEventListener('click', function(e) {
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menuToggle');
-
+    
     if (window.innerWidth <= 768) {
         if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
             sidebar.classList.remove('active');
@@ -181,12 +181,6 @@ function updateDashboardStats(stats) {
     document.getElementById('clientsChange').textContent = stats.clientsChange || 0;
     document.getElementById('ordersChange').textContent = stats.ordersChange || 0;
     document.getElementById('newClientsChange').textContent = stats.weeklyNewClients || 0;
-
-    // ADD THESE NEW LINES:
-    document.getElementById('approvedReportsToday').textContent = stats.approvedReportsToday || 0;
-    document.getElementById('approvedReportsChange').textContent = stats.approvedReportsWeek || 0;
-    document.getElementById('clientInvoicesToday').textContent = stats.clientInvoicesToday || 0;
-    document.getElementById('invoicesValue').textContent = 'UGX ' + (stats.invoicesTotalValue || 0).toLocaleString();
 }
 
 async function loadDailySales() {
