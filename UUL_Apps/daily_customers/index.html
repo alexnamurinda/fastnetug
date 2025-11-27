@@ -130,421 +130,394 @@
                         </span>
                     </div>
                 </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Sales Trend (Last 30 Days)</h3>
+                        <select id="chartPeriod">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30" selected>Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                        </select>
+                    </div>
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Top 10 Clients</h3>
+                    </div>
+                    <canvas id="topClientsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="section-header">
+                    <h3>Recent Sales Activity</h3>
+                    <button class="btn-secondary" onclick="loadDailySales()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="activity-list" id="recentActivity">
+                    <!-- Activity items will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Page -->
+        <div class="page-content" id="clientsPage" style="display: none;">
+            <div class="page-actions">
+                <div class="search-filter">
+                    <input type="text" id="clientSearch" placeholder="Search clients..." class="search-input">
+                    <select id="salesPersonFilter" class="filter-select">
+                        <option value="">All Sales Persons</option>
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="exportClients()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-primary" onclick="showAddClientModal()">
+                        <i class="fas fa-plus"></i> Add Client
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client Name</th>
+                            <th>Phone Number</th>
+                            <th>Sales Person</th>
+                            <!-- <th>First Order</th> -->
+                            <th>Total Orders</th>
+                            <th>Last Order</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Clients will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sales History Page -->
+        <div class="page-content" id="salesPage" style="display: none;">
+            <div class="page-actions">
+                <div class="search-filter">
+                    <input type="date" id="dateFrom" class="filter-select">
+                    <input type="date" id="dateTo" class="filter-select">
+                    <button class="btn-secondary" onclick="filterSales()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Client Name</th>
+                            <th>Orders</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Sales will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="page-content" id="analyticsPage" style="display: none;">
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Sales by Sales Person</h3>
+                    <canvas id="salesPersonChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3>Monthly Performance</h3>
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3>Client Acquisition Rate</h3>
+                    <canvas id="acquisitionChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3>Order Distribution</h3>
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Page -->
+        <div class="page-content" id="uploadPage" style="display: none;">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Sales Data</h3>
+                    <p>Upload your Excel file with customer_name and count columns</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-excel"></i> Choose Excel File
+                    </button>
+                    <div id="uploadStatus" class="upload-status"></div>
+                </div>
+                <div class="upload-history">
+                    <h3>Recent Uploads</h3>
+                    <div id="uploadHistory"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page -->
+        <div class="page-content" id="reportsPage" style="display: none;">
+            <div class="page-actions">
+                <div class="search-filter">
+                    <input type="date" id="reportDateFrom" class="filter-select">
+                    <input type="date" id="reportDateTo" class="filter-select">
+                    <input type="text" id="reportSearch" placeholder="Search reports..." class="search-input">
+                    <button class="btn-secondary" onclick="filterMyReports()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="exportMyReports()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-primary" onclick="showAddReportModal()">
+                        <i class="fas fa-plus"></i> Add Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="todayReportsCount">0</h3>
+                        <p>Today's Reports</p>
+                    </div>
+                </div>
                 <div class="stat-card">
                     <div class="stat-icon green">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="monthReportsCount">0</h3>
+                        <p>This Month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="pendingCount">0</h3>
+                        <p>Pending Approval</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-details">
-                        <h3 id="approvedReportsToday">0</h3>
-                        <p>Stats by Approved Reports</p>
-                        <span class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> <span id="approvedReportsChange">0</span> this week
-                        </span>
-                    </div>
-                </div>
-
-                <!-- NEW CARD 6: Client Invoices Today -->
-                <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h3 id="clientInvoicesToday">0</h3>
-                        <p>Stats by Client Invoices</p>
-                        <span class="stat-change">
-                            <i class="fas fa-money-bill-wave"></i> <span id="invoicesValue">UGX 0</span>
-                        </span>
+                        <h3 id="approvedCount">0</h3>
+                        <p>Approved This Month</p>
                     </div>
                 </div>
             </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Client</th>
+                            <th>Method</th>
+                            <th>Discussion</th>
+                            <th>Feedback</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- Reports will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="charts-row">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Sales Trend (Last 30 Days)</h3>
-                    <select id="chartPeriod">
-                        <option value="7">Last 7 Days</option>
-                        <option value="30" selected>Last 30 Days</option>
-                        <option value="90">Last 90 Days</option>
+        <!-- Approvals Page (Supervisor Only) -->
+        <div class="page-content" id="approvalsPage" style="display: none;">
+            <div class="page-actions">
+                <div class="search-filter">
+                    <select id="approvalSalesPerson" class="filter-select">
+                        <option value="">All Sales Persons</option>
                     </select>
-                </div>
-                <canvas id="salesChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3>Top 10 Clients</h3>
-                </div>
-                <canvas id="topClientsChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="activity-section">
-            <div class="section-header">
-                <h3>Recent Sales Activity</h3>
-                <button class="btn-secondary" onclick="loadDailySales()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-            <div class="activity-list" id="recentActivity">
-                <!-- Activity items will be loaded here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Clients Page -->
-    <div class="page-content" id="clientsPage" style="display: none;">
-        <div class="page-actions">
-            <div class="search-filter">
-                <input type="text" id="clientSearch" placeholder="Search clients..." class="search-input">
-                <select id="salesPersonFilter" class="filter-select">
-                    <option value="">All Sales Persons</option>
-                </select>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-primary" onclick="exportClients()">
-                    <i class="fas fa-download"></i> Export
-                </button>
-                <button class="btn-primary" onclick="showAddClientModal()">
-                    <i class="fas fa-plus"></i> Add Client
-                </button>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Client Name</th>
-                        <th>Phone Number</th>
-                        <th>Sales Person</th>
-                        <!-- <th>First Order</th> -->
-                        <th>Total Orders</th>
-                        <th>Last Order</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="clientsTableBody">
-                    <!-- Clients will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Sales History Page -->
-    <div class="page-content" id="salesPage" style="display: none;">
-        <div class="page-actions">
-            <div class="search-filter">
-                <input type="date" id="dateFrom" class="filter-select">
-                <input type="date" id="dateTo" class="filter-select">
-                <button class="btn-secondary" onclick="filterSales()">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Client Name</th>
-                        <th>Orders</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="salesTableBody">
-                    <!-- Sales will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Analytics Page -->
-    <div class="page-content" id="analyticsPage" style="display: none;">
-        <div class="analytics-grid">
-            <div class="analytics-card">
-                <h3>Sales by Sales Person</h3>
-                <canvas id="salesPersonChart"></canvas>
-            </div>
-            <div class="analytics-card">
-                <h3>Monthly Performance</h3>
-                <canvas id="monthlyChart"></canvas>
-            </div>
-            <div class="analytics-card">
-                <h3>Client Acquisition Rate</h3>
-                <canvas id="acquisitionChart"></canvas>
-            </div>
-            <div class="analytics-card">
-                <h3>Order Distribution</h3>
-                <canvas id="distributionChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upload Page -->
-    <div class="page-content" id="uploadPage" style="display: none;">
-        <div class="upload-section">
-            <div class="upload-card">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <h3>Upload Sales Data</h3>
-                <p>Upload your Excel file with customer_name and count columns</p>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
-                <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
-                    <i class="fas fa-file-excel"></i> Choose Excel File
-                </button>
-                <div id="uploadStatus" class="upload-status"></div>
-            </div>
-            <div class="upload-history">
-                <h3>Recent Uploads</h3>
-                <div id="uploadHistory"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reports Page -->
-    <div class="page-content" id="reportsPage" style="display: none;">
-        <div class="page-actions">
-            <div class="search-filter">
-                <input type="date" id="reportDateFrom" class="filter-select">
-                <input type="date" id="reportDateTo" class="filter-select">
-                <input type="text" id="reportSearch" placeholder="Search reports..." class="search-input">
-                <button class="btn-secondary" onclick="filterMyReports()">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-primary" onclick="exportMyReports()">
-                    <i class="fas fa-download"></i> Export
-                </button>
-                <button class="btn-primary" onclick="showAddReportModal()">
-                    <i class="fas fa-plus"></i> Add Report
-                </button>
-            </div>
-        </div>
-
-        <div class="stats-grid" style="margin-bottom: 24px;">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <div class="stat-details">
-                    <h3 id="todayReportsCount">0</h3>
-                    <p>Today's Reports</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="stat-details">
-                    <h3 id="monthReportsCount">0</h3>
-                    <p>This Month</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon orange">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-details">
-                    <h3 id="pendingCount">0</h3>
-                    <p>Pending Approval</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-details">
-                    <h3 id="approvedCount">0</h3>
-                    <p>Approved This Month</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Client</th>
-                        <th>Method</th>
-                        <th>Discussion</th>
-                        <th>Feedback</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="reportsTableBody">
-                    <!-- Reports will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Approvals Page (Supervisor Only) -->
-    <div class="page-content" id="approvalsPage" style="display: none;">
-        <div class="page-actions">
-            <div class="search-filter">
-                <select id="approvalSalesPerson" class="filter-select">
-                    <option value="">All Sales Persons</option>
-                </select>
-                <select id="approvalStatus" class="filter-select">
-                    <option value="">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                </select>
-                <input type="date" id="approvalDateFrom" class="filter-select">
-                <input type="date" id="approvalDateTo" class="filter-select">
-                <button class="btn-secondary" onclick="filterApprovals()">
-                    <i class="fas fa-filter"></i> Filter
-                </button>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Sales Person</th>
-                        <th>Client</th>
-                        <th>Method</th>
-                        <th>Discussion</th>
-                        <th>Feedback</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="approvalsTableBody">
-                    <!-- Approvals will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Manage Users Page (Supervisor Only) -->
-    <div class="page-content" id="managePage" style="display: none;">
-        <div class="page-actions">
-            <button class="btn-primary" onclick="showAddPersonModal()">
-                <i class="fas fa-user-plus"></i> Add Sales Person
-            </button>
-        </div>
-
-        <div class="table-container">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>Created Date</th>
-                    </tr>
-                </thead>
-                <tbody id="personsTableBody">
-                    <!-- Sales persons will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Login Modal -->
-    <div class="modal active" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Enter Passcode</h3>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Passcode</label>
-                    <input type="password" id="loginPasscode" class="form-control" placeholder="Enter your passcode"
-                        onkeypress="if(event.key==='Enter') loginUser()">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-primary" onclick="loginUser()">Login</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Report Modal -->
-    <div class="modal" id="addReportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add Daily Report</h3>
-                <button class="close-btn" onclick="closeModal('addReportModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Report Date *</label>
-                    <input type="date" id="reportDate" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Client *</label>
-                    <select id="reportClient" class="form-control" required>
-                        <option value="">Select Client</option>
+                    <select id="approvalStatus" class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label>Method of Interaction *</label>
-                    <select id="reportMethod" class="form-control" required>
-                        <option value="C">Call (C)</option>
-                        <option value="M">Met (M)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Discussion Points</label>
-                    <textarea id="reportDiscussion" class="form-control" rows="4"
-                        placeholder="Enter discussion points..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Feedback</label>
-                    <textarea id="reportFeedback" class="form-control" rows="4"
-                        placeholder="Enter feedback..."></textarea>
+                    <input type="date" id="approvalDateFrom" class="filter-select">
+                    <input type="date" id="approvalDateTo" class="filter-select">
+                    <button class="btn-secondary" onclick="filterApprovals()">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('addReportModal')">Cancel</button>
-                <button class="btn-primary" onclick="submitReport()">Submit Report</button>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Sales Person</th>
+                            <th>Client</th>
+                            <th>Method</th>
+                            <th>Discussion</th>
+                            <th>Feedback</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalsTableBody">
+                        <!-- Approvals will be loaded here -->
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <!-- Add Sales Person Modal -->
-    <div class="modal" id="addPersonModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add Sales Person</h3>
-                <button class="close-btn" onclick="closeModal('addPersonModal')">
-                    <i class="fas fa-times"></i>
+        <!-- Manage Users Page (Supervisor Only) -->
+        <div class="page-content" id="managePage" style="display: none;">
+            <div class="page-actions">
+                <button class="btn-primary" onclick="showAddPersonModal()">
+                    <i class="fas fa-user-plus"></i> Add Sales Person
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Name *</label>
-                    <input type="text" id="personName" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Passcode *</label>
-                    <input type="password" id="personPasscode" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Role *</label>
-                    <select id="personRole" class="form-control" required>
-                        <option value="salesperson">Sales Person</option>
-                        <option value="supervisor">Supervisor</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeModal('addPersonModal')">Cancel</button>
-                <button class="btn-primary" onclick="submitPerson()">Add Person</button>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="personsTableBody">
+                        <!-- Sales persons will be loaded here -->
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
+
+        <!-- Login Modal -->
+        <div class="modal active" id="loginModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Enter Passcode</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Passcode</label>
+                        <input type="password" id="loginPasscode" class="form-control" placeholder="Enter your passcode"
+                            onkeypress="if(event.key==='Enter') loginUser()">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="loginUser()">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Report Modal -->
+        <div class="modal" id="addReportModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Daily Report</h3>
+                    <button class="close-btn" onclick="closeModal('addReportModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Report Date *</label>
+                        <input type="date" id="reportDate" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Client *</label>
+                        <select id="reportClient" class="form-control" required>
+                            <option value="">Select Client</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Method of Interaction *</label>
+                        <select id="reportMethod" class="form-control" required>
+                            <option value="C">Call (C)</option>
+                            <option value="M">Met (M)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Discussion Points</label>
+                        <textarea id="reportDiscussion" class="form-control" rows="4"
+                            placeholder="Enter discussion points..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Feedback</label>
+                        <textarea id="reportFeedback" class="form-control" rows="4"
+                            placeholder="Enter feedback..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('addReportModal')">Cancel</button>
+                    <button class="btn-primary" onclick="submitReport()">Submit Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Sales Person Modal -->
+        <div class="modal" id="addPersonModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Sales Person</h3>
+                    <button class="close-btn" onclick="closeModal('addPersonModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="personName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Passcode *</label>
+                        <input type="password" id="personPasscode" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select id="personRole" class="form-control" required>
+                            <option value="salesperson">Sales Person</option>
+                            <option value="supervisor">Supervisor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('addPersonModal')">Cancel</button>
+                    <button class="btn-primary" onclick="submitPerson()">Add Person</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Edit Client Modal -->
