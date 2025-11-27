@@ -746,6 +746,9 @@ body {
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
+    max-height: 90vh;
+    /* ADD THIS */
+    overflow-y: auto;
     box-shadow: var(--shadow-xl);
     animation: modalSlideIn 0.3s ease-out;
 }
@@ -794,6 +797,9 @@ body {
 
 .modal-body {
     padding: 24px;
+    max-height: calc(90vh - 140px);
+    /* ADD THIS - accounts for header and footer */
+    overflow-y: auto;
 }
 
 .form-group {
