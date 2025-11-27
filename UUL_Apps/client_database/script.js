@@ -54,6 +54,39 @@ function setupEventListeners() {
     });
 }
 
+// Toggle mobile search
+function toggleMobileSearch() {
+    const searchBox = document.querySelector('.search-box');
+    const isHidden = searchBox.classList.contains('mobile-hidden');
+
+    if (isHidden) {
+        searchBox.classList.remove('mobile-hidden');
+        searchBox.querySelector('input').focus();
+    } else {
+        searchBox.classList.add('mobile-hidden');
+        searchBox.querySelector('input').value = '';
+        hideSearchResults();
+    }
+}
+
+// Initialize mobile search state
+function initMobileSearch() {
+    if (window.innerWidth <= 768) {
+        document.querySelector('.search-box').classList.add('mobile-hidden');
+    }
+}
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        document.querySelector('.search-box').classList.remove('mobile-hidden');
+    } else if (!document.querySelector('.search-box:focus-within')) {
+        document.querySelector('.search-box').classList.add('mobile-hidden');
+    }
+});
+
+// Call on load
+initMobileSearch();
+
 // Debounce function for search
 function debounce(func, wait) {
     let timeout;
@@ -89,46 +122,7 @@ async function loadClients() {
     }
 }
 
-// Load demo data for testing
-function loadDemoData() {
-    clients = [
-        {
-            id: 1,
-            name: 'John Doe',
-            phone: '+256701234567',
-            email: 'john@example.com',
-            company: 'ABC Printing',
-            category: 'art_paper',
-            address: 'Kampala, Uganda',
-            notes: 'Regular customer',
-            created_at: '2024-01-15'
-        },
-        {
-            id: 2,
-            name: 'Jane Smith',
-            phone: '+256702345678',
-            email: 'jane@design.com',
-            company: 'Design Studio',
-            category: 'inks',
-            address: 'Entebbe, Uganda',
-            notes: 'Bulk orders',
-            created_at: '2024-02-20'
-        },
-        {
-            id: 3,
-            name: 'Mike Johnson',
-            phone: '+256703456789',
-            email: 'mike@freelance.com',
-            company: '',
-            category: 'freelancers',
-            address: 'Jinja, Uganda',
-            notes: 'Graphic designer',
-            created_at: '2024-03-10'
-        }
-    ];
-    renderStats();
-}
-
+// Render statistics
 // Render statistics
 function renderStats() {
     const statsGrid = document.getElementById('statsGrid');
@@ -136,11 +130,17 @@ function renderStats() {
 
     statsGrid.innerHTML = '';
 
-    // Add total card FIRST
-    const totalCard = createStatCard('all',
-        { name: 'Total Clients', icon: 'fas fa-users', color: '#2d3748' },
-        clients.length
-    );
+    // Add total card FIRST with distinct styling
+    const totalCard = document.createElement('div');
+    totalCard.className = 'stat-card fade-in';
+    totalCard.onclick = () => showCategoryClients('all');
+    totalCard.innerHTML = `
+        <div class="stat-icon">
+            <i class="fas fa-users" style="color: #2d3748"></i>
+        </div>
+        <div class="stat-number">${clients.length}</div>
+        <div class="stat-label">Total Clients</div>
+    `;
     statsGrid.appendChild(totalCard);
 
     // Then add category cards
@@ -148,7 +148,16 @@ function renderStats() {
         const category = categories[categoryKey];
         const count = stats[categoryKey] || 0;
 
-        const statCard = createStatCard(categoryKey, category, count);
+        const statCard = document.createElement('div');
+        statCard.className = 'stat-card fade-in';
+        statCard.onclick = () => showCategoryClients(categoryKey);
+        statCard.innerHTML = `
+            <div class="stat-icon">
+                <i class="${category.icon}" style="color: ${category.color}"></i>
+            </div>
+            <div class="stat-number">${count}</div>
+            <div class="stat-label">${category.name}</div>
+        `;
         statsGrid.appendChild(statCard);
     });
 }
