@@ -130,15 +130,16 @@
                         </span>
                     </div>
                 </div>
-                <div class="stat-card chart-stat-card">
-                    <div style="width: 100%;">
-                        <div class="stat-header">
-                            <h3>Client Visits by Sales Person</h3>
-                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-                                Based on approved reports (Last 30 days)
-                            </p>
-                        </div>
-                        <canvas id="clientVisitsChart" style="margin-top: 16px; max-height: 200px;"></canvas>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h3 id="approvedReportsToday">0</h3>
+                        <p>Stats by Approved Reports</p>
+                        <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> <span id="approvedReportsChange">0</span> this week
+                        </span>
                     </div>
                 </div>
 

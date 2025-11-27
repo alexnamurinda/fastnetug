@@ -61,9 +61,6 @@ switch ($action) {
     case 'getSalesPersonPerformance':
         getSalesPersonPerformance($conn);
         break;
-    case 'getSalesPersonClientVisits':
-        getSalesPersonClientVisits($conn);
-        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -411,42 +408,4 @@ function getSalesPersonPerformance($conn)
     }
 
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
-}
-
-function getSalesPersonClientVisits($conn)
-{
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
-        return;
-    }
-
-    $days = intval($_GET['days'] ?? 30);
-    $startDate = date('Y-m-d', strtotime("-$days days"));
-
-    // Get count of unique clients visited by each salesperson (approved reports only)
-    $sql = "SELECT 
-                sp.name as sales_person_name,
-                COUNT(DISTINCT dr.client_id) as unique_clients_visited
-            FROM sales_persons sp
-            LEFT JOIN daily_reports dr ON sp.id = dr.sales_person_id 
-                AND dr.approved = 'approved' 
-                AND dr.report_date >= '$startDate'
-            WHERE sp.role = 'salesperson'
-            GROUP BY sp.id, sp.name
-            ORDER BY unique_clients_visited DESC";
-
-    $result = $conn->query($sql);
-    $labels = [];
-    $values = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $labels[] = $row['sales_person_name'];
-        $values[] = intval($row['unique_clients_visited']);
-    }
-
-    echo json_encode([
-        'success' => true,
-        'labels' => $labels,
-        'values' => $values
-    ]);
 }
