@@ -74,6 +74,34 @@ let apps = [
     // }
 ];
 
+// Toggle mobile search
+function toggleMobileSearch() {
+    const searchBox = document.querySelector('.search-box');
+    const isHidden = searchBox.classList.contains('mobile-hidden');
+
+    if (isHidden) {
+        searchBox.classList.remove('mobile-hidden');
+        searchBox.querySelector('input').focus();
+    } else {
+        searchBox.classList.add('mobile-hidden');
+        searchBox.querySelector('input').value = '';
+        searchApps();
+    }
+}
+
+// Initialize mobile search toggle
+if (window.innerWidth <= 768) {
+    document.querySelector('.search-box').classList.add('mobile-hidden');
+}
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        document.querySelector('.search-box').classList.remove('mobile-hidden');
+    } else if (!document.querySelector('.search-box:focus-within')) {
+        document.querySelector('.search-box').classList.add('mobile-hidden');
+    }
+});
+
 // Available icons
 const availableIcons = [
     'users', 'chart-line', 'boxes', 'file-invoice-dollar', 'calendar',
@@ -90,7 +118,7 @@ let currentCategory = 'all';
 let searchTerm = '';
 
 // Initialize
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadApps();
     loadIcons();
     updateStats();
@@ -101,7 +129,7 @@ function loadApps(category = 'all', search = '') {
     const grid = document.getElementById('appsGrid');
     const sectionTitle = document.getElementById('sectionTitle');
     const appCount = document.getElementById('appCount');
-    
+
     grid.innerHTML = '';
     currentCategory = category;
     searchTerm = search;
@@ -152,9 +180,9 @@ function createAppCard(app) {
     const card = document.createElement('div');
     card.className = 'app-card';
     card.onclick = () => openApp(app.url);
-    
+
     const badgeClass = app.badge.toLowerCase();
-    
+
     card.innerHTML = `
         <div class="app-icon">
             <i class="fas fa-${app.icon}"></i>
@@ -237,7 +265,7 @@ function hideModal() {
     document.getElementById('appForm').reset();
     document.getElementById('appId').value = '';
     document.body.style.overflow = 'auto';
-    
+
     // Clear selected icon
     document.querySelectorAll('.icon-option').forEach(icon => {
         icon.classList.remove('selected');
@@ -335,7 +363,7 @@ function showNotification(message, type) {
 }
 
 // Close modal when clicking outside
-window.onclick = function(event) {
+window.onclick = function (event) {
     const modal = document.getElementById('appModal');
     if (event.target === modal) {
         hideModal();
@@ -343,13 +371,13 @@ window.onclick = function(event) {
 }
 
 // Keyboard shortcuts
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     // Ctrl/Cmd + K for search
     if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
         document.getElementById('searchApps').focus();
     }
-    
+
     // Escape to close modal
     if (event.key === 'Escape') {
         hideModal();

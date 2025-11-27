@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="launcher-styles.css">
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -19,16 +21,16 @@
                 </div> -->
             </div>
             <div class="header-actions">
-                <div class="search-box">
+                <button class="search-toggle" onclick="toggleMobileSearch()" title="Search">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchApps" placeholder="Search apps..." oninput="searchApps()">
+                </button>
+                <div class="search-box mobile-hidden">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchApps" placeholder="Search..." oninput="searchApps()">
                 </div>
-                <button class="btn-icon" onclick="showModal()" title="Add New App">
+                <button class="btn-icon" onclick="showModal()" title="Add App">
                     <i class="fas fa-plus"></i>
                 </button>
-                <div class="user-profile" title="User Profile">
-                    <i class="fas fa-user"></i>
-                </div>
             </div>
         </div>
     </header>
@@ -120,7 +122,7 @@
             <div class="modal-body">
                 <form id="appForm" onsubmit="saveApp(event)">
                     <input type="hidden" id="appId">
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="appName">App Name *</label>
@@ -171,4 +173,5 @@
 
     <script src="launcher-script.js"></script>
 </body>
+
 </html>
