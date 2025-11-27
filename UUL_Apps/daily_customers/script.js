@@ -6,6 +6,7 @@ let currentUser = null;
 
 // Global variables
 let salesChart, topClientsChart, salesPersonChart, monthlyChart, acquisitionChart, distributionChart;
+let clientVisitsChart;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
@@ -165,9 +166,26 @@ async function loadDashboardData() {
             loadSalesChartData(30);
             loadTopClientsChart();
             loadDailySales();
+            loadClientVisitsChart();
         }
     } catch (error) {
         console.error('Error loading dashboard:', error);
+    }
+}
+
+// Add this new function to load the client visits data
+async function loadClientVisitsChart() {
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getSalesPersonClientVisits&days=30`);
+        const data = await response.json();
+
+        if (data.success && clientVisitsChart) {
+            clientVisitsChart.data.labels = data.labels;
+            clientVisitsChart.data.datasets[0].data = data.values;
+            clientVisitsChart.update();
+        }
+    } catch (error) {
+        console.error('Error loading client visits chart:', error);
     }
 }
 
@@ -497,6 +515,41 @@ function initializeCharts() {
             options: {
                 ...chartOptions,
                 indexAxis: 'y'
+            }
+        });
+    }
+
+    // Client Visits Chart
+    const visitsCtx = document.getElementById('clientVisitsChart');
+    if (visitsCtx) {
+        clientVisitsChart = new Chart(visitsCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Unique Clients Visited',
+                    data: [],
+                    backgroundColor: '#10B981',
+                    borderRadius: 6,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
             }
         });
     }

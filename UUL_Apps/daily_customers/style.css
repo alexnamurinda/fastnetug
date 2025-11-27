@@ -271,6 +271,26 @@ body {
 }
 
 /* ===== STATS CARDS ===== */
+
+.chart-stat-card {
+    grid-column: span 2;
+    /* Makes it take 2 columns */
+    display: block;
+}
+
+.stat-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .chart-stat-card {
+        grid-column: span 1;
+    }
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
