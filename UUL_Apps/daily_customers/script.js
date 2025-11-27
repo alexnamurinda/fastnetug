@@ -242,8 +242,6 @@ function displayClients(clients) {
         <td><strong>${client.client_name}</strong></td>
         <td>${client.contact || '-'}</td>
         <td>${client.sales_person || '-'}</td>
-        // <td><strong>${client.total_orders || 0}</strong></td>
-        // <td>${client.last_order_date || '-'}</td>
             <td>
                 <button class="action-btn" onclick="editClient(${client.id})">
                     <i class="fas fa-edit"></i>
