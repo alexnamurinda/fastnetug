@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
@@ -101,6 +102,46 @@ function getDashboardStats($conn)
     // New clients this week
     $weeklyNewClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE created_at >= '$lastWeek'")->fetch_assoc()['count'];
 
+    // Initialize new stats with default values
+    $approvedToday = 0;
+    $approvedWeek = 0;
+    $invoicesToday = ['count' => 0, 'total' => 0];
+
+    // Only get these stats if user is logged in
+    if (isset($_SESSION['user_id'])) {
+        // Approved reports today for current user
+        $approvedToday = $conn->query("
+            SELECT COUNT(*) as count 
+            FROM daily_reports 
+            WHERE sales_person_id = {$_SESSION['user_id']} 
+            AND approved = 'approved' 
+            AND DATE(approved_at) = CURDATE()
+        ")->fetch_assoc()['count'];
+
+        // Approved reports this week
+        $approvedWeek = $conn->query("
+            SELECT COUNT(*) as count 
+            FROM daily_reports 
+            WHERE sales_person_id = {$_SESSION['user_id']} 
+            AND approved = 'approved' 
+            AND YEARWEEK(approved_at) = YEARWEEK(CURDATE())
+        ")->fetch_assoc()['count'];
+
+        // Check if invoices table exists before querying
+        $tableExists = $conn->query("SHOW TABLES LIKE 'invoices'")->num_rows > 0;
+
+        if ($tableExists) {
+            // Client invoices today
+            $invoicesToday = $conn->query("
+                SELECT COUNT(*) as count, COALESCE(SUM(amount), 0) as total
+                FROM invoices i
+                JOIN clients c ON i.client_id = c.id
+                WHERE c.sales_person = (SELECT name FROM sales_persons WHERE id = {$_SESSION['user_id']})
+                AND DATE(i.invoice_date) = CURDATE()
+            ")->fetch_assoc();
+        }
+    }
+
     echo json_encode([
         'success' => true,
         'stats' => [
@@ -110,11 +151,15 @@ function getDashboardStats($conn)
             'newClients' => $newClients,
             'clientsChange' => $clientsChange,
             'ordersChange' => $ordersChange,
-            'weeklyNewClients' => $weeklyNewClients
+            'weeklyNewClients' => $weeklyNewClients,
+            // ADD THESE NEW STATS TO THE RESPONSE:
+            'approvedReportsToday' => $approvedToday,
+            'approvedReportsWeek' => $approvedWeek,
+            'clientInvoicesToday' => $invoicesToday['count'],
+            'invoicesTotalValue' => $invoicesToday['total']
         ]
     ]);
 }
-
 // ===== CLIENT FUNCTIONS =====
 
 function getClients($conn)
