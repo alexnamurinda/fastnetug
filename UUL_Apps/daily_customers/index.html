@@ -178,13 +178,13 @@
                     </select>
                 </div>
                 <div class="action-buttons">
-                    <button class="btn-primary btn-icon-only" onclick="exportClients()">
+                    <button class="btn-primary btn-icon-only" onclick="exportClients()" title="Export Clients">
                         <i class="fas fa-download"></i>
-                        <span>Export</span>
+                        <span class="btn-text">Export</span>
                     </button>
-                    <button class="btn-primary btn-icon-only" onclick="showAddClientModal()">
+                    <button class="btn-primary btn-icon-only" onclick="showAddClientModal()" title="Add Client">
                         <i class="fas fa-plus"></i>
-                        <span>Add Client</span>
+                        <span class="btn-text">Add Client</span>
                     </button>
                 </div>
             </div>
@@ -287,19 +287,19 @@
                     <input type="date" id="reportDateFrom" class="filter-select">
                     <input type="date" id="reportDateTo" class="filter-select">
                     <input type="text" id="reportSearch" placeholder="Search..." class="search-input">
-                    <button class="btn-secondary btn-icon-only" onclick="filterMyReports()">
+                    <button class="btn-secondary btn-icon-only" onclick="filterMyReports()" title="Filter">
                         <i class="fas fa-filter"></i>
-                        <span>Filter</span>
+                        <span class="btn-text">Filter</span>
                     </button>
                 </div>
                 <div class="action-buttons">
-                    <button class="btn-primary btn-icon-only" onclick="exportMyReports()">
+                    <button class="btn-primary btn-icon-only" onclick="exportMyReports()" title="Export Reports">
                         <i class="fas fa-download"></i>
-                        <span>Export</span>
+                        <span class="btn-text">Export</span>
                     </button>
-                    <button class="btn-primary btn-icon-only" onclick="showAddReportModal()">
+                    <button class="btn-primary btn-icon-only" onclick="showAddReportModal()" title="Add Report">
                         <i class="fas fa-plus"></i>
-                        <span>Add Report</span>
+                        <span class="btn-text">Add Report</span>
                     </button>
                 </div>
             </div>
@@ -377,8 +377,9 @@
                     </select>
                     <input type="date" id="approvalDateFrom" class="filter-select">
                     <input type="date" id="approvalDateTo" class="filter-select">
-                    <button class="btn-secondary" onclick="filterApprovals()">
-                        <i class="fas fa-filter"></i> Filter
+                    <button class="btn-secondary btn-icon-only" onclick="filterApprovals()" title="Filter">
+                        <i class="fas fa-filter"></i>
+                        <span class="btn-text">Filter</span>
                     </button>
                 </div>
             </div>
@@ -407,9 +408,15 @@
         <!-- Manage Users Page (Supervisor Only) -->
         <div class="page-content" id="managePage" style="display: none;">
             <div class="page-actions">
-                <button class="btn-primary" onclick="showAddPersonModal()">
-                    <i class="fas fa-user-plus"></i> Add Sales Person
-                </button>
+                <div class="search-filter">
+                    <!-- Empty div to maintain layout -->
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-primary btn-icon-only" onclick="showAddPersonModal()" title="Add Sales Person">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="btn-text">Add Sales Person</span>
+                    </button>
+                </div>
             </div>
 
             <div class="table-container">
