@@ -40,6 +40,34 @@ function initializeApp() {
     initializeCharts();
 }
 
+async function updateNotificationBadge() {
+    if (!currentUser) return;
+
+    try {
+        const response = await fetch(`${AUTH_API_URL}?action=getReportStats`);
+        const data = await response.json();
+
+        if (data.success && data.stats.pending > 0) {
+            const badge = document.getElementById('notificationBadge');
+            badge.textContent = data.stats.pending;
+            badge.style.display = 'block';
+        } else {
+            document.getElementById('notificationBadge').style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error updating notifications:', error);
+    }
+}
+
+function showNotifications() {
+    // Navigate to reports page to see pending items
+    if (currentUser.role === 'supervisor') {
+        navigateToPage('approvals');
+    } else {
+        navigateToPage('reports');
+    }
+}
+
 function setupEventListeners() {
     // Navigation
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -771,6 +799,12 @@ function updateUIForUser() {
         document.getElementById('approvalsLink').style.display = 'none';
         document.getElementById('manageLink').style.display = 'none';
     }
+
+    // Update notification badge
+    updateNotificationBadge();
+
+    // Refresh notifications every 60 seconds
+    setInterval(updateNotificationBadge, 60000);
 }
 
 // ===== REPORT FUNCTIONS =====
@@ -896,6 +930,9 @@ async function loadReportStats() {
             document.getElementById('monthReportsCount').textContent = data.stats.monthReports;
             document.getElementById('pendingCount').textContent = data.stats.pending;
             document.getElementById('approvedCount').textContent = data.stats.approved;
+
+            // Update notification badge
+            updateNotificationBadge();
         }
     } catch (error) {
         console.error('Error loading report stats:', error);
