@@ -1006,20 +1006,6 @@ body {
         align-items: stretch;
     }
 
-    .search-filter {
-        flex-direction: column;
-    }
-
-    .action-buttons {
-        flex-direction: column;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-        width: 100%;
-        justify-content: center;
-    }
-
     .table-container {
         overflow-x: auto;
     }
