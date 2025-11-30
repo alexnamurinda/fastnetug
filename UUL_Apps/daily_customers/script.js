@@ -19,21 +19,27 @@ function initializeApp() {
     checkUserSession();
 
     // Set today's date for filters
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Set first day of current month
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
+
     if (document.getElementById('dateFrom')) {
-        document.getElementById('dateFrom').value = today;
-        document.getElementById('dateTo').value = today;
+        document.getElementById('dateFrom').value = todayStr;
+        document.getElementById('dateTo').value = todayStr;
     }
     if (document.getElementById('reportDateFrom')) {
-        document.getElementById('reportDateFrom').value = today;
-        document.getElementById('reportDateTo').value = today;
+        document.getElementById('reportDateFrom').value = firstDayStr;
+        document.getElementById('reportDateTo').value = todayStr;
     }
     if (document.getElementById('reportDate')) {
-        document.getElementById('reportDate').value = today;
+        document.getElementById('reportDate').value = todayStr;
     }
     if (document.getElementById('approvalDateFrom')) {
-        document.getElementById('approvalDateFrom').value = today;
-        document.getElementById('approvalDateTo').value = today;
+        document.getElementById('approvalDateFrom').value = todayStr;
+        document.getElementById('approvalDateTo').value = todayStr;
     }
 
     // Initialize charts

@@ -285,13 +285,13 @@
             <div class="page-actions">
                 <div class="search-filter">
                     <input type="date" id="reportDateFrom" class="filter-select">
-                    <input type="date" id="reportDateTo" class="filter-select">                    
+                    <span
+                        style="display: flex; align-items: center; padding: 0 8px; color: var(--text-secondary); font-weight: 500;">To</span>
+                    <input type="date" id="reportDateTo" class="filter-select">
                     <button class="btn-secondary btn-icon-only" onclick="filterMyReports()" title="Filter">
                         <i class="fas fa-filter"></i>
                         <span class="btn-text">Filter</span>
                     </button>
-                </div>
-                <div class="action-buttons">
                     <button class="btn-primary btn-icon-only" onclick="exportMyReports()" title="Export Reports">
                         <i class="fas fa-download"></i>
                         <span class="btn-text">Export</span>
