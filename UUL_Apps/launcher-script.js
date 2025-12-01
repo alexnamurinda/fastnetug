@@ -45,15 +45,15 @@ let apps = [
     //     icon: 'user-tie',
     //     badge: 'New'
     // },
-    // {
-    //     id: 6,
-    //     name: 'Expense Tracker',
-    //     description: 'Monitor business expenses',
-    //     url: '#',
-    //     category: 'finance',
-    //     icon: 'money-bill-wave',
-    //     badge: 'Active'
-    // },
+    {
+        id: 6,
+        name: 'Calender Dstn Tracker',
+        description: 'Monitor business expenses',
+        url: 'https://fastnetug.com/UUL_Apps/daily_customers/calendar.php',
+        category: 'finance',
+        icon: 'money-bill-wave',
+        badge: 'Active'
+    },
     // {
     //     id: 7,
     //     name: 'Task Manager',
