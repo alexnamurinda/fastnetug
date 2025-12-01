@@ -14,30 +14,37 @@ document.addEventListener('DOMContentLoaded', function () {
     loadDashboardData();
 });
 
-// Set today's date for filters
-const today = new Date();
-const todayStr = today.toISOString().split('T')[0];
+function initializeApp() {
+    // Check session first
+    checkUserSession();
 
-// Set first day of current month
-const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
+    // Set today's date for filters
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
 
-if (document.getElementById('dateFrom')) {
-    document.getElementById('dateFrom').value = firstDayStr;
-    document.getElementById('dateTo').value = todayStr;
-}
-if (document.getElementById('reportDateFrom')) {
-    document.getElementById('reportDateFrom').value = firstDayStr;
-    document.getElementById('reportDateTo').value = todayStr;
-}
-if (document.getElementById('reportDate')) {
-    document.getElementById('reportDate').value = todayStr;
-}
-if (document.getElementById('approvalDateFrom')) {
-    document.getElementById('approvalDateFrom').value = firstDayStr;
-    document.getElementById('approvalDateTo').value = todayStr;
-}
+    // Set first day of current month
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
 
+    if (document.getElementById('dateFrom')) {
+        document.getElementById('dateFrom').value = firstDayStr;
+        document.getElementById('dateTo').value = todayStr;
+    }
+    if (document.getElementById('reportDateFrom')) {
+        document.getElementById('reportDateFrom').value = firstDayStr;
+        document.getElementById('reportDateTo').value = todayStr;
+    }
+    if (document.getElementById('reportDate')) {
+        document.getElementById('reportDate').value = todayStr;
+    }
+    if (document.getElementById('approvalDateFrom')) {
+        document.getElementById('approvalDateFrom').value = firstDayStr;
+        document.getElementById('approvalDateTo').value = todayStr;
+    }
+
+    // Initialize charts
+    initializeCharts();
+}
 
 async function updateNotificationBadge() {
     if (!currentUser) return;
