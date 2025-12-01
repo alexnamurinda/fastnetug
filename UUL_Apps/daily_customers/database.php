@@ -175,6 +175,75 @@ function createChristmasCalendarsTable($conn)
     }
 }
 
+function createProductsTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_name VARCHAR(255) NOT NULL,
+        category VARCHAR(100) DEFAULT 'Art Paper',
+        packing_quantity VARCHAR(100) DEFAULT NULL,
+        selling_price DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+        cost_price DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+        stock_available INT DEFAULT 0,
+        price_last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+        INDEX idx_product_name (product_name),
+        INDEX idx_category (category),
+        INDEX idx_selling_price (selling_price),
+        UNIQUE KEY unique_product (product_name, packing_quantity)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating products table: " . $conn->error);
+    }
+}
+
+function createProductCategoriesTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS product_categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category_name VARCHAR(100) NOT NULL UNIQUE,
+        description TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        INDEX idx_category_name (category_name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating product_categories table: " . $conn->error);
+    }
+
+    // Insert default category
+    $defaultCategory = "INSERT IGNORE INTO product_categories (category_name, description) 
+                       VALUES ('Art Paper', 'Default category for art paper products')";
+    $conn->query($defaultCategory);
+}
+
+function createMarginHistoryTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS margin_history (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        product_id INT NOT NULL,
+        old_selling_price DECIMAL(15,2) NOT NULL,
+        new_selling_price DECIMAL(15,2) NOT NULL,
+        old_margin DECIMAL(10,2) NOT NULL,
+        new_margin DECIMAL(10,2) NOT NULL,
+        changed_by VARCHAR(100) DEFAULT NULL,
+        changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+        INDEX idx_product_id (product_id),
+        INDEX idx_changed_at (changed_at),
+
+        FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating margin_history table: " . $conn->error);
+    }
+}
+
 function getDbConnection()
 {
     return setupDatabase();

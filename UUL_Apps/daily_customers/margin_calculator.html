@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Margin Calculator</title>
+    <link rel="stylesheet" href="margin_styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Product Margin Calculator</h1>
+            <p class="subtitle">Calculate and manage product margins efficiently</p>
+        </header>
+
+        <div class="dashboard-cards">
+            <div class="card" onclick="showAddProduct()">
+                <div class="card-icon">+</div>
+                <h3>Add Product</h3>
+                <p>Add new products to the system</p>
+            </div>
+
+            <div class="card" onclick="showCalculateMargin()">
+                <div class="card-icon">%</div>
+                <h3>Calculate Margin</h3>
+                <p>View and update product margins</p>
+            </div>
+
+            <div class="card" onclick="showAllProducts()">
+                <div class="card-icon">📋</div>
+                <h3>View All Products</h3>
+                <p>Browse all products in inventory</p>
+            </div>
+
+            <div class="card" onclick="showManageCategories()">
+                <div class="card-icon">🏷️</div>
+                <h3>Manage Categories</h3>
+                <p>Add and manage product categories</p>
+            </div>
+        </div>
+
+        <!-- Add Product Section -->
+        <div id="addProductSection" class="section hidden">
+            <div class="section-header">
+                <h2>Add New Product</h2>
+                <button class="btn-close" onclick="closeSection('addProductSection')">×</button>
+            </div>
+
+            <form id="addProductForm" class="form">
+                <div class="form-group">
+                    <label for="productName">Product Name *</label>
+                    <input type="text" id="productName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="productCategory">Category *</label>
+                    <select id="productCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="packingQuantity">Packing Quantity</label>
+                    <input type="text" id="packingQuantity" placeholder="e.g., 100 sheets, 5kg">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="costPrice">Cost Price (UGX) *</label>
+                        <input type="number" id="costPrice" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sellingPrice">Selling Price (UGX) *</label>
+                        <input type="number" id="sellingPrice" step="0.01" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockAvailable">Stock Available</label>
+                    <input type="number" id="stockAvailable" value="0">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Calculate Margin Section -->
+        <div id="calculateMarginSection" class="section hidden">
+            <div class="section-header">
+                <h2>Calculate Product Margin</h2>
+                <button class="btn-close" onclick="closeSection('calculateMarginSection')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label for="categoryFilter">Select Category</label>
+                <select id="categoryFilter" onchange="loadCategoryProducts()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="productSearch">Search Product</label>
+                <input type="text" id="productSearch" placeholder="Type product name..." autocomplete="off">
+                <div id="searchResults" class="search-results"></div>
+            </div>
+
+            <div id="productDetailsCard" class="product-details hidden">
+                <!-- Product details will be populated here -->
+            </div>
+        </div>
+
+        <!-- All Products Section -->
+        <div id="allProductsSection" class="section hidden">
+            <div class="section-header">
+                <h2>All Products</h2>
+                <button class="btn-close" onclick="closeSection('allProductsSection')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label for="viewCategoryFilter">Filter by Category</label>
+                <select id="viewCategoryFilter" onchange="loadAllProducts()">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Packing</th>
+                            <th>Selling Price</th>
+                            <th>Stock</th>
+                            <th>Last Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Products will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Manage Categories Section -->
+        <div id="manageCategoriesSection" class="section hidden">
+            <div class="section-header">
+                <h2>Manage Categories</h2>
+                <button class="btn-close" onclick="closeSection('manageCategoriesSection')">×</button>
+            </div>
+
+            <form id="addCategoryForm" class="form">
+                <div class="form-group">
+                    <label for="categoryName">Category Name *</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoryDescription">Description</label>
+                    <textarea id="categoryDescription" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </form>
+
+            <div class="categories-list" id="categoriesList">
+                <!-- Categories will be listed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Price Modal -->
+    <div id="editPriceModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Selling Price</h3>
+            <p class="modal-product-name" id="modalProductName"></p>
+
+            <div class="form-group">
+                <label for="newSellingPrice">New Selling Price (UGX)</label>
+                <input type="number" id="newSellingPrice" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="pricePasscode">Enter Passcode *</label>
+                <input type="password" id="pricePasscode" placeholder="Enter passcode (789)">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="updatePrice()">Update Price</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="margin_script.js"></script>
+</body>
+</html>
