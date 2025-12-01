@@ -588,6 +588,52 @@ body {
         width: 100%;
         min-width: 0;
     }
+
+    /* ADD THIS NEW SECTION FOR REPORTS PAGE */
+    #reportsPage .page-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #reportsPage .search-filter {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        width: 100%;
+    }
+
+    #reportsPage .search-filter input[type="date"]:first-child {
+        grid-column: 1;
+    }
+
+    #reportsPage .search-filter span {
+        grid-column: 1 / -1;
+        justify-content: center;
+        padding: 0;
+        font-size: 12px;
+    }
+
+    #reportsPage .search-filter input[type="date"]:last-of-type {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    #reportsPage .search-filter .btn-secondary {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    #reportsPage .action-buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        gap: 8px;
+    }
+
+    #reportsPage .action-buttons button {
+        flex: 1;
+    }
 }
 
 /* Show full button text on larger screens */

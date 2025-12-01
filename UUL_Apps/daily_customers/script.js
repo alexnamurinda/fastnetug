@@ -14,37 +14,30 @@ document.addEventListener('DOMContentLoaded', function () {
     loadDashboardData();
 });
 
-function initializeApp() {
-    // Check session first
-    checkUserSession();
+// Set today's date for filters
+const today = new Date();
+const todayStr = today.toISOString().split('T')[0];
 
-    // Set today's date for filters
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+// Set first day of current month
+const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
 
-    // Set first day of current month
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const firstDayStr = firstDayOfMonth.toISOString().split('T')[0];
-
-    if (document.getElementById('dateFrom')) {
-        document.getElementById('dateFrom').value = todayStr;
-        document.getElementById('dateTo').value = todayStr;
-    }
-    if (document.getElementById('reportDateFrom')) {
-        document.getElementById('reportDateFrom').value = firstDayStr;
-        document.getElementById('reportDateTo').value = todayStr;
-    }
-    if (document.getElementById('reportDate')) {
-        document.getElementById('reportDate').value = todayStr;
-    }
-    if (document.getElementById('approvalDateFrom')) {
-        document.getElementById('approvalDateFrom').value = todayStr;
-        document.getElementById('approvalDateTo').value = todayStr;
-    }
-
-    // Initialize charts
-    initializeCharts();
+if (document.getElementById('dateFrom')) {
+    document.getElementById('dateFrom').value = firstDayStr;
+    document.getElementById('dateTo').value = todayStr;
 }
+if (document.getElementById('reportDateFrom')) {
+    document.getElementById('reportDateFrom').value = firstDayStr;
+    document.getElementById('reportDateTo').value = todayStr;
+}
+if (document.getElementById('reportDate')) {
+    document.getElementById('reportDate').value = todayStr;
+}
+if (document.getElementById('approvalDateFrom')) {
+    document.getElementById('approvalDateFrom').value = firstDayStr;
+    document.getElementById('approvalDateTo').value = todayStr;
+}
+
 
 async function updateNotificationBadge() {
     if (!currentUser) return;
@@ -644,18 +637,40 @@ async function loadSalesPersonAnalytics() {
 
 // Export Functions
 async function exportClients() {
+    // Get current filter values
+    const searchTerm = document.getElementById('clientSearch')?.value.toLowerCase() || '';
+    const salesPersonFilter = document.getElementById('salesPersonFilter')?.value || '';
+
     try {
         const response = await fetch(`${API_URL}?action=getClients`);
         const data = await response.json();
 
         if (data.success) {
-            const ws = XLSX.utils.json_to_sheet(data.clients.map(c => ({
+            // Apply filters to match what's displayed
+            let filteredClients = data.clients;
+
+            if (searchTerm) {
+                filteredClients = filteredClients.filter(c =>
+                    c.client_name.toLowerCase().includes(searchTerm) ||
+                    (c.contact && c.contact.toLowerCase().includes(searchTerm)) ||
+                    (c.sales_person && c.sales_person.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (salesPersonFilter) {
+                filteredClients = filteredClients.filter(c =>
+                    c.sales_person === salesPersonFilter
+                );
+            }
+
+            const ws = XLSX.utils.json_to_sheet(filteredClients.map(c => ({
                 'Client Name': c.client_name,
                 'Contact': c.contact || '',
                 'Sales Person': c.sales_person || '',
                 'Total Orders': c.total_orders,
-                'Last Order': c.last_order_date
+                'Last Order': c.last_order_date || ''
             })));
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Clients');
             XLSX.writeFile(wb, `clients_${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -948,7 +963,7 @@ async function loadReportStats() {
 async function exportMyReports() {
     const dateFrom = document.getElementById('reportDateFrom').value;
     const dateTo = document.getElementById('reportDateTo').value;
-    const search = document.getElementById('reportSearch').value;
+    const search = document.getElementById('reportSearch')?.value || '';
 
     try {
         const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
@@ -960,14 +975,18 @@ async function exportMyReports() {
                 'Client': r.client_name,
                 'Type': r.client_type,
                 'Method': r.method === 'M' ? 'Met' : 'Call',
-                'Discussion': r.discussion,
-                'Feedback': r.feedback,
+                'Discussion': r.discussion || '',
+                'Feedback': r.feedback || '',
                 'Status': r.approved
             })));
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'My Reports');
-            XLSX.writeFile(wb, `my_reports_${dateFrom}_to_${dateTo}.xlsx`);
+
+            // Use actual date range in filename
+            const fromDate = dateFrom || 'all';
+            const toDate = dateTo || 'all';
+            XLSX.writeFile(wb, `my_reports_${fromDate}_to_${toDate}.xlsx`);
         }
     } catch (error) {
         showNotification('Error exporting reports', 'error');
