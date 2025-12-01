@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>🎄 Christmas Calendar Distribution Tracker</h1>
-            <!-- <p>Track and manage your calendar distributions this holiday season</p> -->
+            <p>Track and manage your calendar distributions this holiday season</p>
         </header>
 
         <div class="stats-grid" id="statsGrid">
@@ -33,8 +33,47 @@
         </div>
 
         <div class="main-content">
-            <div class="form-section">
-                <h2 class="section-title">Add New Distribution</h2>
+            <div class="table-section">
+                <div class="section-header">
+                    <h2 class="section-title">Distribution Records</h2>
+                    <button class="btn btn-primary" id="openModalBtn">
+                        <span class="btn-icon">+</span> Add Distribution
+                    </button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Recipient</th>
+                                <th>Contact</th>
+                                <th>Company</th>
+                                <th>Comments</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTable">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <div class="spinner"></div>
+                                    Loading records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="formModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Distribution</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
                 <div id="alertContainer"></div>
                 <form id="calendarForm">
                     <div class="form-group">
@@ -66,34 +105,11 @@
                         <textarea id="otherComment" placeholder="Any additional notes..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Record Distribution</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Record Distribution</button>
+                    </div>
                 </form>
-            </div>
-
-            <div class="table-section">
-                <h2 class="section-title">Distribution Records</h2>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Recipient</th>
-                                <th>Contact</th>
-                                <th>Company</th>
-                                <th>Comments</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recordsTable">
-                            <tr>
-                                <td colspan="6" class="loading">
-                                    <div class="spinner"></div>
-                                    Loading records...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
@@ -102,6 +118,12 @@
         const API_URL = 'calendar_api.php';
         let companies = [];
 
+        // Modal elements
+        const modal = document.getElementById('formModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
         // Set today's date as default
         document.getElementById('issueDate').valueAsDate = new Date();
 
@@ -109,6 +131,27 @@
         loadCompanies();
         loadCalendars();
         loadStats();
+
+        // Modal controls
+        openModalBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
 
         // Company autocomplete
         const companyInput = document.getElementById('companyName');
@@ -194,7 +237,12 @@
                     companyIdInput.value = '';
                     loadCalendars();
                     loadStats();
-                    loadCompanies(); // Refresh in case new company was added
+                    loadCompanies();
+                    
+                    // Close modal after successful submission
+                    setTimeout(() => {
+                        closeModal();
+                    }, 1500);
                 } else {
                     showAlert(result.message, 'error');
                 }
