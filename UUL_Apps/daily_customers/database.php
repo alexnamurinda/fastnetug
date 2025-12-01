@@ -31,6 +31,9 @@ function setupDatabase()
         createSalesPersonsTable($conn);
         createDailyReportsTable($conn);
         createChristmasCalendarsTable($conn);  // NEW TABLE
+        createProductsTable($conn);
+        createProductCategoriesTable($conn);
+        createMarginHistoryTable($conn);
 
         return $conn;
     } catch (Exception $e) {
@@ -256,7 +259,7 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
             'success' => true,
             'message' => 'Database initialized successfully.',
             'database' => DB_NAME,
-            'tables_created' => ['clients', 'daily_sales', 'upload_history', 'sales_persons', 'daily_reports', 'christmas_calendars']
+            'tables_created' => ['clients', 'daily_sales', 'upload_history', 'sales_persons', 'daily_reports', 'christmas_calendars', 'products', 'product_categories', 'margin_history']
         ]);
         $conn->close();
     }

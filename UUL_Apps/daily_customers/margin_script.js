@@ -3,7 +3,7 @@ let currentProductId = null;
 let searchTimeout = null;
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadCategories();
     setupEventListeners();
 });
@@ -20,7 +20,7 @@ function setupEventListeners() {
     document.getElementById('addCategoryForm').addEventListener('submit', handleAddCategory);
 
     // Click outside search results to close
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (!e.target.closest('#productSearch') && !e.target.closest('#searchResults')) {
             document.getElementById('searchResults').classList.add('hidden');
         }
@@ -190,7 +190,7 @@ function displayProductDetails(product) {
     currentProductId = product.id;
 
     const detailsCard = document.getElementById('productDetailsCard');
-    
+
     const lastModified = new Date(product.price_last_modified).toLocaleDateString('en-GB', {
         year: 'numeric',
         month: 'short',
@@ -301,7 +301,7 @@ async function updatePrice() {
 // Load all products
 async function loadAllProducts() {
     const category = document.getElementById('viewCategoryFilter').value;
-    
+
     try {
         const url = `margin_api.php?action=get_all_products&category=${encodeURIComponent(category)}`;
         const response = await fetch(url);
@@ -328,7 +328,7 @@ function displayAllProducts(products) {
 
     products.forEach(product => {
         const row = document.createElement('tr');
-        
+
         const lastModified = new Date(product.price_last_modified).toLocaleDateString('en-GB', {
             year: 'numeric',
             month: 'short',
@@ -401,32 +401,38 @@ function loadCategoryProducts() {
 function showAddProduct() {
     hideAllSections();
     document.getElementById('addProductSection').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
 
 function showCalculateMargin() {
     hideAllSections();
     document.getElementById('calculateMarginSection').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function showAllProducts() {
     hideAllSections();
     document.getElementById('allProductsSection').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
     loadAllProducts();
 }
 
 function showManageCategories() {
     hideAllSections();
     document.getElementById('manageCategoriesSection').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function hideAllSections() {
     document.querySelectorAll('.section').forEach(section => {
         section.classList.add('hidden');
     });
+    document.body.style.overflow = 'auto'; // Restore scroll
 }
 
 function closeSection(sectionId) {
     document.getElementById(sectionId).classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
 
 // Toast notification
