@@ -27,12 +27,14 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     padding: 1rem;
+    overflow-x: hidden;
 }
 
 /* Container */
 .container {
     max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
 }
 
 /* Header */
@@ -62,7 +64,7 @@ header p {
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -107,6 +109,8 @@ header p {
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px var(--shadow);
+    width: 100%;
+    overflow: hidden;
 }
 
 .section-title {
@@ -132,6 +136,7 @@ label {
 
 input, select, textarea {
     width: 100%;
+    max-width: 100%;
     padding: 0.75rem;
     border: 2px solid var(--border);
     border-radius: 8px;
@@ -200,6 +205,7 @@ textarea {
     cursor: pointer;
     transition: all 0.3s;
     width: 100%;
+    max-width: 100%;
     display: inline-block;
     text-align: center;
 }
@@ -236,12 +242,13 @@ textarea {
     overflow-x: auto;
     margin-top: 1rem;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+    min-width: 600px;
 }
 
 thead {
@@ -294,13 +301,6 @@ tbody tr:hover {
     color: var(--text-muted);
 }
 
-.empty-state svg {
-    width: 80px;
-    height: 80px;
-    opacity: 0.3;
-    margin-bottom: 1rem;
-}
-
 .empty-state div {
     font-size: 3rem;
     margin-bottom: 1rem;
@@ -311,11 +311,18 @@ tbody tr:hover {
 }
 
 /* Alerts */
+#alertContainer {
+    width: 100%;
+    max-width: 100%;
+}
+
 .alert {
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     animation: slideIn 0.3s ease-out;
+    width: 100%;
+    word-wrap: break-word;
 }
 
 .alert-success {
@@ -380,6 +387,10 @@ tbody tr:hover {
     .stats-grid {
         grid-template-columns: repeat(4, 1fr);
     }
+    
+    table {
+        min-width: 800px;
+    }
 }
 
 /* ===================================
@@ -388,6 +399,11 @@ tbody tr:hover {
 @media (max-width: 767px) {
     body {
         padding: 0.5rem;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 100%;
     }
 
     header {
@@ -407,6 +423,7 @@ tbody tr:hover {
     .form-section, .table-section {
         padding: 1rem;
         border-radius: 8px;
+        overflow: visible;
     }
 
     .section-title {
@@ -438,7 +455,8 @@ tbody tr:hover {
 
     input, select, textarea {
         padding: 0.625rem;
-        font-size: 0.9rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+        max-width: 100%;
     }
 
     .btn {
@@ -446,22 +464,35 @@ tbody tr:hover {
         font-size: 0.9rem;
     }
 
+    /* Mobile-optimized table */
+    .table-wrapper {
+        margin-left: -1rem;
+        margin-right: -1rem;
+        width: calc(100% + 2rem);
+        border-radius: 0;
+    }
+
+    table {
+        min-width: 550px;
+        font-size: 0.85rem;
+    }
+
     th, td {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.875rem;
+        padding: 0.625rem 0.5rem;
+        font-size: 0.85rem;
     }
 
     th {
         font-size: 0.75rem;
     }
 
-    table {
-        min-width: 700px;
-    }
-
     .btn-danger {
         padding: 0.4rem 0.75rem;
         font-size: 0.8rem;
+    }
+
+    #companyList {
+        max-height: 150px;
     }
 }
 
@@ -471,10 +502,18 @@ tbody tr:hover {
 @media (max-width: 480px) {
     body {
         padding: 0.25rem;
+        font-size: 14px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 0;
     }
 
     header {
         padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        border-radius: 6px;
     }
 
     header h1 {
@@ -506,39 +545,62 @@ tbody tr:hover {
 
     .form-section, .table-section {
         padding: 0.75rem;
+        border-radius: 6px;
     }
 
     .section-title {
         font-size: 1.1rem;
         border-bottom-width: 2px;
+        margin-bottom: 0.75rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.875rem;
     }
 
     input, select, textarea {
         padding: 0.5rem;
-        font-size: 0.875rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+        border-radius: 6px;
     }
 
     label {
         font-size: 0.85rem;
+        margin-bottom: 0.375rem;
     }
 
     .btn {
         padding: 0.625rem 1rem;
         font-size: 0.875rem;
+        border-radius: 6px;
+    }
+
+    /* Smaller table for tiny screens */
+    .table-wrapper {
+        margin-left: -0.75rem;
+        margin-right: -0.75rem;
+        width: calc(100% + 1.5rem);
     }
 
     table {
-        min-width: 600px;
+        min-width: 500px;
+        font-size: 0.8rem;
     }
 
     th, td {
         padding: 0.5rem 0.375rem;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
     th {
         font-size: 0.7rem;
         padding: 0.625rem 0.375rem;
+    }
+
+    .btn-danger {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
     }
 
     .company-option {
@@ -555,6 +617,46 @@ tbody tr:hover {
 
     .empty-state p {
         font-size: 0.9rem;
+    }
+
+    .badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+        margin-left: 0.25rem;
+    }
+}
+
+/* ===================================
+   RESPONSIVE DESIGN - EXTRA SMALL
+   =================================== */
+@media (max-width: 360px) {
+    body {
+        padding: 0.125rem;
+    }
+
+    header {
+        padding: 0.5rem;
+    }
+
+    header h1 {
+        font-size: 1rem;
+    }
+
+    .stat-card .value {
+        font-size: 1.25rem;
+    }
+
+    .form-section, .table-section {
+        padding: 0.5rem;
+    }
+
+    table {
+        min-width: 450px;
+    }
+
+    th, td {
+        padding: 0.375rem 0.25rem;
+        font-size: 0.7rem;
     }
 }
 

@@ -10,7 +10,7 @@
     <div class="container">
         <header>
             <h1>🎄 Christmas Calendar Distribution Tracker</h1>
-            <p>Track and manage your calendar distributions this holiday season</p>
+            <!-- <p>Track and manage your calendar distributions this holiday season</p> -->
         </header>
 
         <div class="stats-grid" id="statsGrid">
