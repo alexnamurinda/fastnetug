@@ -88,30 +88,32 @@
             </form>
         </div>
 
-        <!-- Calculate Margin Section -->
-        <div id="calculateMarginSection" class="section hidden">
-            <div class="section-header">
-                <h2>Calculate Product Margin</h2>
-                <button class="btn-close" onclick="closeSection('calculateMarginSection')">×</button>
-            </div>
-
-            <div class="form-group">
-                <label for="categoryFilter">Select Category</label>
-                <select id="categoryFilter" onchange="loadCategoryProducts()">
-                    <option value="">All Categories</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="productSearch">Search Product</label>
-                <input type="text" id="productSearch" placeholder="Type product name..." autocomplete="off">
-                <div id="searchResults" class="search-results"></div>
-            </div>
-
-            <div id="productDetailsCard" class="product-details hidden">
-                <!-- Product details will be populated here -->
-            </div>
+<div id="calculateMarginSection" class="section hidden">
+    <div class="modal-body">
+        
+        <div class="section-header">
+            <h2>Calculate Product Margin</h2>
+            <button class="btn-close" onclick="closeSection('calculateMarginSection')">×</button>
         </div>
+
+        <div class="form-group">
+            <label for="categoryFilter">Select Category</label>
+            <select id="categoryFilter" onchange="loadCategoryProducts()">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="productSearch">Search Product</label>
+            <input type="text" id="productSearch" placeholder="Type product name..." autocomplete="off">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <div id="productDetailsCard" class="product-details hidden"></div>
+
+    </div>
+</div>
+
 
         <!-- All Products Section -->
         <div id="allProductsSection" class="section hidden">
