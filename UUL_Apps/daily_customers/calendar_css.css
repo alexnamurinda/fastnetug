@@ -535,7 +535,7 @@ tbody tr:hover {
 
 @media (min-width: 1024px) {
     .main-content {
-        grid-template-columns: 400px 1fr;
+        grid-template-columns: 1fr;  /* ← CHANGED: Keep single column */
     }
     
     .stats-grid {
