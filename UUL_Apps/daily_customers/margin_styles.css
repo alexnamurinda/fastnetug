@@ -43,38 +43,37 @@ header h1 {
 /* Dashboard Cards - Compact and Well-arranged */
 .dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    gap: 20px;
     padding: 25px 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     background: linear-gradient(to bottom, #f8f9ff, #ffffff);
 }
 
 .card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 20px 15px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 25px 20px;
     text-align: center;
+    transition: all 0.25s ease;
     cursor: pointer;
-    transition: all 0.3s ease;
-    min-height: 160px;
     display: flex;
     flex-direction: column;
+    gap: 10px;
     justify-content: center;
     align-items: center;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
     border-color: #667eea;
 }
 
 .card-icon {
-    font-size: 2.5rem;
-    margin-bottom: 12px;
-    color: #667eea;
+    font-size: 2.8rem;
     line-height: 1;
+    color: #667eea;
 }
 
 .card h3 {
@@ -681,12 +680,18 @@ tbody tr:last-child td {
 
 @media (max-width: 480px) {
     .dashboard-cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
     }
 
     .card {
-        min-height: 120px;
+        padding: 18px 14px;
     }
+
+    .card-icon {
+        font-size: 2.2rem;
+    }
+
 
     table {
         font-size: 0.8rem;
