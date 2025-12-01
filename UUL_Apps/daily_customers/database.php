@@ -28,8 +28,9 @@ function setupDatabase()
         createClientsTable($conn);
         createDailySalesTable($conn);
         createUploadHistoryTable($conn);
-        createSalesPersonsTable($conn);      // ADD THIS
-        createDailyReportsTable($conn);      // ADD THIS
+        createSalesPersonsTable($conn);
+        createDailyReportsTable($conn);
+        createChristmasCalendarsTable($conn);  // NEW TABLE
 
         return $conn;
     } catch (Exception $e) {
@@ -42,7 +43,6 @@ function setupDatabase()
 
 function createClientsTable($conn)
 {
-
     $sql = "CREATE TABLE IF NOT EXISTS clients (
         id INT AUTO_INCREMENT PRIMARY KEY,
         client_type VARCHAR(100) NOT NULL,
@@ -65,7 +65,6 @@ function createClientsTable($conn)
 
 function createDailySalesTable($conn)
 {
-
     $sql = "CREATE TABLE IF NOT EXISTS daily_sales (
         id INT AUTO_INCREMENT PRIMARY KEY,
         sale_date DATE NOT NULL,
@@ -89,7 +88,6 @@ function createDailySalesTable($conn)
 
 function createUploadHistoryTable($conn)
 {
-
     $sql = "CREATE TABLE IF NOT EXISTS upload_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
         upload_date DATE NOT NULL,
@@ -153,6 +151,30 @@ function createDailyReportsTable($conn)
     }
 }
 
+function createChristmasCalendarsTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS christmas_calendars (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        recipient_name VARCHAR(255) NOT NULL,
+        contact VARCHAR(50) NOT NULL,
+        company_id INT DEFAULT NULL,
+        company_name VARCHAR(255) NOT NULL,
+        issue_date DATE NOT NULL,
+        other_comment TEXT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        INDEX idx_issue_date (issue_date),
+        INDEX idx_company_id (company_id),
+        INDEX idx_recipient_name (recipient_name),
+        
+        FOREIGN KEY (company_id) REFERENCES clients(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating christmas_calendars table: " . $conn->error);
+    }
+}
+
 function getDbConnection()
 {
     return setupDatabase();
@@ -165,7 +187,7 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
             'success' => true,
             'message' => 'Database initialized successfully.',
             'database' => DB_NAME,
-            'tables_created' => ['clients', 'daily_sales', 'upload_history']
+            'tables_created' => ['clients', 'daily_sales', 'upload_history', 'sales_persons', 'daily_reports', 'christmas_calendars']
         ]);
         $conn->close();
     }
