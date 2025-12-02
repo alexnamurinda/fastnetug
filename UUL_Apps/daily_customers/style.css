@@ -541,100 +541,6 @@ body {
 }
 
 /* Icon-only buttons for mobile - add after line 400 */
-@media (max-width: 768px) {
-    .btn-icon-only {
-        padding: 10px;
-        min-width: 44px;
-        width: 44px;
-        height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .btn-icon-only i {
-        margin: 0;
-    }
-
-    .btn-icon-only .btn-text {
-        display: none;
-    }
-
-    /* Make action buttons container tighter */
-    .action-buttons {
-        flex-direction: row;
-        gap: 8px;
-        flex-shrink: 0;
-    }
-
-    /* Adjust page actions for mobile */
-    .page-actions {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        gap: 12px;
-    }
-
-    .search-filter {
-        flex-direction: column;
-        flex: 1;
-        min-width: 0;
-        gap: 8px;
-    }
-
-    .search-input,
-    .filter-select {
-        width: 100%;
-        min-width: 0;
-    }
-
-    /* ADD THIS NEW SECTION FOR REPORTS PAGE */
-    #reportsPage .page-actions {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    #reportsPage .search-filter {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        width: 100%;
-    }
-
-    #reportsPage .search-filter input[type="date"]:first-child {
-        grid-column: 1;
-    }
-
-    #reportsPage .search-filter span {
-        grid-column: 1 / -1;
-        justify-content: center;
-        padding: 0;
-        font-size: 12px;
-    }
-
-    #reportsPage .search-filter input[type="date"]:last-of-type {
-        grid-column: 2;
-        grid-row: 1;
-    }
-
-    #reportsPage .search-filter .btn-secondary {
-        grid-column: 1 / -1;
-        width: 100%;
-    }
-
-    #reportsPage .action-buttons {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-        gap: 8px;
-    }
-
-    #reportsPage .action-buttons button {
-        flex: 1;
-    }
-}
 
 /* Show full button text on larger screens */
 @media (min-width: 769px) {
@@ -1007,7 +913,6 @@ body {
     }
 }
 
-/* Mobile devices (max-width: 768px) */
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
@@ -1047,7 +952,6 @@ body {
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
-        /* Change from 1fr to 2 columns */
         gap: 16px;
     }
 
@@ -1079,6 +983,199 @@ body {
     .modal-content {
         width: 95%;
         margin: 20px;
+    }
+
+    /* Icon-only buttons for mobile */
+    .btn-icon-only {
+        padding: 10px;
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-icon-only i {
+        margin: 0;
+    }
+
+    .btn-icon-only .btn-text {
+        display: none;
+    }
+
+    /* Make action buttons container tighter */
+    .action-buttons {
+        flex-direction: row;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    /* Adjust page actions for mobile */
+    .page-actions {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 12px;
+    }
+
+    .search-filter {
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+        gap: 8px;
+    }
+
+    .search-input,
+    .filter-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* ===== ENHANCED REPORTS PAGE MOBILE STYLES ===== */
+    #reportsPage .page-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    #reportsPage .search-filter {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 10px;
+        width: 100%;
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    #reportsPage .search-filter input[type="date"]:first-child {
+        grid-column: 1 / 2;
+        grid-row: 1;
+    }
+
+    #reportsPage .search-filter input[type="date"]:last-of-type {
+        grid-column: 2 / 3;
+        grid-row: 1;
+    }
+
+    #reportsPage .search-filter span {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: center;
+        padding: 4px 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+
+    #reportsPage .search-filter .btn-secondary {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    #reportsPage .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        width: 100%;
+    }
+
+    #reportsPage .action-buttons button {
+        width: 100%;
+        padding: 12px 8px;
+        justify-content: center;
+        font-size: 14px;
+    }
+
+    #reportsPage .action-buttons .btn-icon-only {
+        width: 100%;
+        height: auto;
+        padding: 12px 8px;
+    }
+
+    #reportsPage .action-buttons .btn-icon-only .btn-text {
+        display: inline;
+        margin-left: 6px;
+        font-size: 13px;
+    }
+
+    #reportsPage .action-buttons .btn-icon-only i {
+        font-size: 16px;
+    }
+
+    /* Stats grid for reports page */
+    #reportsPage .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    #reportsPage .stat-card {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    #reportsPage .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+
+    #reportsPage .stat-details h3 {
+        font-size: 24px;
+    }
+
+    #reportsPage .stat-details p {
+        font-size: 12px;
+    }
+
+    /* Table improvements for reports page */
+    #reportsPage .table-container {
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    #reportsPage .data-table {
+        font-size: 13px;
+    }
+
+    #reportsPage .data-table th {
+        padding: 12px 8px;
+        font-size: 11px;
+        position: sticky;
+        top: 0;
+        background: var(--light-bg);
+        z-index: 10;
+    }
+
+    #reportsPage .data-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+        vertical-align: top;
+    }
+
+    #reportsPage .data-table td:nth-child(4),
+    #reportsPage .data-table td:nth-child(5) {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #reportsPage .status-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+        white-space: nowrap;
     }
 }
 
@@ -1121,6 +1218,53 @@ body {
     .data-table td {
         padding: 12px 8px;
         font-size: 13px;
+    }
+
+    /* ===== EXTRA SMALL SCREENS - REPORTS PAGE ===== */
+    #reportsPage .search-filter {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    #reportsPage .search-filter input[type="date"] {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    #reportsPage .action-buttons {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    #reportsPage .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #reportsPage .stat-card {
+        flex-direction: row;
+        text-align: left;
+        padding: 14px;
+    }
+
+    #reportsPage .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    #reportsPage .stat-details h3 {
+        font-size: 22px;
+    }
+
+    #reportsPage .data-table {
+        min-width: 500px;
+    }
+
+    #reportsPage .data-table th,
+    #reportsPage .data-table td {
+        padding: 10px 6px;
+        font-size: 12px;
     }
 }
 
