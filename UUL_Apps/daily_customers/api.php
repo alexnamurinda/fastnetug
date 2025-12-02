@@ -177,11 +177,13 @@ function updateClient($conn)
     $id = intval($_POST['id']);
     $name = $conn->real_escape_string(trim($_POST['name']));
     $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
+    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));  // ADD THIS LINE
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
 
     $sql = "UPDATE clients 
             SET client_name = '$name', 
-                contact = '$contact', 
+                contact = '$contact',
+                address = '$address',
                 sales_person = '$salesPerson' 
             WHERE id = $id";
 

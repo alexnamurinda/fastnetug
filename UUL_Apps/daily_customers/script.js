@@ -320,6 +320,7 @@ function editClient(id) {
                 document.getElementById('editClientId').value = data.client.id;
                 document.getElementById('editClientName').value = data.client.client_name;
                 document.getElementById('editClientPhone').value = data.client.contact || '';
+                document.getElementById('editClientAddress').value = data.client.address || '';  // ADD THIS LINE
                 document.getElementById('editClientSalesPerson').value = data.client.sales_person || '';
                 openModal('editClientModal');
             }
@@ -332,6 +333,7 @@ async function updateClient() {
     formData.append('id', document.getElementById('editClientId').value);
     formData.append('name', document.getElementById('editClientName').value);
     formData.append('phone', document.getElementById('editClientPhone').value);
+    formData.append('address', document.getElementById('editClientAddress').value);  // ADD THIS LINE
     formData.append('salesPerson', document.getElementById('editClientSalesPerson').value);
 
     try {
