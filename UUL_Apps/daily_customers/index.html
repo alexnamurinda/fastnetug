@@ -286,14 +286,16 @@
         <div class="page-content" id="reportsPage" style="display: none;">
             <div class="page-actions">
                 <div class="search-filter">
-                    <input type="date" id="reportDateFrom" class="filter-select">
-                    <span
-                        style="display: flex; align-items: center; padding: 0 8px; color: var(--text-secondary); font-weight: 500;">To</span>
-                    <input type="date" id="reportDateTo" class="filter-select">
-                    <button class="btn-secondary btn-icon-only" onclick="filterMyReports()" title="Filter">
-                        <i class="fas fa-filter"></i>
-                        <span class="btn-text">Filter</span>
+                    <div class="date-range-container">
+                        <input type="date" id="reportDateFrom" class="filter-select">
+                        <span>to</span>
+                        <input type="date" id="reportDateTo" class="filter-select">
+                    </div>
+                    <button class="btn-secondary" onclick="filterMyReports()">
+                        <i class="fas fa-filter"></i> Filter
                     </button>
+                </div>
+                <div class="action-buttons">
                     <button class="btn-primary btn-icon-only" onclick="exportMyReports()" title="Export Reports">
                         <i class="fas fa-download"></i>
                         <span class="btn-text">Export</span>
@@ -473,9 +475,13 @@
                     </div>
                     <div class="form-group">
                         <label>Client *</label>
-                        <select id="reportClient" class="form-control" required>
-                            <option value="">Select Client</option>
-                        </select>
+                        <input type="text" id="reportClientSearch" class="form-control"
+                            placeholder="Start typing client name..." autocomplete="off">
+                        <input type="hidden" id="reportClient">
+                        <div id="clientDropdown" class="client-dropdown"></div>
+                        <small id="clientNotFound" class="client-not-found" style="display:none;">
+                            Client not found? Please mention the new client name in the discussion field below.
+                        </small>
                     </div>
                     <div class="form-group">
                         <label>Method of Interaction *</label>
@@ -537,23 +543,37 @@
     </div>
 
     <!-- Edit Client Modal -->
-    <div class="modal-body">
-        <input type="hidden" id="editClientId">
-        <div class="form-group">
-            <label>Client Name</label>
-            <input type="text" id="editClientName" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Phone Number</label>
-            <input type="text" id="editClientPhone" class="form-control" placeholder="+256 XXX XXX XXX">
-        </div>
-        <div class="form-group">
-            <label>Address</label>
-            <input type="text" id="editClientAddress" class="form-control">
-        </div>
-        <div class="form-group">
-            <label>Sales Person</label>
-            <input type="text" id="editClientSalesPerson" class="form-control">
+    <div class="modal" id="editClientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Client</h3>
+                <button class="close-btn" onclick="closeModal('editClientModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editClientId">
+                <div class="form-group">
+                    <label>Client Name</label>
+                    <input type="text" id="editClientName" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="editClientPhone" class="form-control" placeholder="+256 XXX XXX XXX">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="editClientAddress" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Sales Person</label>
+                    <input type="text" id="editClientSalesPerson" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('editClientModal')">Cancel</button>
+                <button class="btn-primary" onclick="updateClient()">Update Client</button>
+            </div>
         </div>
     </div>
 

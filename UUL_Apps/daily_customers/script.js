@@ -131,14 +131,11 @@ document.addEventListener('click', function (e) {
     }
 });
 
+// ===== UPDATED NAVIGATE TO PAGE =====
 function navigateToPage(page) {
     // Hide sidebar on mobile after navigation
     document.getElementById('sidebar').classList.remove('active');
 
-    // Update active nav link
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -164,6 +161,11 @@ function navigateToPage(page) {
     switch (page) {
         case 'clients':
             loadClients();
+            // Update Add Client button visibility
+            const addClientBtn = document.querySelector('[onclick="showAddClientModal()"]');
+            if (addClientBtn && currentUser) {
+                addClientBtn.style.display = currentUser.role === 'supervisor' ? 'inline-flex' : 'none';
+            }
             break;
         case 'sales':
             loadSalesHistory();
@@ -174,15 +176,15 @@ function navigateToPage(page) {
         case 'upload':
             loadUploadHistory();
             break;
-        case 'reports':                    // ADD THIS
+        case 'reports':
             loadMyReports();
             loadReportStats();
             break;
-        case 'approvals':                  // ADD THIS
+        case 'approvals':
             loadAllReports();
             loadSalesPersons();
             break;
-        case 'manage':                     // ADD THIS
+        case 'manage':
             loadSalesPersons();
             break;
     }
@@ -814,6 +816,7 @@ function hideLoginModal() {
     document.getElementById('loginPasscode').value = '';
 }
 
+// ===== UPDATED UI FOR USER PERMISSIONS =====
 function updateUIForUser() {
     if (!currentUser) return;
 
@@ -830,6 +833,16 @@ function updateUIForUser() {
         document.getElementById('manageLink').style.display = 'none';
     }
 
+    // Hide "Add Client" button for salespersons in Clients page
+    const addClientBtn = document.querySelector('[onclick="showAddClientModal()"]');
+    if (addClientBtn) {
+        if (currentUser.role === 'salesperson') {
+            addClientBtn.style.display = 'none';
+        } else {
+            addClientBtn.style.display = 'inline-flex';
+        }
+    }
+
     // Update notification badge
     updateNotificationBadge();
 
@@ -839,18 +852,25 @@ function updateUIForUser() {
 
 // ===== REPORT FUNCTIONS =====
 
+// ===== UPDATED SHOW ADD REPORT MODAL =====
 function showAddReportModal() {
     document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('reportClientSearch').value = '';
     document.getElementById('reportClient').value = '';
     document.getElementById('reportMethod').value = 'C';
     document.getElementById('reportDiscussion').value = '';
     document.getElementById('reportFeedback').value = '';
+    document.getElementById('clientNotFound').style.display = 'none';
+    document.getElementById('clientDropdown').classList.remove('active');
 
-    // Load clients for dropdown
+    // Load clients for autocomplete
     loadClientsForReport();
 
     openModal('addReportModal');
 }
+
+// ===== CLIENT AUTOCOMPLETE FOR REPORTS =====
+let allClients = [];
 
 async function loadClientsForReport() {
     try {
@@ -858,15 +878,72 @@ async function loadClientsForReport() {
         const data = await response.json();
 
         if (data.success) {
-            const select = document.getElementById('reportClient');
-            select.innerHTML = '<option value="">Select Client</option>' +
-                data.clients.map(c => `<option value="${c.id}">${c.client_name}</option>`).join('');
+            allClients = data.clients;
+            setupClientAutocomplete();
         }
     } catch (error) {
         console.error('Error loading clients:', error);
     }
 }
 
+function setupClientAutocomplete() {
+    const searchInput = document.getElementById('reportClientSearch');
+    const dropdown = document.getElementById('clientDropdown');
+    const hiddenInput = document.getElementById('reportClient');
+    const notFoundMsg = document.getElementById('clientNotFound');
+
+    searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        if (searchTerm.length < 2) {
+            dropdown.classList.remove('active');
+            hiddenInput.value = '';
+            notFoundMsg.style.display = 'none';
+            return;
+        }
+
+        const matches = allClients.filter(client =>
+            client.client_name.toLowerCase().includes(searchTerm)
+        ).slice(0, 10);
+
+        if (matches.length > 0) {
+            dropdown.innerHTML = matches.map(client => `
+                <div class="client-dropdown-item" data-id="${client.id}">
+                    <strong>${client.client_name}</strong>
+                    <small>${client.contact || 'No contact'} • ${client.sales_person || 'Unassigned'}</small>
+                </div>
+            `).join('');
+            dropdown.classList.add('active');
+            notFoundMsg.style.display = 'none';
+
+            // Add click handlers
+            dropdown.querySelectorAll('.client-dropdown-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const clientId = this.dataset.id;
+                    const clientName = this.querySelector('strong').textContent;
+
+                    searchInput.value = clientName;
+                    hiddenInput.value = clientId;
+                    dropdown.classList.remove('active');
+                    notFoundMsg.style.display = 'none';
+                });
+            });
+        } else {
+            dropdown.classList.remove('active');
+            hiddenInput.value = '';
+            notFoundMsg.style.display = 'block';
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+}
+
+// ===== UPDATED SUBMIT REPORT =====
 async function submitReport() {
     const reportDate = document.getElementById('reportDate').value;
     const clientId = document.getElementById('reportClient').value;
@@ -874,8 +951,13 @@ async function submitReport() {
     const discussion = document.getElementById('reportDiscussion').value;
     const feedback = document.getElementById('reportFeedback').value;
 
-    if (!reportDate || !clientId) {
-        showNotification('Please fill all required fields', 'error');
+    if (!reportDate) {
+        showNotification('Please select a report date', 'error');
+        return;
+    }
+
+    if (!clientId) {
+        showNotification('Please select a client from the list', 'error');
         return;
     }
 
@@ -969,13 +1051,13 @@ async function loadReportStats() {
     }
 }
 
+// ===== EXPORT MY REPORTS WITH PROPER FILENAME =====
 async function exportMyReports() {
     const dateFrom = document.getElementById('reportDateFrom').value;
     const dateTo = document.getElementById('reportDateTo').value;
-    const search = document.getElementById('reportSearch')?.value || '';
 
     try {
-        const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
+        const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}`);
         const data = await response.json();
 
         if (data.success) {
@@ -992,10 +1074,10 @@ async function exportMyReports() {
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'My Reports');
 
-            // Use actual date range in filename
-            const fromDate = dateFrom || 'all';
-            const toDate = dateTo || 'all';
-            XLSX.writeFile(wb, `my_reports_${fromDate}_to_${toDate}.xlsx`);
+            const today = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `my_reports_${today}.xlsx`);
+
+            showNotification('Reports exported successfully', 'success');
         }
     } catch (error) {
         showNotification('Error exporting reports', 'error');
