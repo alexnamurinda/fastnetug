@@ -29,7 +29,7 @@ let apps = [
     },
     {
         id: 4,
-        name: 'Sales Analytics',
+        name: 'Sales Pro',
         description: 'Track sales performance Daily',
         url: 'https://fastnetug.com/UUL_Apps/daily_customers',
         category: 'sales',
