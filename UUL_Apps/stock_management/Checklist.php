@@ -1,144 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Safety & Compliance Checklist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safety Checklist</title>
     <link rel="stylesheet" href="checklistcss.css">
 </head>
-
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-content">
-            <h1>🛡️ Safety & Compliance</h1>
-            <span class="location-badge" id="currentLocation">Warehouse</span>
-        </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('new')">New Inspection</button>
-        <button class="tab" onclick="switchTab('history')">History</button>
-        <button class="tab" onclick="switchTab('actions')">Actions</button>
-        <button class="tab" onclick="switchTab('stats')">Stats</button>
-    </div>
-
     <div class="container">
-        <!-- New Inspection View -->
-        <div id="newView" class="view active">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Start New Inspection</h3>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Location</label>
-                        <select class="form-input" id="location">
-                            <option value="Warehouse">Warehouse</option>
-                            <option value="Shop 08">Shop 08</option>
-                            <option value="Main Office">Main Office</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Inspector Name</label>
-                        <input type="text" class="form-input" id="inspectorName" placeholder="Your name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Overall Notes (Optional)</label>
-                        <textarea class="form-input" id="overallNotes" placeholder="General observations..." rows="3"></textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="startInspection()">Start Inspection</button>
-                </div>
-            </div>
+        <header>
+            <h1>🛡️ Safety & Compliance Checklist</h1>
+        </header>
 
-            <!-- Checklist (hidden until started) -->
-            <div id="checklistContainer" style="display: none;">
-                <div id="checklistItems"></div>
-            </div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('checklist')">New Check</button>
+            <button class="tab" onclick="showTab('history')">History</button>
         </div>
 
-        <!-- History View -->
-        <div id="historyView" class="view">
-            <div class="form-group">
-                <select class="form-input" id="historyFilter" onchange="loadHistory()">
-                    <option value="">All Locations</option>
-                    <option value="Warehouse">Warehouse</option>
-                    <option value="Shop 08">Shop 08</option>
-                    <option value="Main Office">Main Office</option>
-                </select>
+        <!-- Checklist Tab -->
+        <div id="checklist" class="tab-content active">
+            <div class="form-card">
+                <div class="form-group">
+                    <label>Location:</label>
+                    <select id="location">
+                        <option>Warehouse</option>
+                        <option>Shop 08</option>
+                        <option>Main Office</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Inspector Name:</label>
+                    <input type="text" id="inspector" placeholder="Your name">
+                </div>
             </div>
+
+            <!-- Safety and Security -->
+            <div class="category">
+                <h2>Safety and Security</h2>
+                
+                <div class="checklist-item">
+                    <p>Incident Register: Is an incident register maintained to record all accidents, near-misses, and security incidents?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q1" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q1" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q1" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Security Systems: Are security systems, including motion sensors and cameras, installed and functional?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q2" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q2" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q2" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Fire Alarm Systems: Are fire alarm systems installed and regularly tested?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q3" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q3" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q3" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Power Backups: Are power backups available in case of outages?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q4" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q4" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q4" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- Employee Safety -->
+            <div class="category">
+                <h2>Employee Safety</h2>
+                
+                <div class="checklist-item">
+                    <p>PPE for Employees: Are employees provided with personal protective equipment (PPE) such as boots, gloves, and face masks?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q5" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q5" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q5" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Reflector Jackets for Casuals: Are casual laborers provided with reflector jackets for visibility and safety?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q6" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q6" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q6" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- Hygiene and Cleanliness -->
+            <div class="category">
+                <h2>Hygiene and Cleanliness</h2>
+                
+                <div class="checklist-item">
+                    <p>Food Handlers License: Do food handlers possess valid licenses and certifications?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q7" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q7" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q7" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Regular Cleaning: Are premises regularly cleaned and maintained to prevent pest infestations?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q8" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q8" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q8" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- Emergency Preparedness -->
+            <div class="category">
+                <h2>Emergency Preparedness</h2>
+                
+                <div class="checklist-item">
+                    <p>First Aid Kit: Is a first aid kit available, stocked, and easily accessible?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q9" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q9" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q9" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- Administration -->
+            <div class="category">
+                <h2>Administration</h2>
+                
+                <div class="checklist-item">
+                    <p>Visitors Register Book: Is a visitors register book maintained to record all visitors?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q10" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q10" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q10" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <div class="checklist-item">
+                    <p>Assets Register: Is an assets register maintained to track inventory, equipment, and other assets?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q11" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q11" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q11" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <!-- General -->
+            <div class="category">
+                <h2>General</h2>
+                
+                <div class="checklist-item">
+                    <p>Adequate Lighting Systems: Are lighting systems adequate and functional to ensure a safe working environment?</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="q12" value="Yes"> ✓ Yes</label>
+                        <label><input type="radio" name="q12" value="No"> ✗ No</label>
+                        <label><input type="radio" name="q12" value="N/A"> N/A</label>
+                    </div>
+                    <textarea class="notes" placeholder="Notes (optional)"></textarea>
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="saveChecklist()">Save Inspection</button>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
             <div id="historyList"></div>
         </div>
-
-        <!-- Actions View -->
-        <div id="actionsView" class="view">
-            <div class="form-group">
-                <select class="form-input" id="actionFilter" onchange="loadActions()">
-                    <option value="">All Actions</option>
-                    <option value="open">Open</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                </select>
-            </div>
-            <div id="actionsList"></div>
-        </div>
-
-        <!-- Stats View -->
-        <div id="statsView" class="view">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statVisits">0</div>
-                    <div class="stat-label">Recent Visits</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statCompliance">0%</div>
-                    <div class="stat-label">Compliance</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statOpen">0</div>
-                    <div class="stat-label">Open Actions</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statOverdue">0</div>
-                    <div class="stat-label">Overdue</div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3>Compliance Trend</h3>
-                </div>
-                <div class="card-body">
-                    <p style="color: var(--gray-600); text-align: center; padding: 2rem;">Chart coming soon...</p>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Bottom Navigation (shown during inspection) -->
-    <div class="bottom-nav" id="bottomNav" style="display: none;">
-        <div class="nav-buttons">
-            <button class="btn btn-outline" onclick="saveProgress()">Save Progress</button>
-            <button class="btn btn-success" onclick="completeInspection()">Complete</button>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Detail Modal -->
-    <div class="modal" id="detailModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Inspection Details</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div id="modalBody"></div>
-        </div>
-    </div>
+    <div id="notification" class="notification"></div>
 
     <script src="checklist.js"></script>
 </body>
-
 </html>
