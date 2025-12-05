@@ -748,7 +748,7 @@ $module = $_GET['module'] ?? 'stock';
 
 // Handle different HTTP methods and actions
 $method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'get_all';
 
 try {
     if ($module === 'inspection') {
