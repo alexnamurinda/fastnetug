@@ -1293,3 +1293,63 @@ function populateApprovalSalesPersonFilter(persons) {
     filter.innerHTML = '<option value="">All Sales Persons</option>' +
         salespeople.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 }
+
+// ===== CHANGE PASSCODE FUNCTIONS =====
+
+function showChangePasscodeModal() {
+    if (!currentUser) return;
+
+    document.getElementById('currentPasscode').value = '';
+    document.getElementById('newPasscode').value = '';
+    document.getElementById('confirmPasscode').value = '';
+    openModal('changePasscodeModal');
+}
+
+async function changePasscode() {
+    const currentPasscode = document.getElementById('currentPasscode').value;
+    const newPasscode = document.getElementById('newPasscode').value;
+    const confirmPasscode = document.getElementById('confirmPasscode').value;
+
+    // Validation
+    if (!currentPasscode || !newPasscode || !confirmPasscode) {
+        showNotification('Please fill all fields', 'error');
+        return;
+    }
+
+    if (newPasscode !== confirmPasscode) {
+        showNotification('New passcodes do not match', 'error');
+        return;
+    }
+
+    if (newPasscode.length < 4) {
+        showNotification('New passcode must be at least 4 characters', 'error');
+        return;
+    }
+
+    if (currentPasscode === newPasscode) {
+        showNotification('New passcode must be different from current passcode', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('action', 'changePasscode');
+    formData.append('currentPasscode', currentPasscode);
+    formData.append('newPasscode', newPasscode);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            closeModal('changePasscodeModal');
+            showNotification('Passcode changed successfully', 'success');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error changing passcode', 'error');
+    }
+}

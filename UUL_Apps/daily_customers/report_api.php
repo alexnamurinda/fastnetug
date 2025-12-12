@@ -34,6 +34,9 @@ switch ($action) {
     case 'checkSession':
         checkSession($conn);
         break;
+    case 'changePasscode':
+        changePasscode($conn);
+        break;
     case 'addSalesPerson':
         addSalesPerson($conn);
         break;
@@ -408,4 +411,52 @@ function getSalesPersonPerformance($conn)
     }
 
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
+}
+
+// ===== CHANGE PASSCODE FUNCTION =====
+
+function changePasscode($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $currentPasscode = $_POST['currentPasscode'] ?? '';
+    $newPasscode = $_POST['newPasscode'] ?? '';
+
+    if (empty($currentPasscode) || empty($newPasscode)) {
+        echo json_encode(['success' => false, 'message' => 'All fields are required']);
+        return;
+    }
+
+    if (strlen($newPasscode) < 4) {
+        echo json_encode(['success' => false, 'message' => 'New passcode must be at least 4 characters']);
+        return;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $hashedCurrentPasscode = hash('sha256', $currentPasscode);
+
+    // Verify current passcode
+    $stmt = $conn->prepare("SELECT id FROM sales_persons WHERE id = ? AND passcode = ?");
+    $stmt->bind_param("is", $userId, $hashedCurrentPasscode);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Current passcode is incorrect']);
+        return;
+    }
+
+    // Update to new passcode
+    $hashedNewPasscode = hash('sha256', $newPasscode);
+    $stmt = $conn->prepare("UPDATE sales_persons SET passcode = ? WHERE id = ?");
+    $stmt->bind_param("si", $hashedNewPasscode, $userId);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Passcode changed successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error changing passcode']);
+    }
 }

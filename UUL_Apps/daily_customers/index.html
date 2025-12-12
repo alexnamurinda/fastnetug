@@ -71,7 +71,8 @@
                     <i class="fas fa-bell"></i>
                     <span class="badge" id="notificationBadge" style="display: none;">0</span>
                 </button>
-                <div class="user-profile">
+                <div class="user-profile" onclick="showChangePasscodeModal()" style="cursor: pointer;"
+                    title="Click to change passcode">
                     <img src="https://ui-avatars.com/api/?name=Admin&background=4F46E5&color=fff" alt="User">
                     <span>Admin</span>
                 </div>
@@ -603,6 +604,36 @@
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeModal('addClientModal')">Cancel</button>
                 <button class="btn-primary" onclick="addNewClient()">Add Client</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Passcode Modal -->
+    <div class="modal" id="changePasscodeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Passcode</h3>
+                <button class="close-btn" onclick="closeModal('changePasscodeModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Current Passcode *</label>
+                    <input type="password" id="currentPasscode" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>New Passcode *</label>
+                    <input type="password" id="newPasscode" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Passcode *</label>
+                    <input type="password" id="confirmPasscode" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('changePasscodeModal')">Cancel</button>
+                <button class="btn-primary" onclick="changePasscode()">Change Passcode</button>
             </div>
         </div>
     </div>
