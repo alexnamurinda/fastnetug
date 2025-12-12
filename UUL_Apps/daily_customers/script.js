@@ -992,14 +992,21 @@ async function submitReport() {
 async function loadMyReports() {
     const dateFrom = document.getElementById('reportDateFrom').value;
     const dateTo = document.getElementById('reportDateTo').value;
-    const search = document.getElementById('reportSearch').value;
+    const search = document.getElementById('reportSearch')?.value || '';
+
+    console.log('Loading reports with:', { dateFrom, dateTo, search }); // DEBUG
 
     try {
         const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
         const data = await response.json();
 
+        console.log('Reports API Response:', data); // DEBUG
+
         if (data.success) {
+            console.log('Number of reports:', data.reports.length); // DEBUG
             displayMyReports(data.reports);
+        } else {
+            console.error('API returned error:', data.message); // DEBUG
         }
     } catch (error) {
         console.error('Error loading reports:', error);
@@ -1009,15 +1016,25 @@ async function loadMyReports() {
 function displayMyReports(reports) {
     const tbody = document.getElementById('reportsTableBody');
 
+    console.log('displayMyReports called with:', reports); // DEBUG
+    console.log('Table body element:', tbody); // DEBUG
+
+    if (!tbody) {
+        console.error('ERROR: reportsTableBody element not found!');
+        return;
+    }
+
     if (!reports || reports.length === 0) {
+        console.log('No reports to display'); // DEBUG
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No reports found</td></tr>';
         return;
     }
 
+    console.log('Rendering', reports.length, 'reports'); // DEBUG
     tbody.innerHTML = reports.map(report => `
         <tr>
             <td>${report.report_date}</td>
-            <td><strong>${report.client_name}</strong><br><small>${report.client_type}</small></td>
+            <td><strong>${report.client_name}</strong><br><small>${report.client_type || ''}</small></td>
             <td>${report.method === 'M' ? 'Met' : 'Call'}</td>
             <td>${report.discussion || '-'}</td>
             <td>${report.feedback || '-'}</td>
@@ -1026,6 +1043,8 @@ function displayMyReports(reports) {
             </span></td>
         </tr>
     `).join('');
+
+    console.log('Reports rendered successfully'); // DEBUG
 }
 
 function filterMyReports() {
