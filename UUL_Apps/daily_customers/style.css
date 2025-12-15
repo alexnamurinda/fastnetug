@@ -730,7 +730,7 @@ body {
 }
 
 .data-table thead {
-    background: var(--primary-light);
+    background: var(--light-bg);
 }
 
 .data-table th {
