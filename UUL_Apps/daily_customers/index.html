@@ -82,34 +82,61 @@
 
         <!-- Dashboard Page -->
         <div class="page-content" id="dashboardPage">
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <i class="fas fa-users"></i>
+            <!-- Stats Cards with Carousel -->
+            <div class="stats-carousel-container">
+                <button class="carousel-btn prev" id="statsPrevBtn" onclick="scrollStatsCarousel(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="stats-carousel" id="statsCarousel">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="totalClients">0</h3>
+                            <p>Total Clients</p>
+                        </div>
                     </div>
-                    <div class="stat-details">
-                        <h3 id="totalClients">0</h3>
-                        <p>Total Clients</p>
-                        <span class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> <span id="clientsChange">0</span>% from last month
-                        </span>
+
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="todayOrders">0</h3>
+                            <p>Today's Orders</p>
+                        </div>
                     </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <i class="fas fa-shopping-bag"></i>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Total Orders</p>
+                        </div>
                     </div>
-                    <div class="stat-details">
-                        <h3 id="todayOrders">0</h3>
-                        <p>Today's Orders</p>
-                        <span class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> <span id="ordersChange">0</span>% from yesterday
-                        </span>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="monthlyReports">0</h3>
+                            <p>Monthly Reports</p>
+                        </div>
                     </div>
                 </div>
 
+                <button class="carousel-btn next" id="statsNextBtn" onclick="scrollStatsCarousel(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
+
+            <!-- Carousel Indicators -->
+            <div class="carousel-indicators" id="carouselIndicators"></div>
 
             <!-- Charts Row -->
             <div class="charts-row">

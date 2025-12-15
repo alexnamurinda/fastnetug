@@ -379,6 +379,149 @@ body {
     font-size: 12px;
 }
 
+/* Stats Carousel Container */
+.stats-carousel-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.stats-carousel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    overflow: hidden;
+    scroll-behavior: smooth;
+}
+
+/* Carousel Navigation Buttons */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.carousel-btn.prev {
+    left: -20px;
+}
+
+.carousel-btn.next {
+    right: -20px;
+}
+
+.carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.indicator-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator-dot.active {
+    background: var(--primary-color);
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Update stat-card to remove old change indicators */
+.stat-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    min-width: 0;
+    /* Allow cards to shrink in carousel */
+}
+
+/* Remove stat-change styles as we're not using them */
+.stat-change {
+    display: none;
+}
+
+/* Tablet: Show 2 cards */
+@media (max-width: 1024px) {
+    .stats-carousel {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .carousel-btn.prev {
+        left: -15px;
+    }
+
+    .carousel-btn.next {
+        right: -15px;
+    }
+}
+
+/* Mobile: Show 2 cards */
+@media (max-width: 768px) {
+    .stats-carousel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .carousel-btn.prev {
+        left: -10px;
+    }
+
+    .carousel-btn.next {
+        right: -10px;
+    }
+
+    .stat-card {
+        padding: 16px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .stat-icon {
+        margin-bottom: 8px;
+    }
+}
+
 /* ===== CHARTS ===== */
 .charts-row {
     display: grid;

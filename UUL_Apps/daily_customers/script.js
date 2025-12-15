@@ -206,12 +206,10 @@ function updateDashboardStats(stats) {
     document.getElementById('totalClients').textContent = stats.totalClients || 0;
     document.getElementById('todayOrders').textContent = stats.todayOrders || 0;
     document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
-    document.getElementById('newClients').textContent = stats.newClients || 0;
+    document.getElementById('monthlyReports').textContent = stats.monthlyReports || 0;
 
-    // Update change percentages
-    document.getElementById('clientsChange').textContent = stats.clientsChange || 0;
-    document.getElementById('ordersChange').textContent = stats.ordersChange || 0;
-    document.getElementById('newClientsChange').textContent = stats.weeklyNewClients || 0;
+    // Initialize carousel after stats are loaded
+    initStatsCarousel();
 }
 
 async function loadDailySales() {
@@ -1199,5 +1197,125 @@ async function changePasscode() {
         }
     } catch (error) {
         showNotification('Error changing passcode', 'error');
+    }
+}
+
+// ===== STATS CAROUSEL FUNCTIONS =====
+
+let currentCarouselPage = 0;
+let cardsPerPage = 3;
+let totalCards = 4;
+
+function initStatsCarousel() {
+    updateCardsPerPage();
+    updateCarouselButtons();
+    createCarouselIndicators();
+
+    // Update on window resize
+    window.addEventListener('resize', () => {
+        updateCardsPerPage();
+        currentCarouselPage = 0; // Reset to first page
+        scrollStatsCarousel(0);
+    });
+}
+
+function updateCardsPerPage() {
+    const width = window.innerWidth;
+    if (width > 1024) {
+        cardsPerPage = 3;
+    } else {
+        cardsPerPage = 2;
+    }
+}
+
+function scrollStatsCarousel(direction) {
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+
+    if (direction === 0) {
+        // Reset to page 0
+        currentCarouselPage = 0;
+    } else {
+        currentCarouselPage += direction;
+    }
+
+    // Boundary checks
+    if (currentCarouselPage < 0) currentCarouselPage = 0;
+    if (currentCarouselPage >= totalPages) currentCarouselPage = totalPages - 1;
+
+    updateCarouselButtons();
+    updateCarouselIndicators();
+
+    // Scroll carousel (visual feedback only, grid handles layout)
+    const carousel = document.getElementById('statsCarousel');
+    const scrollAmount = currentCarouselPage * (carousel.offsetWidth / cardsPerPage) * cardsPerPage;
+
+    // Since we're using CSS grid, we'll hide/show cards instead
+    const allCards = carousel.querySelectorAll('.stat-card');
+    const startIndex = currentCarouselPage * cardsPerPage;
+    const endIndex = startIndex + cardsPerPage;
+
+    allCards.forEach((card, index) => {
+        if (index >= startIndex && index < endIndex) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function updateCarouselButtons() {
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+    const prevBtn = document.getElementById('statsPrevBtn');
+    const nextBtn = document.getElementById('statsNextBtn');
+
+    // Hide buttons if only one page
+    if (totalPages <= 1) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        return;
+    }
+
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+
+    prevBtn.disabled = currentCarouselPage === 0;
+    nextBtn.disabled = currentCarouselPage === totalPages - 1;
+}
+
+function createCarouselIndicators() {
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+    const indicatorsContainer = document.getElementById('carouselIndicators');
+
+    if (totalPages <= 1) {
+        indicatorsContainer.innerHTML = '';
+        return;
+    }
+
+    indicatorsContainer.innerHTML = '';
+    for (let i = 0; i < totalPages; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'indicator-dot';
+        if (i === currentCarouselPage) dot.classList.add('active');
+        dot.onclick = () => goToCarouselPage(i);
+        indicatorsContainer.appendChild(dot);
+    }
+}
+
+function updateCarouselIndicators() {
+    const dots = document.querySelectorAll('.indicator-dot');
+    dots.forEach((dot, index) => {
+        if (index === currentCarouselPage) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+}
+
+function goToCarouselPage(pageIndex) {
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+    if (pageIndex >= 0 && pageIndex < totalPages) {
+        currentCarouselPage = pageIndex;
+        scrollStatsCarousel(0);
     }
 }

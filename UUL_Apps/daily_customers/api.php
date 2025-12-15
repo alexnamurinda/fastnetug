@@ -74,32 +74,19 @@ $conn->close();
 function getDashboardStats($conn)
 {
     $today = date('Y-m-d');
-    $yesterday = date('Y-m-d', strtotime('-1 day'));
-    $lastMonth = date('Y-m-d', strtotime('-30 days'));
-    $lastWeek = date('Y-m-d', strtotime('-7 days'));
+    $firstDayOfMonth = date('Y-m-01');
 
     // Total clients
     $totalClients = $conn->query("SELECT COUNT(*) as count FROM clients")->fetch_assoc()['count'];
 
-    // Total clients last month
-    $clientsLastMonth = $conn->query("SELECT COUNT(*) as count FROM clients WHERE created_at <= '$lastMonth'")->fetch_assoc()['count'];
-    $clientsChange = $clientsLastMonth > 0 ? round((($totalClients - $clientsLastMonth) / $clientsLastMonth) * 100, 1) : 0;
-
-    // Today's orders (count of records)
+    // Today's orders (count of daily_sales records today)
     $todayOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales WHERE sale_date = '$today'")->fetch_assoc()['count'];
 
-    // Yesterday's orders
-    $yesterdayOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales WHERE sale_date = '$yesterday'")->fetch_assoc()['count'];
-    $ordersChange = $yesterdayOrders > 0 ? round((($todayOrders - $yesterdayOrders) / $yesterdayOrders) * 100, 1) : 0;
-
-    // Total orders
+    // Total orders (all time)
     $totalOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales")->fetch_assoc()['count'];
 
-    // New clients today
-    $newClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE DATE(created_at) = '$today'")->fetch_assoc()['count'];
-
-    // New clients this week
-    $weeklyNewClients = $conn->query("SELECT COUNT(*) as count FROM clients WHERE created_at >= '$lastWeek'")->fetch_assoc()['count'];
+    // Monthly reports (daily_reports this month)
+    $monthlyReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE report_date >= '$firstDayOfMonth'")->fetch_assoc()['count'];
 
     echo json_encode([
         'success' => true,
@@ -107,10 +94,7 @@ function getDashboardStats($conn)
             'totalClients' => $totalClients,
             'todayOrders' => $todayOrders,
             'totalOrders' => $totalOrders,
-            'newClients' => $newClients,
-            'clientsChange' => $clientsChange,
-            'ordersChange' => $ordersChange,
-            'weeklyNewClients' => $weeklyNewClients
+            'monthlyReports' => $monthlyReports
         ]
     ]);
 }
