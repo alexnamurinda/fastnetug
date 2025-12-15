@@ -1565,7 +1565,7 @@ body {
 
 /* Client Profile Card */
 .client-profile-card {
-    background: linear-gradient(135deg, var(--text-light), var(--primary-light));
+    background: linear-gradient(135deg, var(--text-light), var(--dark-bg));
     padding: 15px;
     border-radius: 12px 12px 0 0;
     color: white;
@@ -1573,18 +1573,18 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
-    text-align: center;
+    text-align: left;
 }
 
 .profile-avatar {
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
+    font-size: 26px;
     color: white;
     border: 4px solid rgba(255, 255, 255, 0.3);
     flex-shrink: 0;
@@ -1595,7 +1595,7 @@ body {
 }
 
 .client-profile-card h2 {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 8px;
 }
