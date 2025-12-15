@@ -278,14 +278,6 @@ function displayClients(clients) {
         </td>
         <td>${client.contact || '-'}</td>
         <td>${client.sales_person || '-'}</td>
-        // <td onclick="event.stopPropagation();">
-        //     <button class="action-btn" onclick="editClient(${client.id})">
-        //         <i class="fas fa-edit"></i>
-        //     </button>
-        //     <button class="action-btn delete" onclick="deleteClient(${client.id})">
-        //         <i class="fas fa-trash"></i>
-        //     </button>
-        // </td>
     </tr>
     `).join('');
 }
