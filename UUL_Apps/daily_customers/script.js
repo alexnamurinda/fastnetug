@@ -262,24 +262,31 @@ function displayClients(clients) {
     const tbody = document.getElementById('clientsTableBody');
 
     if (!clients || clients.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;">No clients found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">No clients found</td></tr>';
         return;
     }
 
     tbody.innerHTML = clients.map(client => `
-    <tr>
-        <td><strong>${client.client_name}</strong></td>
+    <tr onclick="viewClientDetail(${client.id})">
+        <td>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 36px; height: 36px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">
+                    ${client.client_name.charAt(0).toUpperCase()}
+                </div>
+                <strong>${client.client_name}</strong>
+            </div>
+        </td>
         <td>${client.contact || '-'}</td>
         <td>${client.sales_person || '-'}</td>
-            <td>
-                <button class="action-btn" onclick="editClient(${client.id})">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-btn delete" onclick="deleteClient(${client.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
+        <td onclick="event.stopPropagation();">
+            <button class="action-btn" onclick="editClient(${client.id})">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete" onclick="deleteClient(${client.id})">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    </tr>
     `).join('');
 }
 
@@ -1338,4 +1345,149 @@ function goToCarouselPage(pageIndex) {
         updateCarouselButtons();
         updateCarouselIndicators();
     }
+}
+
+// ===== CLIENT DETAIL VIEW FUNCTIONS =====
+
+let currentClientDetail = null;
+
+async function viewClientDetail(clientId) {
+    try {
+        const response = await fetch(`${API_URL}?action=getClient&id=${clientId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            currentClientDetail = data.client;
+            displayClientDetail(data.client);
+            loadClientActivity(clientId);
+
+            // Navigate to detail page
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            document.getElementById('clientDetailPage').style.display = 'block';
+            document.querySelector('.page-title').textContent = 'Client Details';
+        }
+    } catch (error) {
+        console.error('Error loading client details:', error);
+        showNotification('Error loading client details', 'error');
+    }
+}
+
+function displayClientDetail(client) {
+    // Profile Section
+    const avatar = document.getElementById('clientAvatar');
+    avatar.innerHTML = `<i class="fas fa-user"></i>`;
+    avatar.style.background = `linear-gradient(135deg, ${getClientColor(client.client_name)}, ${getClientColorDark(client.client_name)})`;
+
+    document.getElementById('clientDetailName').textContent = client.client_name;
+    document.getElementById('clientDetailCategory').textContent = client.client_type || 'Regular Client';
+
+    // Contact Information
+    document.getElementById('clientDetailPhone').textContent = client.contact || 'Not provided';
+    document.getElementById('clientDetailAddress').textContent = client.address || 'Not provided';
+
+    // Business Information
+    document.getElementById('clientDetailSalesPerson').textContent = client.sales_person || 'Unassigned';
+    document.getElementById('clientDetailType').textContent = client.client_type || 'Regular';
+
+    // Activity Summary
+    document.getElementById('clientDetailOrders').textContent = client.total_orders || '0';
+    document.getElementById('clientDetailLastOrder').textContent = client.last_order_date
+        ? formatDate(client.last_order_date)
+        : 'No orders yet';
+    document.getElementById('clientDetailCreated').textContent = formatDate(client.created_at);
+
+    // Update action buttons
+    const hasPhone = client.contact && client.contact.trim() !== '';
+    document.getElementById('detailCallBtn').disabled = !hasPhone;
+    document.getElementById('detailWhatsappBtn').disabled = !hasPhone;
+}
+
+async function loadClientActivity(clientId) {
+    const activityContainer = document.getElementById('clientRecentActivity');
+
+    try {
+        const response = await fetch(`${API_URL}?action=getClientActivity&clientId=${clientId}`);
+        const data = await response.json();
+
+        if (data.success && data.activities && data.activities.length > 0) {
+            activityContainer.innerHTML = data.activities.map(activity => `
+                <div class="timeline-item">
+                    <div class="timeline-icon">
+                        <i class="fas fa-${activity.type === 'order' ? 'shopping-cart' : 'calendar-check'}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">${formatDate(activity.date)}</div>
+                        <div class="timeline-title">${activity.title}</div>
+                        <div class="timeline-description">${activity.description || ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            activityContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No recent activity</p>';
+        }
+    } catch (error) {
+        console.error('Error loading client activity:', error);
+        activityContainer.innerHTML = '<p style="text-align: center; color: var(--danger-color); padding: 20px;">Error loading activity</p>';
+    }
+}
+
+function editClientFromDetail() {
+    if (currentClientDetail) {
+        editClient(currentClientDetail.id);
+    }
+}
+
+function deleteClientFromDetail() {
+    if (currentClientDetail) {
+        deleteClient(currentClientDetail.id);
+    }
+}
+
+function callClient() {
+    if (currentClientDetail && currentClientDetail.contact) {
+        const phoneNumber = currentClientDetail.contact.replace(/\s+/g, '');
+        window.location.href = `tel:${phoneNumber}`;
+    } else {
+        showNotification('No phone number available', 'error');
+    }
+}
+
+function whatsappClient() {
+    if (currentClientDetail && currentClientDetail.contact) {
+        let phoneNumber = currentClientDetail.contact.replace(/\s+/g, '').replace(/\+/g, '');
+
+        // Add country code if not present (assuming Uganda +256)
+        if (!phoneNumber.startsWith('256')) {
+            if (phoneNumber.startsWith('0')) {
+                phoneNumber = '256' + phoneNumber.substring(1);
+            } else {
+                phoneNumber = '256' + phoneNumber;
+            }
+        }
+
+        const message = encodeURIComponent(`Hello ${currentClientDetail.client_name}, `);
+        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    } else {
+        showNotification('No phone number available', 'error');
+    }
+}
+
+// Helper Functions
+function getClientColor(name) {
+    const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899'];
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+}
+
+function getClientColorDark(name) {
+    const colors = ['#4338CA', '#059669', '#D97706', '#DC2626', '#7C3AED', '#2563EB', '#DB2777'];
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
 }

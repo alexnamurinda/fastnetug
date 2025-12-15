@@ -63,6 +63,9 @@ switch ($action) {
     case 'getUploadHistory':
         getUploadHistory($conn);
         break;
+    case 'getClientActivity':
+        getClientActivity($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -393,4 +396,39 @@ function getUploadHistory($conn)
     }
 
     echo json_encode(['success' => true, 'uploads' => $uploads]);
+}
+
+function getClientActivity($conn)
+{
+    $clientId = intval($_GET['clientId']);
+
+    $sql = "SELECT 
+                ds.sale_date as date,
+                'order' as type,
+                'Order Placed' as title,
+                CONCAT('Order details: ', COALESCE(ds.discussion, 'No details provided')) as description
+            FROM daily_sales ds
+            WHERE ds.client_id = $clientId
+            
+            UNION ALL
+            
+            SELECT 
+                dr.report_date as date,
+                'report' as type,
+                CONCAT('Contact: ', IF(dr.method = 'M', 'Meeting', 'Phone Call')) as title,
+                COALESCE(dr.discussion, 'No details provided') as description
+            FROM daily_reports dr
+            WHERE dr.client_id = $clientId
+            
+            ORDER BY date DESC
+            LIMIT 10";
+
+    $result = $conn->query($sql);
+    $activities = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $activities[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'activities' => $activities]);
 }
