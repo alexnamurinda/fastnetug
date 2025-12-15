@@ -25,18 +25,6 @@
                 <i class="fas fa-users"></i>
                 <span>Client Database</span>
             </a>
-            <a href="#" class="nav-link" data-page="sales">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Sales History</span>
-            </a>
-            <a href="#" class="nav-link" data-page="analytics">
-                <i class="fas fa-chart-bar"></i>
-                <span>Analytics</span>
-            </a>
-            <a href="#" class="nav-link" data-page="upload">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Upload Data</span>
-            </a>
             <a href="#" class="nav-link" data-page="reports">
                 <i class="fas fa-file-alt"></i>
                 <span>Reports</span>
@@ -45,10 +33,23 @@
                 <i class="fas fa-check-circle"></i>
                 <span>Approve Reports</span>
             </a>
-            <a href="#" class="nav-link" data-page="manage" id="manageLink" style="display:none;">
-                <i class="fas fa-users-cog"></i>
-                <span>Manage SP</span>
+            <a href="#" class="nav-link" data-page="schedule" id="scheduleLink" style="display:none;">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Order Schedule</span>
             </a>
+            <a href="#" class="nav-link" data-page="items" id="itemsLink" style="display:none;">
+                <i class="fas fa-box"></i>
+                <span>Items</span>
+            </a>
+            <a href="#" class="nav-link" data-page="margin" id="marginLink" style="display:none;">
+                <i class="fas fa-calculator"></i>
+                <span>Margin Calculator</span>
+            </a>
+            <a href="#" class="nav-link" data-page="upload" id="uploadLink" style="display:none;">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Uploads</span>
+            </a>
+
         </nav>
     </div>
 
@@ -107,30 +108,7 @@
                         </span>
                     </div>
                 </div>
-                <!-- <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h3 id="totalOrders">0</h3>
-                        <p>Total Orders</p>
-                        <span class="stat-change">
-                            <i class="fas fa-minus"></i> All time
-                        </span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="stat-details">
-                        <h3 id="newClients">0</h3>
-                        <p>New Clients Today</p>
-                        <span class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> <span id="newClientsChange">0</span> this week
-                        </span>
-                    </div>
-                </div> -->
+
             </div>
 
             <!-- Charts Row -->
@@ -154,19 +132,6 @@
                     <canvas id="salesChart"></canvas>
                 </div>
             </div>
-
-            <!-- Recent Activity -->
-            <!-- <div class="activity-section">
-                <div class="section-header">
-                    <h3>Recent Sales Activity</h3>
-                    <button class="btn-secondary" onclick="loadDailySales()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-                <div class="activity-list" id="recentActivity">
-                    Activity items will be loaded here
-                </div>
-            </div> -->
         </div>
 
         <!-- Clients Page -->
@@ -210,59 +175,6 @@
             </div>
         </div>
 
-        <!-- Sales History Page -->
-        <div class="page-content" id="salesPage" style="display: none;">
-            <div class="page-actions">
-                <div class="search-filter">
-                    <input type="date" id="dateFrom" class="filter-select">
-                    <span
-                        style="display: flex; align-items: center; padding: 0 8px; color: var(--text-secondary); font-weight: 500;">To</span>
-                    <input type="date" id="dateTo" class="filter-select">
-                    <button class="btn-secondary" onclick="filterSales()">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Client Name</th>
-                            <th>Orders</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="salesTableBody">
-                        <!-- Sales will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Analytics Page -->
-        <div class="page-content" id="analyticsPage" style="display: none;">
-            <div class="analytics-grid">
-                <div class="analytics-card">
-                    <h3>Sales by Sales Person</h3>
-                    <canvas id="salesPersonChart"></canvas>
-                </div>
-                <div class="analytics-card">
-                    <h3>Monthly Performance</h3>
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-                <div class="analytics-card">
-                    <h3>Client Acquisition Rate</h3>
-                    <canvas id="acquisitionChart"></canvas>
-                </div>
-                <div class="analytics-card">
-                    <h3>Order Distribution</h3>
-                    <canvas id="distributionChart"></canvas>
-                </div>
-            </div>
-        </div>
-
         <!-- Upload Page -->
         <div class="page-content" id="uploadPage" style="display: none;">
             <div class="upload-section">
@@ -280,6 +192,35 @@
                     <h3>Recent Uploads</h3>
                     <div id="uploadHistory"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Order Schedule Page -->
+        <div class="page-content" id="schedulePage" style="display: none;">
+            <div class="coming-soon-container">
+                <i class="fas fa-calendar-alt"
+                    style="font-size: 64px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>Order Schedule</h2>
+                <p>This feature is coming soon!</p>
+            </div>
+        </div>
+
+        <!-- Items Page -->
+        <div class="page-content" id="itemsPage" style="display: none;">
+            <div class="coming-soon-container">
+                <i class="fas fa-box" style="font-size: 64px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>Items Management</h2>
+                <p>This feature is coming soon!</p>
+            </div>
+        </div>
+
+        <!-- Margin Calculator Page -->
+        <div class="page-content" id="marginPage" style="display: none;">
+            <div class="coming-soon-container">
+                <i class="fas fa-calculator"
+                    style="font-size: 64px; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>Margin Calculator</h2>
+                <p>This feature is coming soon!</p>
             </div>
         </div>
 
@@ -411,36 +352,6 @@
             </div>
         </div>
 
-        <!-- Manage Users Page (Supervisor Only) -->
-        <div class="page-content" id="managePage" style="display: none;">
-            <div class="page-actions">
-                <div class="search-filter">
-                    <!-- Empty div to maintain layout -->
-                </div>
-                <div class="action-buttons">
-                    <button class="btn-primary btn-icon-only" onclick="showAddPersonModal()" title="Add Sales Person">
-                        <i class="fas fa-user-plus"></i>
-                        <span class="btn-text">Add Sales Person</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Created Date</th>
-                        </tr>
-                    </thead>
-                    <tbody id="personsTableBody">
-                        <!-- Sales persons will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- Login Modal -->
         <div class="modal active" id="loginModal">
             <div class="modal-content">
@@ -505,39 +416,6 @@
                 <div class="modal-footer">
                     <button class="btn-secondary" onclick="closeModal('addReportModal')">Cancel</button>
                     <button class="btn-primary" onclick="submitReport()">Submit Report</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Sales Person Modal -->
-        <div class="modal" id="addPersonModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Add Sales Person</h3>
-                    <button class="close-btn" onclick="closeModal('addPersonModal')">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Name *</label>
-                        <input type="text" id="personName" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Passcode *</label>
-                        <input type="password" id="personPasscode" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Role *</label>
-                        <select id="personRole" class="form-control" required>
-                            <option value="salesperson">Sales Person</option>
-                            <option value="supervisor">Supervisor</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeModal('addPersonModal')">Cancel</button>
-                    <button class="btn-primary" onclick="submitPerson()">Add Person</button>
                 </div>
             </div>
         </div>

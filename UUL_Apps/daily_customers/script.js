@@ -161,20 +161,10 @@ function navigateToPage(page) {
     switch (page) {
         case 'clients':
             loadClients();
-            // Update Add Client button visibility
             const addClientBtn = document.querySelector('[onclick="showAddClientModal()"]');
             if (addClientBtn && currentUser) {
                 addClientBtn.style.display = currentUser.role === 'supervisor' ? 'inline-flex' : 'none';
             }
-            break;
-        case 'sales':
-            loadSalesHistory();
-            break;
-        case 'analytics':
-            loadAnalytics();
-            break;
-        case 'upload':
-            loadUploadHistory();
             break;
         case 'reports':
             loadMyReports();
@@ -184,8 +174,13 @@ function navigateToPage(page) {
             loadAllReports();
             loadSalesPersons();
             break;
-        case 'manage':
-            loadSalesPersons();
+        case 'upload':
+            loadUploadHistory();
+            break;
+        case 'schedule':
+        case 'items':
+        case 'margin':
+            // Coming soon pages - no data to load
             break;
     }
 }
@@ -562,90 +557,6 @@ async function loadTopClientsChart() {
     }
 }
 
-// Sales History
-async function loadSalesHistory() {
-    try {
-        const response = await fetch(`${API_URL}?action=getSalesHistory`);
-        const data = await response.json();
-
-        if (data.success) {
-            displaySalesHistory(data.sales);
-        }
-    } catch (error) {
-        console.error('Error loading sales history:', error);
-    }
-}
-
-function displaySalesHistory(sales) {
-    const tbody = document.getElementById('salesTableBody');
-
-    if (!sales || sales.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">No sales history</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = sales.map(sale => `
-        <tr>
-            <td>${sale.sale_date}</td>
-            <td><strong>${sale.customer_name}</strong></td>
-            <td>${sale.order_count}</td>
-            <td><span class="status-badge ${sale.is_new_client ? 'new' : 'existing'}">
-                ${sale.is_new_client ? 'New Client' : 'Existing'}
-            </span></td>
-        </tr>
-    `).join('');
-}
-
-function filterSales() {
-    const dateFrom = document.getElementById('dateFrom').value;
-    const dateTo = document.getElementById('dateTo').value;
-
-    fetch(`${API_URL}?action=getSalesHistory&dateFrom=${dateFrom}&dateTo=${dateTo}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                displaySalesHistory(data.sales);
-            }
-        });
-}
-
-// Analytics
-async function loadAnalytics() {
-    loadSalesPersonAnalytics();
-    loadMonthlyAnalytics();
-    loadAcquisitionAnalytics();
-    loadDistributionAnalytics();
-}
-
-async function loadSalesPersonAnalytics() {
-    try {
-        const response = await fetch(`${API_URL}?action=getSalesByPerson`);
-        const data = await response.json();
-
-        if (data.success) {
-            const ctx = document.getElementById('salesPersonChart');
-            if (!salesPersonChart && ctx) {
-                salesPersonChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            data: data.values,
-                            backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-                        }]
-                    }
-                });
-            } else if (salesPersonChart) {
-                salesPersonChart.data.labels = data.labels;
-                salesPersonChart.data.datasets[0].data = data.values;
-                salesPersonChart.update();
-            }
-        }
-    } catch (error) {
-        console.error('Error loading sales person analytics:', error);
-    }
-}
-
 // Export Functions
 async function exportClients() {
     // Get current filter values
@@ -827,20 +738,16 @@ function updateUIForUser() {
     // Show/hide navigation based on role
     if (currentUser.role === 'supervisor') {
         document.getElementById('approvalsLink').style.display = 'flex';
-        document.getElementById('manageLink').style.display = 'flex';
+        document.getElementById('scheduleLink').style.display = 'flex';
+        document.getElementById('itemsLink').style.display = 'flex';
+        document.getElementById('marginLink').style.display = 'flex';
+        document.getElementById('uploadLink').style.display = 'flex';
     } else {
         document.getElementById('approvalsLink').style.display = 'none';
-        document.getElementById('manageLink').style.display = 'none';
-    }
-
-    // Hide "Add Client" button for salespersons in Clients page
-    const addClientBtn = document.querySelector('[onclick="showAddClientModal()"]');
-    if (addClientBtn) {
-        if (currentUser.role === 'salesperson') {
-            addClientBtn.style.display = 'none';
-        } else {
-            addClientBtn.style.display = 'inline-flex';
-        }
+        document.getElementById('scheduleLink').style.display = 'none';
+        document.getElementById('itemsLink').style.display = 'none';
+        document.getElementById('marginLink').style.display = 'none';
+        document.getElementById('uploadLink').style.display = 'none';
     }
 
     // Update notification badge
@@ -1212,48 +1119,6 @@ async function rejectReport(reportId) {
 
 // ===== USER MANAGEMENT FUNCTIONS (SUPERVISOR) =====
 
-function showAddPersonModal() {
-    document.getElementById('personName').value = '';
-    document.getElementById('personPasscode').value = '';
-    document.getElementById('personRole').value = 'salesperson';
-    openModal('addPersonModal');
-}
-
-async function submitPerson() {
-    const name = document.getElementById('personName').value;
-    const passcode = document.getElementById('personPasscode').value;
-    const role = document.getElementById('personRole').value;
-
-    if (!name || !passcode) {
-        showNotification('Please fill all required fields', 'error');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('action', 'addSalesPerson');
-    formData.append('name', name);
-    formData.append('passcode', passcode);
-    formData.append('role', role);
-
-    try {
-        const response = await fetch(AUTH_API_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            closeModal('addPersonModal');
-            loadSalesPersons();
-            showNotification('Sales person added successfully', 'success');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Error adding sales person', 'error');
-    }
-}
-
 async function loadSalesPersons() {
     try {
         const response = await fetch(`${AUTH_API_URL}?action=getSalesPersons`);
@@ -1266,23 +1131,6 @@ async function loadSalesPersons() {
     } catch (error) {
         console.error('Error loading sales persons:', error);
     }
-}
-
-function displaySalesPersons(persons) {
-    const tbody = document.getElementById('personsTableBody');
-
-    if (!persons || persons.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;">No sales persons found</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = persons.map(person => `
-        <tr>
-            <td><strong>${person.name}</strong></td>
-            <td><span class="status-badge ${person.role}">${person.role}</span></td>
-            <td>${new Date(person.created_at).toLocaleDateString()}</td>
-        </tr>
-    `).join('');
 }
 
 function populateApprovalSalesPersonFilter(persons) {
