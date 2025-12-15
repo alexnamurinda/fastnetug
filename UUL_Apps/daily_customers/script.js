@@ -1205,18 +1205,42 @@ async function changePasscode() {
 let currentCarouselPage = 0;
 let cardsPerPage = 3;
 let totalCards = 4;
+let carouselInitialized = false;
 
 function initStatsCarousel() {
+    if (carouselInitialized) return; // Prevent double initialization
+
     updateCardsPerPage();
+
+    // Hide all cards initially, then show first page
+    const carousel = document.getElementById('statsCarousel');
+    const allCards = carousel.querySelectorAll('.stat-card');
+    allCards.forEach(card => {
+        card.style.display = 'none';
+    });
+
+    // Show first page
+    showCurrentPage();
     updateCarouselButtons();
     createCarouselIndicators();
 
+    carouselInitialized = true;
+
     // Update on window resize
-    window.addEventListener('resize', () => {
-        updateCardsPerPage();
-        currentCarouselPage = 0; // Reset to first page
-        scrollStatsCarousel(0);
-    });
+    window.addEventListener('resize', handleCarouselResize);
+}
+
+function handleCarouselResize() {
+    const oldCardsPerPage = cardsPerPage;
+    updateCardsPerPage();
+
+    // Only reset if cards per page actually changed
+    if (oldCardsPerPage !== cardsPerPage) {
+        currentCarouselPage = 0;
+        showCurrentPage();
+        updateCarouselButtons();
+        createCarouselIndicators();
+    }
 }
 
 function updateCardsPerPage() {
@@ -1228,28 +1252,8 @@ function updateCardsPerPage() {
     }
 }
 
-function scrollStatsCarousel(direction) {
-    const totalPages = Math.ceil(totalCards / cardsPerPage);
-
-    if (direction === 0) {
-        // Reset to page 0
-        currentCarouselPage = 0;
-    } else {
-        currentCarouselPage += direction;
-    }
-
-    // Boundary checks
-    if (currentCarouselPage < 0) currentCarouselPage = 0;
-    if (currentCarouselPage >= totalPages) currentCarouselPage = totalPages - 1;
-
-    updateCarouselButtons();
-    updateCarouselIndicators();
-
-    // Scroll carousel (visual feedback only, grid handles layout)
+function showCurrentPage() {
     const carousel = document.getElementById('statsCarousel');
-    const scrollAmount = currentCarouselPage * (carousel.offsetWidth / cardsPerPage) * cardsPerPage;
-
-    // Since we're using CSS grid, we'll hide/show cards instead
     const allCards = carousel.querySelectorAll('.stat-card');
     const startIndex = currentCarouselPage * cardsPerPage;
     const endIndex = startIndex + cardsPerPage;
@@ -1261,6 +1265,20 @@ function scrollStatsCarousel(direction) {
             card.style.display = 'none';
         }
     });
+}
+
+function scrollStatsCarousel(direction) {
+    const totalPages = Math.ceil(totalCards / cardsPerPage);
+
+    currentCarouselPage += direction;
+
+    // Boundary checks
+    if (currentCarouselPage < 0) currentCarouselPage = 0;
+    if (currentCarouselPage >= totalPages) currentCarouselPage = totalPages - 1;
+
+    showCurrentPage();
+    updateCarouselButtons();
+    updateCarouselIndicators();
 }
 
 function updateCarouselButtons() {
@@ -1316,6 +1334,8 @@ function goToCarouselPage(pageIndex) {
     const totalPages = Math.ceil(totalCards / cardsPerPage);
     if (pageIndex >= 0 && pageIndex < totalPages) {
         currentCarouselPage = pageIndex;
-        scrollStatsCarousel(0);
+        showCurrentPage();
+        updateCarouselButtons();
+        updateCarouselIndicators();
     }
 }
