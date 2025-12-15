@@ -269,7 +269,7 @@ function displayClients(clients) {
     tbody.innerHTML = clients.map(client => `
     <tr onclick="viewClientDetail(${client.id})">
         <td>
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
                 <strong>${client.client_name}</strong>
             </div>
         </td>
