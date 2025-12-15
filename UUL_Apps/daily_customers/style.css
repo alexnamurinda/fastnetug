@@ -1565,15 +1565,15 @@ body {
 
 /* Client Profile Card */
 .client-profile-card {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    padding: 30px;
-    border-radius: 12px;
+    background: linear-gradient(135deg, var(--text-light), var(--primary-light));
+    padding: 15px;
+    border-radius: 12px 12px 0 0;
     color: white;
     box-shadow: var(--shadow-lg);
     display: flex;
     align-items: center;
-    gap: 24px;
-    text-align: left;
+    gap: 20px;
+    text-align: center;
 }
 
 .profile-avatar {
