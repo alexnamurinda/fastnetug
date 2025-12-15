@@ -270,9 +270,6 @@ function displayClients(clients) {
     <tr onclick="viewClientDetail(${client.id})">
         <td>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 36px; height: 36px; background: var(--primary-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; flex-shrink: 0;">
-                    ${client.client_name.charAt(0).toUpperCase()}
-                </div>
                 <strong>${client.client_name}</strong>
             </div>
         </td>
