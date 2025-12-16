@@ -733,13 +733,12 @@ function updateUIForUser() {
     if (currentUser.role === 'supervisor') {
         document.getElementById('approvalsLink').style.display = 'flex';
         document.getElementById('scheduleLink').style.display = 'flex';
-        // document.getElementById('itemsLink').style.display = 'flex';
+        document.getElementById('itemsLink').style.display = 'flex';
         document.getElementById('marginLink').style.display = 'flex';
         document.getElementById('uploadLink').style.display = 'flex';
     } else {
         document.getElementById('approvalsLink').style.display = 'none';
         document.getElementById('scheduleLink').style.display = 'none';
-        // document.getElementById('itemsLink').style.display = 'none';
         document.getElementById('marginLink').style.display = 'none';
         document.getElementById('uploadLink').style.display = 'none';
     }
