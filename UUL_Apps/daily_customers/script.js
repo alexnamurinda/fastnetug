@@ -917,35 +917,30 @@ async function loadMyReports() {
 function displayMyReports(reports) {
     const tbody = document.getElementById('reportsTableBody');
 
-    console.log('displayMyReports called with:', reports); // DEBUG
-    console.log('Table body element:', tbody); // DEBUG
-
     if (!tbody) {
         console.error('ERROR: reportsTableBody element not found!');
         return;
     }
 
     if (!reports || reports.length === 0) {
-        console.log('No reports to display'); // DEBUG
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No reports found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:40px;">No reports found</td></tr>';
         return;
     }
 
-    console.log('Rendering', reports.length, 'reports'); // DEBUG
     tbody.innerHTML = reports.map(report => `
-        <tr>
+        <tr onclick="viewReportDetail(${report.id}, 'my')" style="cursor: pointer;">
             <td>${report.report_date}</td>
-            <td><strong>${report.client_name}</strong><br><small>${report.client_type || ''}</small></td>
-            <td>${report.method === 'M' ? 'Met' : 'Call'}</td>
-            <td>${report.discussion || '-'}</td>
-            <td>${report.feedback || '-'}</td>
-            <td><span class="status-badge ${report.approved}">
-                ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
-            </span></td>
+            <td>
+                <strong>${report.client_name}</strong><br>
+                <small style="color: var(--text-secondary);">${report.client_type || ''}</small>
+            </td>
+            <td>
+                <span class="status-badge ${report.approved}">
+                    ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
+                </span>
+            </td>
         </tr>
     `).join('');
-
-    console.log('Reports rendered successfully'); // DEBUG
 }
 
 function filterMyReports() {
@@ -1028,35 +1023,26 @@ function displayApprovals(reports) {
     const tbody = document.getElementById('approvalsTableBody');
 
     if (!reports || reports.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">No reports found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">No reports found</td></tr>';
         return;
     }
 
     tbody.innerHTML = reports.map(report => `
-        <tr>
+        <tr onclick="viewReportDetail(${report.id}, 'approval')" style="cursor: pointer;">
             <td>${report.report_date}</td>
             <td><strong>${report.sales_person_name}</strong></td>
-            <td><strong>${report.client_name}</strong><br><small>${report.client_type}</small></td>
-            <td>${report.method === 'M' ? 'Met' : 'Call'}</td>
-            <td>${report.discussion || '-'}</td>
-            <td>${report.feedback || '-'}</td>
-            <td><span class="status-badge ${report.approved}">
-                ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
-            </span></td>
             <td>
-                ${report.approved === 'pending' ? `
-                    <button class="action-btn" onclick="approveReport(${report.id})">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button class="action-btn delete" onclick="rejectReport(${report.id})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                ` : '-'}
+                <strong>${report.client_name}</strong><br>
+                <small style="color: var(--text-secondary);">${report.client_type}</small>
+            </td>
+            <td>
+                <span class="status-badge ${report.approved}">
+                    ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
+                </span>
             </td>
         </tr>
     `).join('');
 }
-
 function filterApprovals() {
     loadAllReports();
 }
@@ -1479,4 +1465,149 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+}
+
+// ===== REPORT DETAIL VIEW FUNCTIONS =====
+
+let currentReportDetail = null;
+let returnToPage = 'reports'; // Track where to return to
+
+async function viewReportDetail(reportId, source = 'my') {
+    returnToPage = source === 'approval' ? 'approvals' : 'reports';
+
+    try {
+        // Determine which API call to use based on source
+        const action = source === 'approval' ? 'getAllReports' : 'getMyReports';
+        const response = await fetch(`${AUTH_API_URL}?action=${action}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const report = data.reports.find(r => r.id === reportId);
+            if (report) {
+                currentReportDetail = report;
+                displayReportDetail(report, source);
+
+                // Navigate to detail page
+                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+                document.getElementById('reportDetailPage').style.display = 'block';
+                document.querySelector('.page-title').textContent = 'Report Details';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading report details:', error);
+        showNotification('Error loading report details', 'error');
+    }
+}
+
+function displayReportDetail(report, source) {
+    // Profile Section
+    const avatar = document.getElementById('reportAvatar');
+    avatar.innerHTML = `<i class="fas fa-file-alt"></i>`;
+
+    // Set avatar color based on status
+    let avatarColor = '#4F46E5';
+    if (report.approved === 'approved') avatarColor = '#10B981';
+    if (report.approved === 'rejected') avatarColor = '#EF4444';
+    if (report.approved === 'pending') avatarColor = '#F59E0B';
+
+    avatar.style.background = `linear-gradient(135deg, ${avatarColor}, ${avatarColor}dd)`;
+
+    document.getElementById('reportDetailClient').textContent = report.client_name;
+    document.getElementById('reportDetailDate').textContent = formatDate(report.report_date);
+
+    // Report Information
+    document.getElementById('reportDetailReportDate').textContent = formatDate(report.report_date);
+    document.getElementById('reportDetailClientName').textContent = report.client_name;
+    document.getElementById('reportDetailSalesPerson').textContent = report.sales_person_name || '-';
+    document.getElementById('reportDetailMethod').textContent = report.method === 'M' ? 'Meeting (M)' : 'Call (C)';
+
+    // Status with badge
+    const statusElement = document.getElementById('reportDetailStatus');
+    statusElement.innerHTML = `<span class="status-badge ${report.approved}">
+        ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
+    </span>`;
+
+    // Discussion and Feedback
+    document.getElementById('reportDetailDiscussion').textContent = report.discussion || 'No discussion points provided';
+    document.getElementById('reportDetailFeedback').textContent = report.feedback || 'No feedback provided';
+
+    // Approval Information
+    const approvalInfo = document.getElementById('reportApprovalInfo');
+    if (report.approved !== 'pending' && report.approved_by_name) {
+        approvalInfo.style.display = 'block';
+        document.getElementById('reportDetailApprovedBy').textContent = report.approved_by_name;
+        document.getElementById('reportDetailApprovedAt').textContent = formatDate(report.approved_at);
+    } else {
+        approvalInfo.style.display = 'none';
+    }
+
+    // Update action buttons based on source and status
+    const actionsContainer = document.getElementById('reportDetailActions');
+    actionsContainer.innerHTML = '';
+
+    // Show approve/reject buttons only for supervisors on pending reports
+    if (source === 'approval' && report.approved === 'pending' && currentUser && currentUser.role === 'supervisor') {
+        actionsContainer.innerHTML = `
+            <button class="btn-primary" onclick="approveReportFromDetail(${report.id})">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="btn-secondary delete" onclick="rejectReportFromDetail(${report.id})">
+                <i class="fas fa-times"></i> Reject
+            </button>
+        `;
+    }
+}
+
+function navigateBackFromReportDetail() {
+    navigateToPage(returnToPage);
+}
+
+async function approveReportFromDetail(reportId) {
+    if (!confirm('Approve this report?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'approveReport');
+    formData.append('reportId', reportId);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('Report approved', 'success');
+            navigateToPage('approvals');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error approving report', 'error');
+    }
+}
+
+async function rejectReportFromDetail(reportId) {
+    if (!confirm('Reject this report?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'rejectReport');
+    formData.append('reportId', reportId);
+
+    try {
+        const response = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('Report rejected', 'success');
+            navigateToPage('approvals');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error rejecting report', 'error');
+    }
 }
