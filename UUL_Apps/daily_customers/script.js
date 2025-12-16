@@ -3,6 +3,8 @@ const API_URL = 'api.php';
 // Authentication API Configuration
 const AUTH_API_URL = 'report_api.php';
 let currentUser = null;
+let allMyReports = []; // Add this
+let allApprovalReports = []; // Add this
 
 // Global variables
 let salesChart, topClientsChart, salesPersonChart, monthlyChart, acquisitionChart, distributionChart;
@@ -895,19 +897,13 @@ async function loadMyReports() {
     const dateTo = document.getElementById('reportDateTo').value;
     const search = document.getElementById('reportSearch')?.value || '';
 
-    console.log('Loading reports with:', { dateFrom, dateTo, search }); // DEBUG
-
     try {
         const response = await fetch(`${AUTH_API_URL}?action=getMyReports&dateFrom=${dateFrom}&dateTo=${dateTo}&search=${encodeURIComponent(search)}`);
         const data = await response.json();
 
-        console.log('Reports API Response:', data); // DEBUG
-
         if (data.success) {
-            console.log('Number of reports:', data.reports.length); // DEBUG
+            allMyReports = data.reports; // Store the reports
             displayMyReports(data.reports);
-        } else {
-            console.error('API returned error:', data.message); // DEBUG
         }
     } catch (error) {
         console.error('Error loading reports:', error);
@@ -927,22 +923,23 @@ function displayMyReports(reports) {
         return;
     }
 
-    tbody.innerHTML = reports.map(report => `
-        <tr onclick="viewReportDetail(${report.id}, 'my')" style="cursor: pointer;">
-            <td>${report.report_date}</td>
-            <td>
-                <strong>${report.client_name}</strong><br>
-                <small style="color: var(--text-secondary);">${report.client_type || ''}</small>
-            </td>
-            <td>
-                <span class="status-badge ${report.approved}">
-                    ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
-                </span>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = reports.map(report => {
+        const statusText = report.approved.charAt(0).toUpperCase() + report.approved.slice(1);
+        return `
+            <tr onclick="viewReportDetail(${report.id}, 'my')" style="cursor: pointer;">
+                <td>${report.report_date}</td>
+                <td>
+                    <strong>${report.client_name}</strong><br>
+                </td>
+                <td>
+                    <span class="status-badge ${report.approved}">
+                        ${statusText}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
-
 function filterMyReports() {
     loadMyReports();
 }
@@ -1000,7 +997,6 @@ async function exportMyReports() {
 }
 
 // ===== APPROVAL FUNCTIONS (SUPERVISOR) =====
-
 async function loadAllReports() {
     const salesPersonId = document.getElementById('approvalSalesPerson').value;
     const status = document.getElementById('approvalStatus').value;
@@ -1012,6 +1008,7 @@ async function loadAllReports() {
         const data = await response.json();
 
         if (data.success) {
+            allApprovalReports = data.reports; // Store the reports
             displayApprovals(data.reports);
         }
     } catch (error) {
@@ -1027,21 +1024,24 @@ function displayApprovals(reports) {
         return;
     }
 
-    tbody.innerHTML = reports.map(report => `
-        <tr onclick="viewReportDetail(${report.id}, 'approval')" style="cursor: pointer;">
-            <td>${report.report_date}</td>
-            <td><strong>${report.sales_person_name}</strong></td>
-            <td>
-                <strong>${report.client_name}</strong><br>
-                <small style="color: var(--text-secondary);">${report.client_type}</small>
-            </td>
-            <td>
-                <span class="status-badge ${report.approved}">
-                    ${report.approved.charAt(0).toUpperCase() + report.approved.slice(1)}
-                </span>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = reports.map(report => {
+        const statusText = report.approved.charAt(0).toUpperCase() + report.approved.slice(1);
+        return `
+            <tr onclick="viewReportDetail(${report.id}, 'approval')" style="cursor: pointer;">
+                <td>${report.report_date}</td>
+                <td><strong>${report.sales_person_name}</strong></td>
+                <td>
+                    <strong>${report.client_name}</strong><br>
+                    <small style="color: var(--text-secondary);">${report.client_type}</small>
+                </td>
+                <td>
+                    <span class="status-badge ${report.approved}">
+                        ${statusText}
+                    </span>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 function filterApprovals() {
     loadAllReports();
@@ -1476,22 +1476,20 @@ async function viewReportDetail(reportId, source = 'my') {
     returnToPage = source === 'approval' ? 'approvals' : 'reports';
 
     try {
-        // Determine which API call to use based on source
-        const action = source === 'approval' ? 'getAllReports' : 'getMyReports';
-        const response = await fetch(`${AUTH_API_URL}?action=${action}`);
-        const data = await response.json();
+        // Get report from stored data
+        const reports = source === 'approval' ? allApprovalReports : allMyReports;
+        const report = reports.find(r => r.id === reportId);
 
-        if (data.success) {
-            const report = data.reports.find(r => r.id === reportId);
-            if (report) {
-                currentReportDetail = report;
-                displayReportDetail(report, source);
+        if (report) {
+            currentReportDetail = report;
+            displayReportDetail(report, source);
 
-                // Navigate to detail page
-                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-                document.getElementById('reportDetailPage').style.display = 'block';
-                document.querySelector('.page-title').textContent = 'Report Details';
-            }
+            // Navigate to detail page
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            document.getElementById('reportDetailPage').style.display = 'block';
+            document.querySelector('.page-title').textContent = 'Report Details';
+        } else {
+            showNotification('Report not found', 'error');
         }
     } catch (error) {
         console.error('Error loading report details:', error);
