@@ -908,13 +908,17 @@ async function loadMyReports() {
 
         if (data.success) {
             allMyReports = data.reports; // Store the reports
+            console.log('Stored reports:', allMyReports); // DEBUG
             displayMyReports(data.reports);
+        } else {
+            console.error('API returned error:', data.message);
+            allMyReports = []; // Clear on error
         }
     } catch (error) {
         console.error('Error loading reports:', error);
+        allMyReports = []; // Clear on error
     }
 }
-
 function displayMyReports(reports) {
     const tbody = document.getElementById('reportsTableBody');
 
@@ -1014,10 +1018,15 @@ async function loadAllReports() {
 
         if (data.success) {
             allApprovalReports = data.reports; // Store the reports
+            console.log('Stored approval reports:', allApprovalReports); // DEBUG
             displayApprovals(data.reports);
+        } else {
+            console.error('API returned error:', data.message);
+            allApprovalReports = []; // Clear on error
         }
     } catch (error) {
         console.error('Error loading reports:', error);
+        allApprovalReports = []; // Clear on error
     }
 }
 
@@ -1480,12 +1489,23 @@ let returnToPage = 'reports'; // Track where to return to
 async function viewReportDetail(reportId, source = 'my') {
     returnToPage = source === 'approval' ? 'approvals' : 'reports';
 
+    console.log('viewReportDetail called:', { reportId, source }); // DEBUG
+    console.log('Available reports:', source === 'approval' ? allApprovalReports : allMyReports); // DEBUG
+
     try {
         // Get report from stored data
         const reports = source === 'approval' ? allApprovalReports : allMyReports;
-        const report = reports.find(r => r.id === reportId);
+
+        if (!reports || reports.length === 0) {
+            console.error('No reports available in memory');
+            showNotification('Please refresh the page and try again', 'error');
+            return;
+        }
+
+        const report = reports.find(r => r.id == reportId); // Use == instead of === for type coercion
 
         if (report) {
+            console.log('Found report:', report); // DEBUG
             currentReportDetail = report;
             displayReportDetail(report, source);
 
@@ -1494,6 +1514,8 @@ async function viewReportDetail(reportId, source = 'my') {
             document.getElementById('reportDetailPage').style.display = 'block';
             document.querySelector('.page-title').textContent = 'Report Details';
         } else {
+            console.error('Report not found. Looking for ID:', reportId, 'Type:', typeof reportId);
+            console.error('Available IDs:', reports.map(r => ({ id: r.id, type: typeof r.id })));
             showNotification('Report not found', 'error');
         }
     } catch (error) {
