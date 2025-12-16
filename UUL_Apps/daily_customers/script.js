@@ -739,6 +739,7 @@ function updateUIForUser() {
     } else {
         document.getElementById('approvalsLink').style.display = 'none';
         document.getElementById('scheduleLink').style.display = 'none';
+        document.getElementById('itemsLink').style.display = 'flex';
         document.getElementById('marginLink').style.display = 'none';
         document.getElementById('uploadLink').style.display = 'none';
     }
