@@ -235,7 +235,7 @@ function displayRecentActivity(sales) {
     }
 
     container.innerHTML = sales.map(sale => `
-        <div class="activity-item">
+        <div class="activity-item" onclick="viewSaleDetail('${sale.sale_date}', '${escapeHtml(sale.customer_name)}')">
             <div class="activity-info">
                 <h4>${sale.customer_name}</h4>
                 <p>${sale.sale_date}</p>
@@ -243,6 +243,11 @@ function displayRecentActivity(sales) {
             <div class="activity-count">${sale.order_count} orders</div>
         </div>
     `).join('');
+}
+
+// Add this helper function
+function escapeHtml(text) {
+    return text.replace(/'/g, "\\'");
 }
 
 // Client Functions
@@ -1557,7 +1562,11 @@ function displayReportDetail(report, source) {
 }
 
 function navigateBackFromReportDetail() {
-    navigateToPage(returnToPage);
+    if (returnToPage === 'approvals' || returnToPage === 'reports') {
+        navigateToPage(returnToPage);
+    } else {
+        navigateToPage('dashboard'); // Default back to dashboard for sales details
+    }
 }
 
 async function approveReportFromDetail(reportId) {
@@ -1608,4 +1617,61 @@ async function rejectReportFromDetail(reportId) {
     } catch (error) {
         showNotification('Error rejecting report', 'error');
     }
+}
+
+// ===== SALE DETAIL VIEW FUNCTION =====
+
+async function viewSaleDetail(saleDate, customerName) {
+    try {
+        const response = await fetch(`${API_URL}?action=getSalesHistory&dateFrom=${saleDate}&dateTo=${saleDate}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const sale = data.sales.find(s => s.customer_name === customerName && s.sale_date === saleDate);
+
+            if (sale) {
+                displaySaleDetail(sale);
+
+                // Navigate to detail page
+                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+                document.getElementById('reportDetailPage').style.display = 'block';
+                document.querySelector('.page-title').textContent = 'Sale Details';
+            } else {
+                showNotification('Sale record not found', 'error');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading sale details:', error);
+        showNotification('Error loading sale details', 'error');
+    }
+}
+
+function displaySaleDetail(sale) {
+    // Profile Section
+    const avatar = document.getElementById('reportAvatar');
+    avatar.innerHTML = `<i class="fas fa-shopping-cart"></i>`;
+    avatar.style.background = `linear-gradient(135deg, #4F46E5, #4F46E5dd)`;
+
+    document.getElementById('reportDetailClient').textContent = sale.customer_name;
+    document.getElementById('reportDetailDate').textContent = formatDate(sale.sale_date);
+
+    // Sale Information
+    document.getElementById('reportDetailReportDate').textContent = formatDate(sale.sale_date);
+    document.getElementById('reportDetailClientName').textContent = sale.customer_name;
+    document.getElementById('reportDetailSalesPerson').textContent = '-';
+    document.getElementById('reportDetailMethod').textContent = sale.method === 'M' ? 'Meeting (M)' : 'Call (C)';
+
+    // Status with badge
+    const statusElement = document.getElementById('reportDetailStatus');
+    statusElement.innerHTML = `<span class="status-badge approved">Sale Record</span>`;
+
+    // Discussion and Feedback
+    document.getElementById('reportDetailDiscussion').textContent = sale.discussion || 'No discussion points provided';
+    document.getElementById('reportDetailFeedback').textContent = sale.feedback || 'No feedback provided';
+
+    // Hide approval info for sales
+    document.getElementById('reportApprovalInfo').style.display = 'none';
+
+    // Clear action buttons for sales records
+    document.getElementById('reportDetailActions').innerHTML = '';
 }
