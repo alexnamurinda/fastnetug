@@ -1061,58 +1061,7 @@ function filterApprovals() {
     loadAllReports();
 }
 
-async function approveReport(reportId) {
-    if (!confirm('Approve this report?')) return;
-
-    const formData = new FormData();
-    formData.append('action', 'approveReport');
-    formData.append('reportId', reportId);
-
-    try {
-        const response = await fetch(AUTH_API_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            loadAllReports();
-            showNotification('Report approved', 'success');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Error approving report', 'error');
-    }
-}
-
-async function rejectReport(reportId) {
-    if (!confirm('Reject this report?')) return;
-
-    const formData = new FormData();
-    formData.append('action', 'rejectReport');
-    formData.append('reportId', reportId);
-
-    try {
-        const response = await fetch(AUTH_API_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-
-        if (data.success) {
-            loadAllReports();
-            showNotification('Report rejected', 'success');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Error rejecting report', 'error');
-    }
-}
-
 // ===== USER MANAGEMENT FUNCTIONS (SUPERVISOR) =====
-
 async function loadSalesPersons() {
     try {
         const response = await fetch(`${AUTH_API_URL}?action=getSalesPersons`);
@@ -1573,7 +1522,7 @@ function displayReportDetail(report, source) {
     // Show approve/reject buttons only for supervisors on pending reports
     if (source === 'approval' && report.approved === 'pending' && currentUser && currentUser.role === 'supervisor') {
         actionsContainer.innerHTML = `
-            <button class="btn-primary" onclick="approveReportFromDetail(${report.id})">
+            <button class="btn-secondary" onclick="approveReportFromDetail(${report.id})">
                 <i class="fas fa-check"></i> Approve
             </button>
             <button class="btn-secondary delete" onclick="rejectReportFromDetail(${report.id})">
