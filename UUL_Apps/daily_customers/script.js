@@ -106,10 +106,10 @@ function setupEventListeners() {
         clientSearch.addEventListener('input', filterClients);
     }
 
-    // Sales person filter
-    const salesPersonFilter = document.getElementById('salesPersonFilter');
-    if (salesPersonFilter) {
-        salesPersonFilter.addEventListener('change', filterClients);
+    // Category filter
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', filterClients);
     }
 
     // Chart period change
@@ -252,13 +252,16 @@ function escapeHtml(text) {
 
 // Client Functions
 async function loadClients() {
+    const categoryId = document.getElementById('categoryFilter')?.value || '';
+    const url = categoryId ? `${API_URL}?action=getClients&categoryId=${categoryId}` : `${API_URL}?action=getClients`;
+
     try {
-        const response = await fetch(`${API_URL}?action=getClients`);
+        const response = await fetch(url);
         const data = await response.json();
 
         if (data.success) {
             displayClients(data.clients);
-            populateSalesPersonFilter(data.clients);
+            populateCategoryFilter();
         }
     } catch (error) {
         console.error('Error loading clients:', error);
@@ -288,26 +291,41 @@ function displayClients(clients) {
 
 function filterClients() {
     const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
-    const salesPerson = document.getElementById('salesPersonFilter').value;
+    const categoryId = document.getElementById('categoryFilter').value;
 
+    // If category is selected, reload from server
+    if (categoryId) {
+        loadClients();
+        return;
+    }
+
+    // Otherwise just filter by search
     const rows = document.querySelectorAll('#clientsTableBody tr');
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
-        const personCell = row.cells[2]?.textContent || '';
-
-        const matchesSearch = text.includes(searchTerm);
-        const matchesPerson = !salesPerson || personCell === salesPerson;
-
-        row.style.display = (matchesSearch && matchesPerson) ? '' : 'none';
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 }
+async function populateCategoryFilter() {
+    try {
+        const response = await fetch(`${API_URL}?action=getCategories`);
+        const data = await response.json();
 
-function populateSalesPersonFilter(clients) {
-    const filter = document.getElementById('salesPersonFilter');
-    const persons = [...new Set(clients.map(c => c.sales_person).filter(Boolean))];
+        if (data.success) {
+            const filter = document.getElementById('categoryFilter');
+            filter.innerHTML = '<option value="">All Categories</option>';
 
-    filter.innerHTML = '<option value="">All Sales Persons</option>' +
-        persons.map(p => `<option value="${p}">${p}</option>`).join('');
+            data.categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = `${cat.category_name} (${cat.client_count})`;
+                option.dataset.hasChildren = cat.has_children;
+                filter.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
 }
 
 function editClient(id) {

@@ -34,6 +34,7 @@ function setupDatabase()
         createProductsTable($conn);
         createProductCategoriesTable($conn);
         createMarginHistoryTable($conn);
+        createClientCategorizationTable($conn);
 
         return $conn;
     } catch (Exception $e) {
@@ -53,12 +54,15 @@ function createClientsTable($conn)
         contact VARCHAR(50) DEFAULT NULL,
         address VARCHAR(255) DEFAULT NULL,
         sales_person VARCHAR(100) DEFAULT NULL,
+        category_id INT DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
         INDEX idx_client_name (client_name),
         INDEX idx_client_type (client_type),
-        INDEX idx_sales_person (sales_person)
+        INDEX idx_sales_person (sales_person),
+        INDEX idx_category_id (category_id),
+        FOREIGN KEY (category_id) REFERENCES client_categorization(id) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
     if (!$conn->query($sql)) {
@@ -246,6 +250,50 @@ function createMarginHistoryTable($conn)
         throw new Exception("Error creating margin_history table: " . $conn->error);
     }
 }
+
+function createClientCategorizationTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS client_categorization (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category_name VARCHAR(100) NOT NULL,
+        parent_id INT DEFAULT NULL,
+        description TEXT DEFAULT NULL,
+        display_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        INDEX idx_category_name (category_name),
+        INDEX idx_parent_id (parent_id),
+        
+        FOREIGN KEY (parent_id) REFERENCES client_categorization(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating client_categorization table: " . $conn->error);
+    }
+
+    // Insert default categories
+    $defaultCategories = [
+        ['Client by Product', NULL, 1],
+        ['Co-oporate clients', NULL, 2],
+        ['Resellers', NULL, 3],
+        ['Freelancers', NULL, 4],
+        ['Up-country clients', NULL, 5],
+        ['Client by machines', NULL, 6],
+        // Sub-categories under "Client by Product"
+        ['Art Paper', 1, 1],
+        ['Large Format', 1, 2],
+        ['Chemicals', 1, 3]
+    ];
+
+    foreach ($defaultCategories as $cat) {
+        $name = $conn->real_escape_string($cat[0]);
+        $parent = $cat[1] === NULL ? 'NULL' : $cat[1];
+        $order = $cat[2];
+        $conn->query("INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) 
+                     VALUES ('$name', $parent, $order)");
+    }
+}
+
 
 function getDbConnection()
 {

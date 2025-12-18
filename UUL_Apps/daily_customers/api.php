@@ -66,8 +66,55 @@ switch ($action) {
     case 'getClientActivity':
         getClientActivity($conn);
         break;
+    case 'getCategories':
+        getCategories($conn);
+        break;
+    case 'getSubCategories':
+        getSubCategories($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
+}
+
+function getCategories($conn)
+{
+    $sql = "SELECT 
+                c.*,
+                (SELECT COUNT(*) FROM client_categorization WHERE parent_id = c.id) as has_children,
+                (SELECT COUNT(*) FROM clients WHERE category_id = c.id) as client_count
+            FROM client_categorization c
+            WHERE c.parent_id IS NULL
+            ORDER BY c.display_order, c.category_name ASC";
+
+    $result = $conn->query($sql);
+    $categories = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'categories' => $categories]);
+}
+
+function getSubCategories($conn)
+{
+    $parentId = intval($_GET['parentId']);
+
+    $sql = "SELECT 
+                c.*,
+                (SELECT COUNT(*) FROM clients WHERE category_id = c.id) as client_count
+            FROM client_categorization c
+            WHERE c.parent_id = $parentId
+            ORDER BY c.display_order, c.category_name ASC";
+
+    $result = $conn->query($sql);
+    $subCategories = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $subCategories[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'subCategories' => $subCategories]);
 }
 
 $conn->close();
@@ -106,11 +153,20 @@ function getDashboardStats($conn)
 
 function getClients($conn)
 {
+    $categoryId = isset($_GET['categoryId']) ? intval($_GET['categoryId']) : null;
+
     $sql = "SELECT c.*, 
+            cat.category_name as category,
             (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
             COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders
             FROM clients c 
-            ORDER BY c.client_name ASC";
+            LEFT JOIN client_categorization cat ON c.category_id = cat.id";
+
+    if ($categoryId !== null) {
+        $sql .= " WHERE c.category_id = $categoryId";
+    }
+
+    $sql .= " ORDER BY c.client_name ASC";
 
     $result = $conn->query($sql);
     $clients = [];
@@ -121,7 +177,6 @@ function getClients($conn)
 
     echo json_encode(['success' => true, 'clients' => $clients]);
 }
-
 function getClient($conn)
 {
     $id = intval($_GET['id']);
