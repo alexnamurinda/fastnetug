@@ -1739,17 +1739,44 @@ body {
 /* Responsive Design for Client Detail */
 @media (max-width: 768px) {
     .detail-header {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        /* CHANGE from column to row */
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .btn-back {
+        flex-shrink: 0;
+        padding: 10px 12px;
+        min-width: auto;
     }
 
     .detail-actions {
-        flex-direction: column;
+        flex-direction: row;
+        /* Keep as row */
+        gap: 8px;
+        flex-shrink: 0;
     }
 
     .detail-actions button {
-        width: 100%;
+        width: auto;
+        /* CHANGE from 100% to auto */
+        padding: 10px 12px;
+        /* Make compact */
+        min-width: 44px;
+        height: 44px;
         justify-content: center;
+    }
+
+    /* Hide button text, show only icons */
+    .detail-actions button span {
+        display: none;
+    }
+
+    .detail-actions button i {
+        margin: 0;
+        font-size: 18px;
     }
 
     .client-profile-card {
