@@ -25,16 +25,17 @@ function setupDatabase()
 
         $conn->select_db(DB_NAME);
 
+        // IMPORTANT: Create client_categorization BEFORE clients table
+        createClientCategorizationTable($conn);
         createClientsTable($conn);
         createDailySalesTable($conn);
         createUploadHistoryTable($conn);
         createSalesPersonsTable($conn);
         createDailyReportsTable($conn);
-        createChristmasCalendarsTable($conn);  // NEW TABLE
+        createChristmasCalendarsTable($conn);
         createProductsTable($conn);
         createProductCategoriesTable($conn);
         createMarginHistoryTable($conn);
-        createClientCategorizationTable($conn);
 
         return $conn;
     } catch (Exception $e) {
@@ -44,7 +45,6 @@ function setupDatabase()
         ]));
     }
 }
-
 function createClientsTable($conn)
 {
     $sql = "CREATE TABLE IF NOT EXISTS clients (
@@ -61,13 +61,22 @@ function createClientsTable($conn)
         INDEX idx_client_name (client_name),
         INDEX idx_client_type (client_type),
         INDEX idx_sales_person (sales_person),
-        INDEX idx_category_id (category_id),
-        FOREIGN KEY (category_id) REFERENCES client_categorization(id) ON DELETE SET NULL
+        INDEX idx_category_id (category_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
     if (!$conn->query($sql)) {
         throw new Exception("Error creating clients table: " . $conn->error);
     }
+
+    // Add foreign key constraint after table is created
+    $fkSql = "ALTER TABLE clients 
+              ADD CONSTRAINT fk_client_category 
+              FOREIGN KEY (category_id) 
+              REFERENCES client_categorization(id) 
+              ON DELETE SET NULL";
+
+    // Try to add foreign key, but don't fail if it already exists
+    @$conn->query($fkSql);
 }
 
 function createDailySalesTable($conn)
@@ -253,6 +262,9 @@ function createMarginHistoryTable($conn)
 
 function createClientCategorizationTable($conn)
 {
+    // First, drop the table if it exists to recreate it properly
+    $conn->query("DROP TABLE IF EXISTS client_categorization");
+
     $sql = "CREATE TABLE IF NOT EXISTS client_categorization (
         id INT AUTO_INCREMENT PRIMARY KEY,
         category_name VARCHAR(100) NOT NULL,
@@ -262,38 +274,38 @@ function createClientCategorizationTable($conn)
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         INDEX idx_category_name (category_name),
-        INDEX idx_parent_id (parent_id),
-        
-        FOREIGN KEY (parent_id) REFERENCES client_categorization(id) ON DELETE CASCADE
+        INDEX idx_parent_id (parent_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
     if (!$conn->query($sql)) {
         throw new Exception("Error creating client_categorization table: " . $conn->error);
     }
 
-    // Insert default categories
-    $defaultCategories = [
-        ['Client by Product', NULL, 1],
-        ['Co-oporate clients', NULL, 2],
-        ['Resellers', NULL, 3],
-        ['Freelancers', NULL, 4],
-        ['Up-country clients', NULL, 5],
-        ['Client by machines', NULL, 6],
-        // Sub-categories under "Client by Product"
-        ['Art Paper', 1, 1],
-        ['Large Format', 1, 2],
-        ['Chemicals', 1, 3]
+    // Insert default categories - FIRST insert parent categories
+    $parentCategories = [
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by Product', NULL, 1)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Co-oporate clients', NULL, 2)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Resellers', NULL, 3)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Freelancers', NULL, 4)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Up-country clients', NULL, 5)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by machines', NULL, 6)"
     ];
 
-    foreach ($defaultCategories as $cat) {
-        $name = $conn->real_escape_string($cat[0]);
-        $parent = $cat[1] === NULL ? 'NULL' : $cat[1];
-        $order = $cat[2];
-        $conn->query("INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) 
-                     VALUES ('$name', $parent, $order)");
+    foreach ($parentCategories as $sql) {
+        $conn->query($sql);
+    }
+
+    // Then insert sub-categories (parent_id = 1 is "Client by Product")
+    $subCategories = [
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Art Paper', 1, 1)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Large Format', 1, 2)",
+        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Chemicals', 1, 3)"
+    ];
+
+    foreach ($subCategories as $sql) {
+        $conn->query($sql);
     }
 }
-
 
 function getDbConnection()
 {
@@ -307,7 +319,7 @@ if (basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'])) {
             'success' => true,
             'message' => 'Database initialized successfully.',
             'database' => DB_NAME,
-            'tables_created' => ['clients', 'daily_sales', 'upload_history', 'sales_persons', 'daily_reports', 'christmas_calendars', 'products', 'product_categories', 'margin_history']
+            'tables_created' => ['client_categorization', 'clients', 'daily_sales', 'upload_history', 'sales_persons', 'daily_reports', 'christmas_calendars', 'products', 'product_categories', 'margin_history']
         ]);
         $conn->close();
     }
