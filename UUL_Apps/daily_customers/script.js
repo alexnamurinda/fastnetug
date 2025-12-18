@@ -252,7 +252,7 @@ function escapeHtml(text) {
 
 // Client Functions
 async function loadClients() {
-    const categoryId = document.getElementById('categoryFilter')?.value || '';
+    const categoryId = selectedCategoryId || '';
     const url = categoryId ? `${API_URL}?action=getClients&categoryId=${categoryId}` : `${API_URL}?action=getClients`;
 
     try {
@@ -291,10 +291,9 @@ function displayClients(clients) {
 
 function filterClients() {
     const searchTerm = document.getElementById('clientSearch').value.toLowerCase();
-    const categoryId = document.getElementById('categoryFilter').value;
 
     // If category is selected, reload from server
-    if (categoryId) {
+    if (selectedCategoryId) {
         loadClients();
         return;
     }
@@ -306,28 +305,164 @@ function filterClients() {
         row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
 }
+
+let selectedCategoryId = null;
+let selectedCategoryName = 'More Filters';
+let allCategories = [];
+
 async function populateCategoryFilter() {
     try {
         const response = await fetch(`${API_URL}?action=getCategories`);
         const data = await response.json();
 
         if (data.success) {
-            const filter = document.getElementById('categoryFilter');
-            filter.innerHTML = '<option value="">All Categories</option>';
-
-            data.categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat.id;
-                option.textContent = `${cat.category_name} (${cat.client_count})`;
-                option.dataset.hasChildren = cat.has_children;
-                filter.appendChild(option);
-            });
+            allCategories = data.categories;
+            displayCategoryDropdown(data.categories);
         }
     } catch (error) {
         console.error('Error loading categories:', error);
     }
 }
 
+function displayCategoryDropdown(categories) {
+    const menu = document.getElementById('categoryDropdownMenu');
+
+    menu.innerHTML = categories.map(cat => {
+        const hasChildren = parseInt(cat.has_children) > 0;
+        const isSelected = selectedCategoryId === cat.id;
+
+        return `
+            <div class="category-item">
+                <button class="category-item-btn ${isSelected ? 'selected' : ''}" 
+                        onclick="selectCategory(${cat.id}, '${escapeHtml(cat.category_name)}', event)"
+                        data-has-children="${hasChildren}">
+                    <div class="category-item-content">
+                        <span class="category-item-icon">
+                            <i class="fas fa-${getCategoryIcon(cat.category_name)}"></i>
+                        </span>
+                        <span class="category-item-name">${cat.category_name}</span>
+                        <span class="category-item-count">(${cat.client_count})</span>
+                    </div>
+                    ${hasChildren ? '<i class="fas fa-chevron-right category-item-arrow"></i>' : ''}
+                </button>
+                ${hasChildren ? `<div class="subcategory-menu" id="subcat-${cat.id}"></div>` : ''}
+            </div>
+        `;
+    }).join('') + `
+        <button class="category-reset-btn" onclick="resetCategoryFilter(event)">
+            <i class="fas fa-redo"></i> Show All Clients
+        </button>
+    `;
+
+    // Load subcategories for items with children
+    categories.forEach(cat => {
+        if (parseInt(cat.has_children) > 0) {
+            loadSubcategories(cat.id);
+        }
+    });
+
+    // Setup dropdown toggle
+    setupCategoryDropdown();
+}
+
+async function loadSubcategories(parentId) {
+    try {
+        const response = await fetch(`${API_URL}?action=getSubCategories&parentId=${parentId}`);
+        const data = await response.json();
+
+        if (data.success && data.subCategories.length > 0) {
+            const submenu = document.getElementById(`subcat-${parentId}`);
+            if (submenu) {
+                submenu.innerHTML = data.subCategories.map(subcat => {
+                    const isSelected = selectedCategoryId === subcat.id;
+                    return `
+                        <div class="subcategory-item">
+                            <button class="subcategory-item-btn ${isSelected ? 'selected' : ''}" 
+                                    onclick="selectCategory(${subcat.id}, '${escapeHtml(subcat.category_name)}', event)">
+                                <span>${subcat.category_name}</span>
+                                <span class="category-item-count">(${subcat.client_count})</span>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading subcategories:', error);
+    }
+}
+
+function setupCategoryDropdown() {
+    const btn = document.getElementById('categoryDropdownBtn');
+    const menu = document.getElementById('categoryDropdownMenu');
+
+    // Remove old listeners
+    btn.replaceWith(btn.cloneNode(true));
+    const newBtn = document.getElementById('categoryDropdownBtn');
+
+    newBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.classList.toggle('active');
+        newBtn.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!newBtn.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.remove('active');
+            newBtn.classList.remove('active');
+        }
+    });
+}
+
+function selectCategory(categoryId, categoryName, event) {
+    event.stopPropagation();
+
+    selectedCategoryId = categoryId;
+    selectedCategoryName = categoryName;
+
+    // Update button label
+    document.getElementById('categoryDropdownLabel').textContent = categoryName;
+
+    // Close dropdown
+    document.getElementById('categoryDropdownMenu').classList.remove('active');
+    document.getElementById('categoryDropdownBtn').classList.remove('active');
+
+    // Load filtered clients
+    loadClients();
+}
+
+function resetCategoryFilter(event) {
+    event.stopPropagation();
+
+    selectedCategoryId = null;
+    selectedCategoryName = 'More Filters';
+
+    // Update button label
+    document.getElementById('categoryDropdownLabel').textContent = 'More Filters';
+
+    // Close dropdown
+    document.getElementById('categoryDropdownMenu').classList.remove('active');
+    document.getElementById('categoryDropdownBtn').classList.remove('active');
+
+    // Reload all clients
+    loadClients();
+}
+
+function getCategoryIcon(categoryName) {
+    const icons = {
+        'Client by Product': 'box',
+        'Co-oporate clients': 'building',
+        'Resellers': 'store',
+        'Freelancers': 'user-tie',
+        'Up-country clients': 'map-marked-alt',
+        'Client by machines': 'cogs',
+        'Art Paper': 'file-image',
+        'Large Format': 'expand',
+        'Chemicals': 'flask'
+    };
+    return icons[categoryName] || 'folder';
+}
 function editClient(id) {
     fetch(`${API_URL}?action=getClient&id=${id}`)
         .then(res => res.json())
