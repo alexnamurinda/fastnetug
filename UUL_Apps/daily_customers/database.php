@@ -263,9 +263,7 @@ function createMarginHistoryTable($conn)
 
 function createClientCategorizationTable($conn)
 {
-    // First, drop the table if it exists to recreate it properly
-    $conn->query("DROP TABLE IF EXISTS client_categorization");
-
+    // DON'T drop the table - just create if not exists
     $sql = "CREATE TABLE IF NOT EXISTS client_categorization (
         id INT AUTO_INCREMENT PRIMARY KEY,
         category_name VARCHAR(100) NOT NULL,
@@ -279,35 +277,45 @@ function createClientCategorizationTable($conn)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
     if (!$conn->query($sql)) {
-        throw new Exception("Error creating client_categorization table: " . $conn->error);
+        // Table might already exist, that's okay
+        if (strpos($conn->error, 'already exists') === false) {
+            throw new Exception("Error with client_categorization table: " . $conn->error);
+        }
     }
 
-    // Insert default categories - FIRST insert parent categories
-    $parentCategories = [
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by Product', NULL, 1)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Co-oporate clients', NULL, 2)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Resellers', NULL, 3)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Freelancers', NULL, 4)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Up-country clients', NULL, 5)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by machines', NULL, 6)"
-    ];
+    // Check if categories exist before inserting
+    $checkSql = "SELECT COUNT(*) as count FROM client_categorization";
+    $result = $conn->query($checkSql);
 
-    foreach ($parentCategories as $sql) {
-        $conn->query($sql);
-    }
+    if ($result) {
+        $row = $result->fetch_assoc();
+        if ($row['count'] == 0) {
+            // Insert default categories only if table is empty
+            $parentCategories = [
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by Product', NULL, 1)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Co-oporate clients', NULL, 2)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Resellers', NULL, 3)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Freelancers', NULL, 4)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Up-country clients', NULL, 5)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Client by machines', NULL, 6)"
+            ];
 
-    // Then insert sub-categories (parent_id = 1 is "Client by Product")
-    $subCategories = [
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Art Paper', 1, 1)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Large Format', 1, 2)",
-        "INSERT INTO client_categorization (category_name, parent_id, display_order) VALUES ('Chemicals', 1, 3)"
-    ];
+            foreach ($parentCategories as $sql) {
+                $conn->query($sql);
+            }
 
-    foreach ($subCategories as $sql) {
-        $conn->query($sql);
+            $subCategories = [
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Art Paper', 1, 1)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Large Format', 1, 2)",
+                "INSERT IGNORE INTO client_categorization (category_name, parent_id, display_order) VALUES ('Chemicals', 1, 3)"
+            ];
+
+            foreach ($subCategories as $sql) {
+                $conn->query($sql);
+            }
+        }
     }
 }
-
 function createClientCategoryMappingTable($conn)
 {
     $sql = "CREATE TABLE IF NOT EXISTS client_category_mapping (
