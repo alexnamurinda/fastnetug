@@ -218,22 +218,36 @@ function addClient($conn)
 function updateClient($conn)
 {
     $id = intval($_POST['id']);
-    $name = $conn->real_escape_string(trim($_POST['name']));
+
+    // Build update query based on provided fields
+    $updates = [];
+
+    // Only update name and category if provided (supervisor only)
+    if (isset($_POST['name'])) {
+        $name = $conn->real_escape_string(trim($_POST['name']));
+        $updates[] = "client_name = '$name'";
+    }
+
+    if (isset($_POST['categoryId'])) {
+        $categoryId = $_POST['categoryId'] === '' ? 'NULL' : intval($_POST['categoryId']);
+        $updates[] = "category_id = $categoryId";
+    }
+
+    // These can always be updated
     $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
-    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));  // ADD THIS LINE
+    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));
     $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
 
-    $sql = "UPDATE clients 
-            SET client_name = '$name', 
-                contact = '$contact',
-                address = '$address',
-                sales_person = '$salesPerson' 
-            WHERE id = $id";
+    $updates[] = "contact = '$contact'";
+    $updates[] = "address = '$address'";
+    $updates[] = "sales_person = '$salesPerson'";
+
+    $sql = "UPDATE clients SET " . implode(', ', $updates) . " WHERE id = $id";
 
     if ($conn->query($sql)) {
         echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Error updating client']);
+        echo json_encode(['success' => false, 'message' => 'Error updating client: ' . $conn->error]);
     }
 }
 

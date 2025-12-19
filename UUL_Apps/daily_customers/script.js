@@ -471,28 +471,104 @@ function getCategoryIcon(categoryName) {
     };
     return icons[categoryName] || 'folder';
 }
-function editClient(id) {
-    fetch(`${API_URL}?action=getClient&id=${id}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('editClientId').value = data.client.id;
-                document.getElementById('editClientName').value = data.client.client_name;
-                document.getElementById('editClientPhone').value = data.client.contact || '';
-                document.getElementById('editClientAddress').value = data.client.address || '';  // ADD THIS LINE
-                document.getElementById('editClientSalesPerson').value = data.client.sales_person || '';
-                openModal('editClientModal');
+async function editClient(id) {
+    try {
+        const response = await fetch(`${API_URL}?action=getClient&id=${id}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const client = data.client;
+
+            // Set values
+            document.getElementById('editClientId').value = client.id;
+            document.getElementById('editClientName').value = client.client_name;
+            document.getElementById('editClientPhone').value = client.contact || '';
+            document.getElementById('editClientAddress').value = client.address || '';
+            document.getElementById('editClientSalesPerson').value = client.sales_person || '';
+
+            // Load categories into dropdown
+            loadCategoriesForEdit(client.category_id);
+
+            // Apply permissions based on role
+            const isSupervisor = currentUser && currentUser.role === 'supervisor';
+            const nameField = document.getElementById('editClientName');
+            const categoryField = document.getElementById('editClientCategory');
+            const nameRestriction = document.getElementById('editNameRestriction');
+            const categoryRestriction = document.getElementById('editCategoryRestriction');
+
+            if (isSupervisor) {
+                // Supervisor can edit everything
+                nameField.disabled = false;
+                categoryField.disabled = false;
+                nameRestriction.style.display = 'none';
+                categoryRestriction.style.display = 'none';
+            } else {
+                // Salesperson cannot edit name and category
+                nameField.disabled = true;
+                categoryField.disabled = true;
+                nameRestriction.style.display = 'block';
+                categoryRestriction.style.display = 'block';
             }
-        });
+
+            openModal('editClientModal');
+        }
+    } catch (error) {
+        console.error('Error loading client:', error);
+        showNotification('Error loading client details', 'error');
+    }
+}
+
+// Add this new helper function
+async function loadCategoriesForEdit(selectedCategoryId) {
+    try {
+        const response = await fetch(`${API_URL}?action=getCategories`);
+        const data = await response.json();
+
+        if (data.success) {
+            const select = document.getElementById('editClientCategory');
+
+            // Build options - include parent categories and their children
+            let options = '<option value="">No Category</option>';
+
+            data.categories.forEach(cat => {
+                options += `<option value="${cat.id}" ${cat.id == selectedCategoryId ? 'selected' : ''}>${cat.category_name}</option>`;
+            });
+
+            // Load subcategories for all parent categories
+            for (const cat of data.categories) {
+                if (parseInt(cat.has_children) > 0) {
+                    const subResponse = await fetch(`${API_URL}?action=getSubCategories&parentId=${cat.id}`);
+                    const subData = await subResponse.json();
+
+                    if (subData.success) {
+                        subData.subCategories.forEach(subcat => {
+                            options += `<option value="${subcat.id}" ${subcat.id == selectedCategoryId ? 'selected' : ''}>&nbsp;&nbsp;↳ ${subcat.category_name}</option>`;
+                        });
+                    }
+                }
+            }
+
+            select.innerHTML = options;
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
 }
 
 async function updateClient() {
     const formData = new FormData();
     formData.append('action', 'updateClient');
     formData.append('id', document.getElementById('editClientId').value);
-    formData.append('name', document.getElementById('editClientName').value);
+
+    // Only include name and category if user is supervisor
+    const isSupervisor = currentUser && currentUser.role === 'supervisor';
+    if (isSupervisor) {
+        formData.append('name', document.getElementById('editClientName').value);
+        formData.append('categoryId', document.getElementById('editClientCategory').value);
+    }
+
     formData.append('phone', document.getElementById('editClientPhone').value);
-    formData.append('address', document.getElementById('editClientAddress').value);  // ADD THIS LINE
+    formData.append('address', document.getElementById('editClientAddress').value);
     formData.append('salesPerson', document.getElementById('editClientSalesPerson').value);
 
     try {
@@ -505,7 +581,13 @@ async function updateClient() {
         if (data.success) {
             closeModal('editClientModal');
             loadClients();
+            // Reload detail page if we're on it
+            if (document.getElementById('clientDetailPage').style.display === 'block') {
+                viewClientDetail(document.getElementById('editClientId').value);
+            }
             showNotification('Client updated successfully', 'success');
+        } else {
+            showNotification(data.message || 'Error updating client', 'error');
         }
     } catch (error) {
         showNotification('Error updating client', 'error');
