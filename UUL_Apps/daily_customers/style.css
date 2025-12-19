@@ -1980,8 +1980,9 @@ body {
     color: var(--text-secondary);
 }
 
-/* Subcategory Menu - FIXED VERSION */
+/* Subcategory Menu - MOBILE & DESKTOP FRIENDLY */
 .subcategory-menu {
+    position: absolute;
     left: calc(100% + 2px);
     top: -1px;
     min-width: 240px;
@@ -1996,7 +1997,7 @@ body {
     transition: opacity 0.2s ease;
 }
 
-/* Show submenu when hovering parent item */
+/* Show submenu on HOVER (desktop) or when parent is CLICKED/ACTIVE (mobile) */
 .category-item:hover>.subcategory-menu,
 .category-item.show-submenu>.subcategory-menu {
     display: block;
