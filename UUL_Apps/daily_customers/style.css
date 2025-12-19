@@ -1984,9 +1984,7 @@ body {
 .subcategory-menu {
     position: absolute;
     left: calc(100% + 2px);
-    /* Position to the right with small gap */
     top: -1px;
-    /* Align with parent top */
     min-width: 240px;
     background: white;
     border: 1px solid var(--border-color);
@@ -1994,14 +1992,14 @@ body {
     box-shadow: var(--shadow-lg);
     display: none;
     z-index: 1002;
-    /* Higher than parent menu */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease;
 }
 
 /* Show submenu when hovering parent item */
-.category-item:hover>.subcategory-menu {
+.category-item:hover>.subcategory-menu,
+.category-item.show-submenu>.subcategory-menu {
     display: block;
     opacity: 1;
     pointer-events: auto;

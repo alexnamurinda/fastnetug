@@ -334,7 +334,7 @@ function displayCategoryDropdown(categories) {
         return `
             <div class="category-item">
                 <button class="category-item-btn ${isSelected ? 'selected' : ''}" 
-                        onclick="selectCategory(${cat.id}, '${escapeHtml(cat.category_name)}', event)"
+                        onclick="selectCategory(${cat.id}, '${escapeHtml(cat.category_name)}', event, ${hasChildren})"
                         data-has-children="${hasChildren}">
                     <div class="category-item-content">
                         <span class="category-item-icon">
@@ -415,8 +415,41 @@ function setupCategoryDropdown() {
     });
 }
 
-function selectCategory(categoryId, categoryName, event) {
+// Handle clicks on parent categories with children (for mobile)
+document.addEventListener('click', function (e) {
+    const parentBtn = e.target.closest('.category-item-btn[data-has-children="true"]');
+
+    if (parentBtn) {
+        const parentItem = parentBtn.closest('.category-item');
+        const hasChildren = parentBtn.dataset.hasChildren === 'true';
+
+        if (hasChildren) {
+            e.stopPropagation();
+
+            // Toggle submenu visibility
+            const wasActive = parentItem.classList.contains('show-submenu');
+
+            // Close all other submenus
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.classList.remove('show-submenu');
+            });
+
+            // Toggle current submenu
+            if (!wasActive) {
+                parentItem.classList.add('show-submenu');
+            }
+        }
+    }
+});
+
+
+function selectCategory(categoryId, categoryName, event, hasChildren = false) {
     event.stopPropagation();
+
+    // If category has children, don't filter - just show submenu
+    if (hasChildren) {
+        return; // Do nothing, let CSS handle submenu display
+    }
 
     selectedCategoryId = categoryId;
     selectedCategoryName = categoryName;
@@ -428,7 +461,7 @@ function selectCategory(categoryId, categoryName, event) {
     document.getElementById('categoryDropdownMenu').classList.remove('active');
     document.getElementById('categoryDropdownBtn').classList.remove('active');
 
-    // Load filtered clients - PASS BOTH ID AND NAME
+    // Load filtered clients
     const url = `${API_URL}?action=getClients&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`;
     fetch(url)
         .then(res => res.json())
@@ -439,7 +472,6 @@ function selectCategory(categoryId, categoryName, event) {
         })
         .catch(error => console.error('Error loading clients:', error));
 }
-
 function resetCategoryFilter(event) {
     event.stopPropagation();
 
