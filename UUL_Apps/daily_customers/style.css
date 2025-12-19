@@ -1982,7 +1982,6 @@ body {
 
 /* Subcategory Menu - FIXED VERSION */
 .subcategory-menu {
-    position: absolute;
     left: calc(100% + 2px);
     top: -1px;
     min-width: 240px;
