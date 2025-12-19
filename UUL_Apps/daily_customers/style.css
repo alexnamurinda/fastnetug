@@ -1850,7 +1850,6 @@ body {
 }
 
 /* ===== CATEGORY DROPDOWN ===== */
-/* ===== CATEGORY DROPDOWN ===== */
 .category-dropdown-wrapper {
     position: relative;
 }
@@ -1884,8 +1883,7 @@ body {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    min-width: 280px;
-    max-width: 350px;
+    max-width: fit-content;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -1894,8 +1892,7 @@ body {
     z-index: 1000;
     max-height: 400px;
     overflow-y: auto;
-    overflow-x: visible;
-    /* IMPORTANT: Allow horizontal overflow for submenus */
+    overflow-x: auto;
 }
 
 .category-dropdown-menu.active {
