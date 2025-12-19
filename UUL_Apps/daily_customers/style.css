@@ -1770,8 +1770,8 @@ body {
     .detail-actions button {
         width: auto !important;
         padding: 10px 12px !important;
-        min-width: 44px !important;
-        height: 44px !important;
+        min-width: 40px !important;
+        height: 40px !important;
         justify-content: center !important;
     }
 
@@ -1782,7 +1782,7 @@ body {
 
     .detail-actions button i {
         margin: 0 !important;
-        font-size: 18px !important;
+        font-size: 15px !important;
     }
 
     .client-profile-card {
