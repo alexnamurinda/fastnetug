@@ -1987,9 +1987,21 @@ body {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: var(--shadow-lg);
-    margin-left: 8px;
+    margin-left: -4px;
+    /* CHANGE THIS TO: margin-left: -4px; */
     display: none;
     z-index: 1001;
+}
+
+/* Add padding to prevent gap */
+.category-item:hover::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 0;
+    width: 12px;
+    height: 100%;
+    background: transparent;
 }
 
 .category-item:hover>.subcategory-menu {

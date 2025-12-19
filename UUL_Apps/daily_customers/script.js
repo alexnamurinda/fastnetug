@@ -428,8 +428,16 @@ function selectCategory(categoryId, categoryName, event) {
     document.getElementById('categoryDropdownMenu').classList.remove('active');
     document.getElementById('categoryDropdownBtn').classList.remove('active');
 
-    // Load filtered clients
-    loadClients();
+    // Load filtered clients - PASS BOTH ID AND NAME
+    const url = `${API_URL}?action=getClients&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`;
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                displayClients(data.clients);
+            }
+        })
+        .catch(error => console.error('Error loading clients:', error));
 }
 
 function resetCategoryFilter(event) {

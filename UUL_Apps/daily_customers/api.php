@@ -81,7 +81,7 @@ function getCategories($conn)
     $sql = "SELECT 
                 c.*,
                 (SELECT COUNT(*) FROM client_categorization WHERE parent_id = c.id) as has_children,
-                (SELECT COUNT(*) FROM clients WHERE category_id = c.id) as client_count
+                (SELECT COUNT(*) FROM clients WHERE category_id = c.id OR client_type = c.category_name) as client_count
             FROM client_categorization c
             WHERE c.parent_id IS NULL
             ORDER BY c.display_order, c.category_name ASC";
@@ -102,7 +102,7 @@ function getSubCategories($conn)
 
     $sql = "SELECT 
                 c.*,
-                (SELECT COUNT(*) FROM clients WHERE category_id = c.id) as client_count
+                (SELECT COUNT(*) FROM clients WHERE category_id = c.id OR client_type = c.category_name) as client_count
             FROM client_categorization c
             WHERE c.parent_id = $parentId
             ORDER BY c.display_order, c.category_name ASC";
@@ -154,6 +154,7 @@ function getDashboardStats($conn)
 function getClients($conn)
 {
     $categoryId = isset($_GET['categoryId']) ? intval($_GET['categoryId']) : null;
+    $categoryName = isset($_GET['categoryName']) ? $conn->real_escape_string($_GET['categoryName']) : null;
 
     $sql = "SELECT c.*, 
             cat.category_name as category,
@@ -162,8 +163,8 @@ function getClients($conn)
             FROM clients c 
             LEFT JOIN client_categorization cat ON c.category_id = cat.id";
 
-    if ($categoryId !== null) {
-        $sql .= " WHERE c.category_id = $categoryId";
+    if ($categoryId !== null || $categoryName !== null) {
+        $sql .= " WHERE (c.category_id = $categoryId OR c.client_type = '$categoryName')";
     }
 
     $sql .= " ORDER BY c.client_name ASC";
