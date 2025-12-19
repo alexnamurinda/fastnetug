@@ -1883,7 +1883,7 @@ body {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    max-width: fit-content;
+    max-width: 450px;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 8px;
