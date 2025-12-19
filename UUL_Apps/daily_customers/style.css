@@ -1883,7 +1883,7 @@ body {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
-    max-width: 450px;
+    min-width: 280px;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -1893,6 +1893,7 @@ body {
     max-height: 400px;
     overflow-y: auto;
     overflow-x: auto;
+    /* IMPORTANT: Allow horizontal overflow for submenus */
 }
 
 .category-dropdown-menu.active {
