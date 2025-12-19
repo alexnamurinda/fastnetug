@@ -877,8 +877,6 @@ async function exportClients() {
                 ? `_${selectedCategoryName.replace(/\s+/g, '_')}`
                 : '';
             XLSX.writeFile(wb, `clients${filterSuffix}_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-            showNotification(`Exported ${filteredClients.length} clients successfully`, 'success');
         }
     } catch (error) {
         console.error('Error exporting clients:', error);
