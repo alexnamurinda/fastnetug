@@ -69,15 +69,29 @@ function createClientsTable($conn)
         throw new Exception("Error creating clients table: " . $conn->error);
     }
 
-    // Add foreign key constraint after table is created
-    $fkSql = "ALTER TABLE clients 
-              ADD CONSTRAINT fk_client_category 
-              FOREIGN KEY (category_id) 
-              REFERENCES client_categorization(id) 
-              ON DELETE SET NULL";
+    // Check if foreign key already exists before adding it
+    $checkFK = $conn->query("
+        SELECT CONSTRAINT_NAME 
+        FROM information_schema.TABLE_CONSTRAINTS 
+        WHERE CONSTRAINT_SCHEMA = '" . DB_NAME . "' 
+        AND TABLE_NAME = 'clients' 
+        AND CONSTRAINT_NAME = 'fk_client_category'
+    ");
 
-    // Try to add foreign key, but don't fail if it already exists
-    @$conn->query($fkSql);
+    if ($checkFK->num_rows == 0) {
+        // Foreign key doesn't exist, so add it
+        $fkSql = "ALTER TABLE clients 
+                  ADD CONSTRAINT fk_client_category 
+                  FOREIGN KEY (category_id) 
+                  REFERENCES client_categorization(id) 
+                  ON DELETE SET NULL";
+
+        // Try to add foreign key, but don't fail if it doesn't work
+        if (!$conn->query($fkSql)) {
+            // Just log the error, don't throw exception
+            error_log("Note: Could not add foreign key constraint: " . $conn->error);
+        }
+    }
 }
 
 function createDailySalesTable($conn)
@@ -326,14 +340,42 @@ function createClientCategoryMappingTable($conn)
         
         UNIQUE KEY unique_mapping (client_id, category_id),
         INDEX idx_client_id (client_id),
-        INDEX idx_category_id (category_id),
-        
-        FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
-        FOREIGN KEY (category_id) REFERENCES client_categorization(id) ON DELETE CASCADE
+        INDEX idx_category_id (category_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
 
     if (!$conn->query($sql)) {
         throw new Exception("Error creating client_category_mapping table: " . $conn->error);
+    }
+
+    // Add foreign keys only if they don't exist
+    $checkFK1 = $conn->query("
+        SELECT CONSTRAINT_NAME 
+        FROM information_schema.TABLE_CONSTRAINTS 
+        WHERE CONSTRAINT_SCHEMA = '" . DB_NAME . "' 
+        AND TABLE_NAME = 'client_category_mapping' 
+        AND CONSTRAINT_NAME = 'client_category_mapping_ibfk_1'
+    ");
+
+    if ($checkFK1->num_rows == 0) {
+        $fk1Sql = "ALTER TABLE client_category_mapping 
+                   ADD CONSTRAINT client_category_mapping_ibfk_1
+                   FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE";
+        @$conn->query($fk1Sql);
+    }
+
+    $checkFK2 = $conn->query("
+        SELECT CONSTRAINT_NAME 
+        FROM information_schema.TABLE_CONSTRAINTS 
+        WHERE CONSTRAINT_SCHEMA = '" . DB_NAME . "' 
+        AND TABLE_NAME = 'client_category_mapping' 
+        AND CONSTRAINT_NAME = 'client_category_mapping_ibfk_2'
+    ");
+
+    if ($checkFK2->num_rows == 0) {
+        $fk2Sql = "ALTER TABLE client_category_mapping 
+                   ADD CONSTRAINT client_category_mapping_ibfk_2
+                   FOREIGN KEY (category_id) REFERENCES client_categorization(id) ON DELETE CASCADE";
+        @$conn->query($fk2Sql);
     }
 }
 
