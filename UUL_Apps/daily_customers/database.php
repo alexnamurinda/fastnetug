@@ -27,6 +27,7 @@ function setupDatabase()
 
         // IMPORTANT: Create client_categorization BEFORE clients table
         createClientCategorizationTable($conn);
+        createClientCategoryMappingTable($conn);
         createClientsTable($conn);
         createDailySalesTable($conn);
         createUploadHistoryTable($conn);
@@ -304,6 +305,27 @@ function createClientCategorizationTable($conn)
 
     foreach ($subCategories as $sql) {
         $conn->query($sql);
+    }
+}
+
+function createClientCategoryMappingTable($conn)
+{
+    $sql = "CREATE TABLE IF NOT EXISTS client_category_mapping (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        client_id INT NOT NULL,
+        category_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        
+        UNIQUE KEY unique_mapping (client_id, category_id),
+        INDEX idx_client_id (client_id),
+        INDEX idx_category_id (category_id),
+        
+        FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES client_categorization(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+
+    if (!$conn->query($sql)) {
+        throw new Exception("Error creating client_category_mapping table: " . $conn->error);
     }
 }
 

@@ -660,12 +660,13 @@
                     </small>
                 </div>
                 <div class="form-group">
-                    <label>Client Category</label>
-                    <select id="editClientCategory" class="form-control">
-                        <option value="">Select Category</option>
-                    </select>
+                    <label>Client Categories (Select all that apply)</label>
+                    <div id="editClientCategories"
+                        style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                        <!-- Categories will be loaded here as checkboxes -->
+                    </div>
                     <small id="editCategoryRestriction"
-                        style="display:none; color: var(--text-secondary); font-size: 1px; margin-top: 4px;">
+                        style="display:none; color: var(--danger-color); font-size: 11px; margin-top: 4px;">
                     </small>
                 </div>
                 <div class="form-group">
@@ -687,7 +688,6 @@
             </div>
         </div>
     </div>
-
     <!-- Add Client Modal -->
     <div class="modal" id="addClientModal">
         <div class="modal-content">

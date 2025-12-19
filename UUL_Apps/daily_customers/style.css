@@ -1912,9 +1912,6 @@ body {
     }
 }
 
-.category-item {
-    position: relative;
-}
 
 .category-item-btn {
     width: 100%;
@@ -1980,54 +1977,50 @@ body {
 /* Subcategory Menu */
 .subcategory-menu {
     position: absolute;
-    left: calc(100% - 1px);
-    /* Overlap by 1px to eliminate gap */
-    top: -1px;
-    /* Align perfectly with parent item */
+    left: 100%;
+    top: 0;
     min-width: 240px;
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: var(--shadow-lg);
+    margin-left: -2px;
+    /* Small overlap to prevent gap */
     display: none;
     z-index: 1001;
+    pointer-events: auto;
+    /* IMPORTANT: Allow interaction */
 }
 
-.category-item:hover>.subcategory-menu,
-.subcategory-menu:hover {
+/* Show submenu when hovering parent */
+.category-item:hover>.subcategory-menu {
     display: block;
     animation: dropdownSlideIn 0.2s ease-out;
 }
 
-.subcategory-item-btn {
-    width: 100%;
-    padding: 10px 16px;
-    border: none;
-    background: white;
-    text-align: left;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 14px;
-    border-bottom: 1px solid var(--border-color);
+/* Keep submenu visible when hovering over it */
+.subcategory-menu:hover {
+    display: block;
 }
 
-.subcategory-item:last-child .subcategory-item-btn {
-    border-bottom: none;
+/* Add bridge area to prevent gap */
+.category-item {
+    position: relative;
 }
 
-.subcategory-item-btn:hover {
-    background: var(--hover-bg);
-    color: var(--primary-color);
+.category-item::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: transparent;
+    display: none;
 }
 
-.subcategory-item-btn.selected {
-    background: rgba(79, 70, 229, 0.1);
-    color: var(--primary-color);
-    font-weight: 600;
+.category-item:hover::after {
+    display: block;
 }
 
 /* Reset button */

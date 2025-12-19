@@ -72,6 +72,9 @@ switch ($action) {
     case 'getSubCategories':
         getSubCategories($conn);
         break;
+    case 'getClientCategories':
+        getClientCategories($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -81,7 +84,11 @@ function getCategories($conn)
     $sql = "SELECT 
                 c.*,
                 (SELECT COUNT(*) FROM client_categorization WHERE parent_id = c.id) as has_children,
-                (SELECT COUNT(*) FROM clients WHERE category_id = c.id OR client_type = c.category_name) as client_count
+                (SELECT COUNT(DISTINCT ccm.client_id) 
+                 FROM client_category_mapping ccm 
+                 WHERE ccm.category_id = c.id 
+                 OR ccm.category_id IN (SELECT id FROM client_categorization WHERE parent_id = c.id)
+                ) as client_count
             FROM client_categorization c
             WHERE c.parent_id IS NULL
             ORDER BY c.display_order, c.category_name ASC";
@@ -102,7 +109,7 @@ function getSubCategories($conn)
 
     $sql = "SELECT 
                 c.*,
-                (SELECT COUNT(*) FROM clients WHERE category_id = c.id OR client_type = c.category_name) as client_count
+                (SELECT COUNT(DISTINCT client_id) FROM client_category_mapping WHERE category_id = c.id) as client_count
             FROM client_categorization c
             WHERE c.parent_id = $parentId
             ORDER BY c.display_order, c.category_name ASC";
@@ -154,17 +161,19 @@ function getDashboardStats($conn)
 function getClients($conn)
 {
     $categoryId = isset($_GET['categoryId']) ? intval($_GET['categoryId']) : null;
-    $categoryName = isset($_GET['categoryName']) ? $conn->real_escape_string($_GET['categoryName']) : null;
 
-    $sql = "SELECT c.*, 
-            cat.category_name as category,
+    $sql = "SELECT DISTINCT c.*, 
             (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
-            COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders
-            FROM clients c 
-            LEFT JOIN client_categorization cat ON c.category_id = cat.id";
+            COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders,
+            (SELECT GROUP_CONCAT(cat.category_name SEPARATOR ', ') 
+             FROM client_category_mapping ccm 
+             JOIN client_categorization cat ON ccm.category_id = cat.id 
+             WHERE ccm.client_id = c.id) as categories
+            FROM clients c";
 
-    if ($categoryId !== null || $categoryName !== null) {
-        $sql .= " WHERE (c.category_id = $categoryId OR c.client_type = '$categoryName')";
+    if ($categoryId !== null) {
+        $sql .= " INNER JOIN client_category_mapping ccm ON c.id = ccm.client_id 
+                  WHERE ccm.category_id = $categoryId";
     }
 
     $sql .= " ORDER BY c.client_name ASC";
@@ -178,6 +187,22 @@ function getClients($conn)
 
     echo json_encode(['success' => true, 'clients' => $clients]);
 }
+
+function getClientCategories($conn)
+{
+    $clientId = intval($_GET['clientId']);
+
+    $sql = "SELECT category_id FROM client_category_mapping WHERE client_id = $clientId";
+    $result = $conn->query($sql);
+    $categories = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row['category_id'];
+    }
+
+    echo json_encode(['success' => true, 'categories' => $categories]);
+}
+
 function getClient($conn)
 {
     $id = intval($_GET['id']);
@@ -228,9 +253,24 @@ function updateClient($conn)
         $updates[] = "client_name = '$name'";
     }
 
-    if (isset($_POST['categoryId'])) {
-        $categoryId = $_POST['categoryId'] === '' ? 'NULL' : intval($_POST['categoryId']);
-        $updates[] = "category_id = $categoryId";
+    // Handle multiple categories
+    if (isset($_POST['categories'])) {
+        $categories = json_decode($_POST['categories'], true);
+
+        // Delete existing mappings
+        $conn->query("DELETE FROM client_category_mapping WHERE client_id = $id");
+
+        // Insert new mappings
+        if (!empty($categories)) {
+            $values = [];
+            foreach ($categories as $catId) {
+                $catId = intval($catId);
+                $values[] = "($id, $catId)";
+            }
+            if (!empty($values)) {
+                $conn->query("INSERT INTO client_category_mapping (client_id, category_id) VALUES " . implode(',', $values));
+            }
+        }
     }
 
     // These can always be updated
@@ -242,13 +282,12 @@ function updateClient($conn)
     $updates[] = "address = '$address'";
     $updates[] = "sales_person = '$salesPerson'";
 
-    $sql = "UPDATE clients SET " . implode(', ', $updates) . " WHERE id = $id";
-
-    if ($conn->query($sql)) {
-        echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error updating client: ' . $conn->error]);
+    if (!empty($updates)) {
+        $sql = "UPDATE clients SET " . implode(', ', $updates) . " WHERE id = $id";
+        $conn->query($sql);
     }
+
+    echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
 }
 
 function deleteClient($conn)

@@ -471,6 +471,7 @@ function getCategoryIcon(categoryName) {
     };
     return icons[categoryName] || 'folder';
 }
+
 async function editClient(id) {
     try {
         const response = await fetch(`${API_URL}?action=getClient&id=${id}`);
@@ -486,26 +487,28 @@ async function editClient(id) {
             document.getElementById('editClientAddress').value = client.address || '';
             document.getElementById('editClientSalesPerson').value = client.sales_person || '';
 
-            // Load categories into dropdown
-            loadCategoriesForEdit(client.category_id);
+            // Load categories as checkboxes
+            await loadCategoriesForEdit(id);
 
             // Apply permissions based on role
             const isSupervisor = currentUser && currentUser.role === 'supervisor';
             const nameField = document.getElementById('editClientName');
-            const categoryField = document.getElementById('editClientCategory');
+            const categoriesDiv = document.getElementById('editClientCategories');
             const nameRestriction = document.getElementById('editNameRestriction');
             const categoryRestriction = document.getElementById('editCategoryRestriction');
 
             if (isSupervisor) {
                 // Supervisor can edit everything
                 nameField.disabled = false;
-                categoryField.disabled = false;
+                categoriesDiv.style.opacity = '1';
+                categoriesDiv.style.pointerEvents = 'auto';
                 nameRestriction.style.display = 'none';
                 categoryRestriction.style.display = 'none';
             } else {
                 // Salesperson cannot edit name and category
                 nameField.disabled = true;
-                categoryField.disabled = true;
+                categoriesDiv.style.opacity = '0.5';
+                categoriesDiv.style.pointerEvents = 'none';
                 nameRestriction.style.display = 'block';
                 categoryRestriction.style.display = 'block';
             }
@@ -518,37 +521,59 @@ async function editClient(id) {
     }
 }
 
-// Add this new helper function
-async function loadCategoriesForEdit(selectedCategoryId) {
+async function loadCategoriesForEdit(clientId) {
     try {
-        const response = await fetch(`${API_URL}?action=getCategories`);
-        const data = await response.json();
+        // Get all categories
+        const catResponse = await fetch(`${API_URL}?action=getCategories`);
+        const catData = await catResponse.json();
 
-        if (data.success) {
-            const select = document.getElementById('editClientCategory');
+        // Get client's current categories
+        const clientCatResponse = await fetch(`${API_URL}?action=getClientCategories&clientId=${clientId}`);
+        const clientCatData = await clientCatResponse.json();
 
-            // Build options - include parent categories and their children
-            let options = '<option value="">No Category</option>';
+        const selectedCategories = clientCatData.success ? clientCatData.categories : [];
 
-            data.categories.forEach(cat => {
-                options += `<option value="${cat.id}" ${cat.id == selectedCategoryId ? 'selected' : ''}>${cat.category_name}</option>`;
-            });
+        if (catData.success) {
+            const container = document.getElementById('editClientCategories');
+            let html = '';
 
-            // Load subcategories for all parent categories
-            for (const cat of data.categories) {
+            // Load parent categories and their subcategories
+            for (const cat of catData.categories) {
+                const isChecked = selectedCategories.includes(cat.id);
+                html += `
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                            <input type="checkbox" value="${cat.id}" ${isChecked ? 'checked' : ''} 
+                                   style="width: 16px; height: 16px; cursor: pointer;">
+                            <span>${cat.category_name}</span>
+                        </label>
+                `;
+
+                // Load subcategories if they exist
                 if (parseInt(cat.has_children) > 0) {
                     const subResponse = await fetch(`${API_URL}?action=getSubCategories&parentId=${cat.id}`);
                     const subData = await subResponse.json();
 
                     if (subData.success) {
+                        html += '<div style="margin-left: 24px; margin-top: 8px;">';
                         subData.subCategories.forEach(subcat => {
-                            options += `<option value="${subcat.id}" ${subcat.id == selectedCategoryId ? 'selected' : ''}>&nbsp;&nbsp;↳ ${subcat.category_name}</option>`;
+                            const isSubChecked = selectedCategories.includes(subcat.id);
+                            html += `
+                                <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer;">
+                                    <input type="checkbox" value="${subcat.id}" ${isSubChecked ? 'checked' : ''} 
+                                           style="width: 16px; height: 16px; cursor: pointer;">
+                                    <span>${subcat.category_name}</span>
+                                </label>
+                            `;
                         });
+                        html += '</div>';
                     }
                 }
+
+                html += '</div>';
             }
 
-            select.innerHTML = options;
+            container.innerHTML = html;
         }
     } catch (error) {
         console.error('Error loading categories:', error);
@@ -560,11 +585,17 @@ async function updateClient() {
     formData.append('action', 'updateClient');
     formData.append('id', document.getElementById('editClientId').value);
 
-    // Only include name and category if user is supervisor
+    // Only include name and categories if user is supervisor
     const isSupervisor = currentUser && currentUser.role === 'supervisor';
     if (isSupervisor) {
         formData.append('name', document.getElementById('editClientName').value);
-        formData.append('categoryId', document.getElementById('editClientCategory').value);
+
+        // Get selected categories
+        const selectedCategories = [];
+        document.querySelectorAll('#editClientCategories input[type="checkbox"]:checked').forEach(checkbox => {
+            selectedCategories.push(checkbox.value);
+        });
+        formData.append('categories', JSON.stringify(selectedCategories));
     }
 
     formData.append('phone', document.getElementById('editClientPhone').value);
@@ -805,14 +836,20 @@ async function loadTopClientsChart() {
 async function exportClients() {
     // Get current filter values
     const searchTerm = document.getElementById('clientSearch')?.value.toLowerCase() || '';
-    const salesPersonFilter = document.getElementById('salesPersonFilter')?.value || '';
+    const categoryId = selectedCategoryId; // Use the currently selected category
 
     try {
-        const response = await fetch(`${API_URL}?action=getClients`);
+        // Build URL with current filters
+        let url = `${API_URL}?action=getClients`;
+        if (categoryId) {
+            url += `&categoryId=${categoryId}`;
+        }
+
+        const response = await fetch(url);
         const data = await response.json();
 
         if (data.success) {
-            // Apply filters to match what's displayed
+            // Apply search filter if exists
             let filteredClients = data.clients;
 
             if (searchTerm) {
@@ -823,29 +860,31 @@ async function exportClients() {
                 );
             }
 
-            if (salesPersonFilter) {
-                filteredClients = filteredClients.filter(c =>
-                    c.sales_person === salesPersonFilter
-                );
-            }
-
             const ws = XLSX.utils.json_to_sheet(filteredClients.map(c => ({
                 'Client Name': c.client_name,
                 'Contact': c.contact || '',
                 'Sales Person': c.sales_person || '',
+                'Categories': c.categories || '',
                 'Total Orders': c.total_orders,
                 'Last Order': c.last_order_date || ''
             })));
 
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Clients');
-            XLSX.writeFile(wb, `clients_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+            // Add filter info to filename
+            const filterSuffix = selectedCategoryName && selectedCategoryName !== 'More Filters'
+                ? `_${selectedCategoryName.replace(/\s+/g, '_')}`
+                : '';
+            XLSX.writeFile(wb, `clients${filterSuffix}_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+            showNotification(`Exported ${filteredClients.length} clients successfully`, 'success');
         }
     } catch (error) {
+        console.error('Error exporting clients:', error);
         showNotification('Error exporting clients', 'error');
     }
 }
-
 // Upload History
 async function loadUploadHistory() {
     try {
