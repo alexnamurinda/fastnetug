@@ -334,7 +334,7 @@ function displayCategoryDropdown(categories) {
         return `
             <div class="category-item">
                 <button class="category-item-btn ${isSelected ? 'selected' : ''}" 
-                        onclick="selectCategory(${cat.id}, '${escapeHtml(cat.category_name)}', event, ${hasChildren})"
+                       onclick="selectCategory(${cat.id}, '${escapeHtml(cat.category_name)}', event, ${hasChildren})"
                         data-has-children="${hasChildren}">
                     <div class="category-item-content">
                         <span class="category-item-icon">
@@ -415,40 +415,13 @@ function setupCategoryDropdown() {
     });
 }
 
-// Handle clicks on parent categories with children (for mobile)
-document.addEventListener('click', function (e) {
-    const parentBtn = e.target.closest('.category-item-btn[data-has-children="true"]');
-
-    if (parentBtn) {
-        const parentItem = parentBtn.closest('.category-item');
-        const hasChildren = parentBtn.dataset.hasChildren === 'true';
-
-        if (hasChildren) {
-            e.stopPropagation();
-
-            // Toggle submenu visibility
-            const wasActive = parentItem.classList.contains('show-submenu');
-
-            // Close all other submenus
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.classList.remove('show-submenu');
-            });
-
-            // Toggle current submenu
-            if (!wasActive) {
-                parentItem.classList.add('show-submenu');
-            }
-        }
-    }
-});
-
-
 function selectCategory(categoryId, categoryName, event, hasChildren = false) {
     event.stopPropagation();
 
-    // If category has children, don't filter - just show submenu
+    // If category has children, show independent submenu
     if (hasChildren) {
-        return; // Do nothing, let CSS handle submenu display
+        showIndependentSubmenu(categoryId, categoryName);
+        return;
     }
 
     selectedCategoryId = categoryId;
@@ -457,9 +430,10 @@ function selectCategory(categoryId, categoryName, event, hasChildren = false) {
     // Update button label
     document.getElementById('categoryDropdownLabel').textContent = categoryName;
 
-    // Close dropdown
+    // Close all menus
     document.getElementById('categoryDropdownMenu').classList.remove('active');
     document.getElementById('categoryDropdownBtn').classList.remove('active');
+    closeIndependentSubmenu();
 
     // Load filtered clients
     const url = `${API_URL}?action=getClients&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`;
@@ -472,6 +446,77 @@ function selectCategory(categoryId, categoryName, event, hasChildren = false) {
         })
         .catch(error => console.error('Error loading clients:', error));
 }
+
+// Show independent submenu modal
+async function showIndependentSubmenu(parentId, parentName) {
+    try {
+        const response = await fetch(`${API_URL}?action=getSubCategories&parentId=${parentId}`);
+        const data = await response.json();
+
+        if (data.success && data.subCategories.length > 0) {
+            displayIndependentSubmenu(data.subCategories, parentName);
+        }
+    } catch (error) {
+        console.error('Error loading subcategories:', error);
+    }
+}
+
+// Display independent submenu as modal
+function displayIndependentSubmenu(subCategories, parentName) {
+    // Create modal overlay if it doesn't exist
+    let overlay = document.getElementById('submenuOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'submenuOverlay';
+        overlay.className = 'submenu-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    // Create submenu modal
+    overlay.innerHTML = `
+        <div class="submenu-modal">
+            <div class="submenu-header">
+                <h3><i class="fas fa-folder-open"></i> ${parentName}</h3>
+                <button class="submenu-close-btn" onclick="closeIndependentSubmenu()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="submenu-body">
+                ${subCategories.map(subcat => {
+        const isSelected = selectedCategoryId === subcat.id;
+        return `
+                        <button class="submenu-option ${isSelected ? 'selected' : ''}" 
+                                onclick="selectCategory(${subcat.id}, '${escapeHtml(subcat.category_name)}', event, false)">
+                            <span>${subcat.category_name}</span>
+                            <span class="submenu-count">(${subcat.client_count})</span>
+                        </button>
+                    `;
+    }).join('')}
+            </div>
+        </div>
+    `;
+
+    overlay.classList.add('active');
+
+    // Close on overlay click
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+            closeIndependentSubmenu();
+        }
+    });
+}
+
+// Close independent submenu
+function closeIndependentSubmenu() {
+    const overlay = document.getElementById('submenuOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    }
+}
+
 function resetCategoryFilter(event) {
     event.stopPropagation();
 
