@@ -1,9 +1,4 @@
 <?php
-/**
- * Password Management API
- * For use by system developer only
- */
-
 define('DB_HOST', 'localhost');
 define('DB_USER', 'uul_user');
 define('DB_PASS', 'uul@mysql123');
@@ -51,23 +46,14 @@ function resetUserPasscode($conn)
         return;
     }
 
-    // Hash the new passcode
     $hashedPasscode = hash('sha256', $newPasscode);
-
-    // Update the passcode
     $stmt = $conn->prepare("UPDATE sales_persons SET passcode = ? WHERE id = ?");
     $stmt->bind_param("si", $hashedPasscode, $userId);
 
     if ($stmt->execute()) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Passcode reset successfully'
-        ]);
+        echo json_encode(['success' => true, 'message' => 'Passcode reset successfully']);
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Error resetting passcode: ' . $conn->error
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Error resetting passcode: ' . $conn->error]);
     }
 
     $stmt->close();
