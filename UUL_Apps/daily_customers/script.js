@@ -1874,6 +1874,19 @@ function displayReportDetail(report, source) {
         approvalInfo.style.display = 'block';
         document.getElementById('reportDetailApprovedBy').textContent = report.approved_by_name;
         document.getElementById('reportDetailApprovedAt').textContent = formatDate(report.approved_at);
+
+        // Show supervisor comment if exists
+        if (report.supervisor_comment) {
+            const commentHtml = `
+            <div class="info-item" style="grid-column: 1 / -1; margin-top: 12px;">
+                <span class="info-label">Supervisor Comment:</span>
+                <div style="margin-top: 8px; padding: 12px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #4F46E5; white-space: pre-wrap;">
+                    ${escapeHtml(report.supervisor_comment)}
+                </div>
+            </div>
+        `;
+            approvalInfo.insertAdjacentHTML('beforeend', commentHtml);
+        }
     } else {
         approvalInfo.style.display = 'none';
     }
@@ -1885,13 +1898,21 @@ function displayReportDetail(report, source) {
     // Show approve/reject buttons only for supervisors on pending reports
     if (source === 'approval' && report.approved === 'pending' && currentUser && currentUser.role === 'supervisor') {
         actionsContainer.innerHTML = `
-            <button class="btn-secondary" onclick="approveReportFromDetail(${report.id})">
-                <i class="fas fa-check"></i> Approve
-            </button>
-            <button class="btn-secondary delete" onclick="rejectReportFromDetail(${report.id})">
-                <i class="fas fa-times"></i> Reject
-            </button>
-        `;
+        <button class="btn-secondary" onclick="showApprovalModal(${report.id}, 'approve')">
+            <i class="fas fa-check"></i> Approve
+        </button>
+        <button class="btn-secondary delete" onclick="showApprovalModal(${report.id}, 'reject')">
+            <i class="fas fa-times"></i> Reject
+        </button>
+    `;
+    }
+    // Show edit button for salespeople on their own pending reports
+    else if (source === 'my' && report.approved === 'pending' && currentUser && currentUser.role !== 'supervisor') {
+        actionsContainer.innerHTML = `
+        <button class="btn-secondary" onclick="showEditReportModal(${report.id})">
+            <i class="fas fa-edit"></i> Edit Report
+        </button>
+    `;
     }
 }
 
@@ -1903,55 +1924,55 @@ function navigateBackFromReportDetail() {
     }
 }
 
-async function approveReportFromDetail(reportId) {
-    if (!confirm('Approve this report?')) return;
+// async function approveReportFromDetail(reportId) {
+//     if (!confirm('Approve this report?')) return;
 
-    const formData = new FormData();
-    formData.append('action', 'approveReport');
-    formData.append('reportId', reportId);
+//     const formData = new FormData();
+//     formData.append('action', 'approveReport');
+//     formData.append('reportId', reportId);
 
-    try {
-        const response = await fetch(AUTH_API_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
+//     try {
+//         const response = await fetch(AUTH_API_URL, {
+//             method: 'POST',
+//             body: formData
+//         });
+//         const data = await response.json();
 
-        if (data.success) {
-            showNotification('Report approved', 'success');
-            navigateToPage('approvals');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Error approving report', 'error');
-    }
-}
+//         if (data.success) {
+//             showNotification('Report approved', 'success');
+//             navigateToPage('approvals');
+//         } else {
+//             showNotification(data.message, 'error');
+//         }
+//     } catch (error) {
+//         showNotification('Error approving report', 'error');
+//     }
+// }
 
-async function rejectReportFromDetail(reportId) {
-    if (!confirm('Reject this report?')) return;
+// async function rejectReportFromDetail(reportId) {
+//     if (!confirm('Reject this report?')) return;
 
-    const formData = new FormData();
-    formData.append('action', 'rejectReport');
-    formData.append('reportId', reportId);
+//     const formData = new FormData();
+//     formData.append('action', 'rejectReport');
+//     formData.append('reportId', reportId);
 
-    try {
-        const response = await fetch(AUTH_API_URL, {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
+//     try {
+//         const response = await fetch(AUTH_API_URL, {
+//             method: 'POST',
+//             body: formData
+//         });
+//         const data = await response.json();
 
-        if (data.success) {
-            showNotification('Report rejected', 'success');
-            navigateToPage('approvals');
-        } else {
-            showNotification(data.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Error rejecting report', 'error');
-    }
-}
+//         if (data.success) {
+//             showNotification('Report rejected', 'success');
+//             navigateToPage('approvals');
+//         } else {
+//             showNotification(data.message, 'error');
+//         }
+//     } catch (error) {
+//         showNotification('Error rejecting report', 'error');
+//     }
+// }
 
 // ===== SALE DETAIL VIEW FUNCTION =====
 
@@ -2008,4 +2029,148 @@ function displaySaleDetail(sale) {
 
     // Clear action buttons for sales records
     document.getElementById('reportDetailActions').innerHTML = '';
+}
+
+// Show approval/rejection modal with comment option
+function showApprovalModal(reportId, action) {
+    const isApprove = action === 'approve';
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${isApprove ? 'Approve' : 'Reject'} Report</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Add Comment (Optional)</label>
+                    <textarea id="supervisorComment" class="form-control" rows="4" placeholder="Add your comment here..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                <button class="btn-primary" onclick="${isApprove ? 'confirmApproval' : 'confirmRejection'}(${reportId})">
+                    <i class="fas fa-${isApprove ? 'check' : 'times'}"></i> ${isApprove ? 'Approve' : 'Reject'}
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function confirmApproval(reportId) {
+    const comment = document.getElementById('supervisorComment').value.trim();
+    const formData = new FormData();
+    formData.append('action', 'approveReport');
+    formData.append('reportId', reportId);
+    formData.append('comment', comment);
+
+    try {
+        const response = await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('Report approved successfully', 'success');
+            document.querySelector('.modal.active')?.remove();
+            navigateToPage('approvals');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error approving report', 'error');
+    }
+}
+
+async function confirmRejection(reportId) {
+    const comment = document.getElementById('supervisorComment').value.trim();
+    const formData = new FormData();
+    formData.append('action', 'rejectReport');
+    formData.append('reportId', reportId);
+    formData.append('comment', comment);
+
+    try {
+        const response = await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('Report rejected successfully', 'success');
+            document.querySelector('.modal.active')?.remove();
+            navigateToPage('approvals');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error rejecting report', 'error');
+    }
+}
+
+// Show edit report modal
+function showEditReportModal(reportId) {
+    const reports = allMyReports || [];
+    const report = reports.find(r => r.id == reportId);
+
+    if (!report) {
+        showNotification('Report not found', 'error');
+        return;
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Report</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Discussion</label>
+                    <textarea id="editDiscussion" class="form-control" rows="4">${report.discussion || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Feedback</label>
+                    <textarea id="editFeedback" class="form-control" rows="4">${report.feedback || ''}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                <button class="btn-primary" onclick="saveEditedReport(${reportId})">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function saveEditedReport(reportId) {
+    const discussion = document.getElementById('editDiscussion').value.trim();
+    const feedback = document.getElementById('editFeedback').value.trim();
+
+    const formData = new FormData();
+    formData.append('action', 'updateReport');
+    formData.append('reportId', reportId);
+    formData.append('discussion', discussion);
+    formData.append('feedback', feedback);
+
+    try {
+        const response = await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('Report updated successfully', 'success');
+            document.querySelector('.modal.active')?.remove();
+            loadMyReports();
+            navigateToPage('reports');
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Error updating report', 'error');
+    }
 }

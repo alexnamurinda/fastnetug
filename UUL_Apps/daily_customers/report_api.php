@@ -64,6 +64,9 @@ switch ($action) {
     case 'getSalesPersonPerformance':
         getSalesPersonPerformance($conn);
         break;
+    case 'updateReport':
+        updateReport($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -294,12 +297,14 @@ function approveReport($conn)
     }
 
     $reportId = intval($_POST['reportId']);
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
     $supervisorId = $_SESSION['user_id'];
 
     $sql = "UPDATE daily_reports 
             SET approved = 'approved', 
                 approved_by = $supervisorId, 
-                approved_at = NOW() 
+                approved_at = NOW(),
+                supervisor_comment = '$comment'
             WHERE id = $reportId";
 
     if ($conn->query($sql)) {
@@ -317,12 +322,14 @@ function rejectReport($conn)
     }
 
     $reportId = intval($_POST['reportId']);
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
     $supervisorId = $_SESSION['user_id'];
 
     $sql = "UPDATE daily_reports 
             SET approved = 'rejected', 
                 approved_by = $supervisorId, 
-                approved_at = NOW() 
+                approved_at = NOW(),
+                supervisor_comment = '$comment'
             WHERE id = $reportId";
 
     if ($conn->query($sql)) {
@@ -332,6 +339,43 @@ function rejectReport($conn)
     }
 }
 
+function updateReport($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $reportId = intval($_POST['reportId']);
+    $salesPersonId = $_SESSION['user_id'];
+    $discussion = $conn->real_escape_string($_POST['discussion'] ?? '');
+    $feedback = $conn->real_escape_string($_POST['feedback'] ?? '');
+
+    // Check if report belongs to user and is still pending
+    $check = $conn->query("SELECT approved FROM daily_reports WHERE id = $reportId AND sales_person_id = $salesPersonId");
+    
+    if ($check->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Report not found or access denied']);
+        return;
+    }
+
+    $report = $check->fetch_assoc();
+    if ($report['approved'] !== 'pending') {
+        echo json_encode(['success' => false, 'message' => 'Cannot edit approved/rejected reports']);
+        return;
+    }
+
+    $sql = "UPDATE daily_reports 
+            SET discussion = '$discussion', 
+                feedback = '$feedback'
+            WHERE id = $reportId AND sales_person_id = $salesPersonId";
+
+    if ($conn->query($sql)) {
+        echo json_encode(['success' => true, 'message' => 'Report updated successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error updating report']);
+    }
+}
 // ===== STATISTICS & PERFORMANCE =====
 
 function getReportStats($conn)
