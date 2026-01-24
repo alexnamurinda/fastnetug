@@ -1107,6 +1107,12 @@ function updateUIForUser() {
         document.getElementById('marginLink').style.display = 'none';
         document.getElementById('uploadLink').style.display = 'none';
     }
+    // Show password management for developer (Alex)
+    if (currentUser.name === 'Alex') {
+        document.getElementById('passwordMgmtLink').style.display = 'flex';
+    } else {
+        document.getElementById('passwordMgmtLink').style.display = 'none';
+    }
 
     // Update notification badge
     updateNotificationBadge();
