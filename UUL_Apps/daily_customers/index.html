@@ -49,7 +49,7 @@
                 <i class="fas fa-cloud-upload-alt"></i>
                 <span>Uploads</span>
             </a>
-            <a href="manage_passwords.html" class="nav-link" id="passwordMgmtLink" style="display:none;">
+            <a href="manage_passwords.html" id="passwordMgmtLink" class="nav-link-external" style="display:none;">
                 <i class="fas fa-key"></i>
                 <span>PWD Management</span>
             </a>
@@ -755,6 +755,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
+
+    <script>
+        // Add hover effect to password management link
+        document.getElementById('passwordMgmtLink')?.addEventListener('mouseenter', function () {
+            this.style.background = 'rgba(255, 255, 255, 0.1)';
+            this.style.color = 'white';
+            this.style.transform = 'translateX(4px)';
+        });
+        document.getElementById('passwordMgmtLink')?.addEventListener('mouseleave', function () {
+            this.style.background = '';
+            this.style.color = 'rgba(255, 255, 255, 0.7)';
+            this.style.transform = '';
+        });
+    </script>
 </body>
 
 </html>
