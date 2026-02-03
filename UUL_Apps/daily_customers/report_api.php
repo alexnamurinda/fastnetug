@@ -294,6 +294,11 @@ function getAllReports($conn)
 
 function approveReport($conn)
 {
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supervisor') {
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        return;
+    }
+    
     $reportId = intval($_POST['reportId']);
     $comment = $conn->real_escape_string(trim($_POST['comment'] ?? ''));
     $supervisorId = $_SESSION['user_id'];
@@ -315,6 +320,11 @@ function approveReport($conn)
 
 function rejectReport($conn)
 {
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supervisor') {
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        return;
+    }
+    
     $reportId = intval($_POST['reportId']);
     $comment = $conn->real_escape_string(trim($_POST['comment'] ?? ''));
     $supervisorId = $_SESSION['user_id'];
@@ -333,7 +343,6 @@ function rejectReport($conn)
         echo json_encode(['success' => false, 'message' => 'Error rejecting report']);
     }
 }
-
 function updateReport($conn)
 {
     if (!isset($_SESSION['user_id'])) {
