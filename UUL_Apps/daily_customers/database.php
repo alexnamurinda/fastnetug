@@ -166,8 +166,6 @@ function createDailyReportsTable($conn)
         approved_by INT DEFAULT NULL,
         approved_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        supervisor_comment TEXT DEFAULT NULL,
-        comment_notified TINYINT DEFAULT 0,
         
         INDEX idx_report_date (report_date),
         INDEX idx_client_id (client_id),

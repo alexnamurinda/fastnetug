@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
@@ -24,610 +25,482 @@ $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 // Route to appropriate handler
 switch ($action) {
-    case 'getDashboardStats':
-        getDashboardStats($conn);
+    case 'login':
+        login($conn);
         break;
-    case 'getClients':
-        getClients($conn);
+    case 'logout':
+        logout($conn);
         break;
-    case 'getClient':
-        getClient($conn);
+    case 'checkSession':
+        checkSession($conn);
         break;
-    case 'addClient':
-        addClient($conn);
+    case 'changePasscode':
+        changePasscode($conn);
         break;
-    case 'updateClient':
-        updateClient($conn);
+    case 'addSalesPerson':
+        addSalesPerson($conn);
         break;
-    case 'deleteClient':
-        deleteClient($conn);
+    case 'getSalesPersons':
+        getSalesPersons($conn);
         break;
-    case 'uploadSales':
-        uploadSales($conn);
+    case 'addReport':
+        addReport($conn);
         break;
-    case 'getSalesHistory':
-        getSalesHistory($conn);
+    case 'getMyReports':
+        getMyReports($conn);
         break;
-    case 'getRecentSales':
-        getRecentSales($conn);
+    case 'getAllReports':
+        getAllReports($conn);
         break;
-    case 'getSalesChart':
-        getSalesChart($conn);
+    case 'approveReport':
+        approveReport($conn);
         break;
-    case 'getTopClients':
-        getTopClients($conn);
+    case 'rejectReport':
+        rejectReport($conn);
         break;
-    case 'getSalesByPerson':
-        getSalesByPerson($conn);
+    case 'getReportStats':
+        getReportStats($conn);
         break;
-    case 'getUploadHistory':
-        getUploadHistory($conn);
+    case 'getSalesPersonPerformance':
+        getSalesPersonPerformance($conn);
         break;
-    case 'getClientActivity':
-        getClientActivity($conn);
-        break;
-    case 'getCategories':
-        getCategories($conn);
-        break;
-    case 'getSubCategories':
-        getSubCategories($conn);
-        break;
-    case 'getClientCategories':
-        getClientCategories($conn);
-        break;
-    case 'getDailySalesPersonPerformance':
-        getDailySalesPersonPerformance($conn);
-        break;
-    case 'getMonthlySalesPersonPerformance':
-        getMonthlySalesPersonPerformance($conn);
+    case 'updateReport':
+        updateReport($conn);
         break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
 
-function getCategories($conn)
-{
-    $sql = "SELECT 
-                c.*,
-                (SELECT COUNT(*) FROM client_categorization WHERE parent_id = c.id) as has_children,
-                (SELECT COUNT(DISTINCT ccm.client_id) 
-                 FROM client_category_mapping ccm 
-                 WHERE ccm.category_id = c.id 
-                 OR ccm.category_id IN (SELECT id FROM client_categorization WHERE parent_id = c.id)
-                ) as client_count
-            FROM client_categorization c
-            WHERE c.parent_id IS NULL
-            ORDER BY c.display_order, c.category_name ASC";
-
-    $result = $conn->query($sql);
-    $categories = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $categories[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'categories' => $categories]);
-}
-
-function getSubCategories($conn)
-{
-    $parentId = intval($_GET['parentId']);
-
-    $sql = "SELECT 
-                c.*,
-                (SELECT COUNT(DISTINCT client_id) FROM client_category_mapping WHERE category_id = c.id) as client_count
-            FROM client_categorization c
-            WHERE c.parent_id = $parentId
-            ORDER BY c.display_order, c.category_name ASC";
-
-    $result = $conn->query($sql);
-    $subCategories = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $subCategories[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'subCategories' => $subCategories]);
-}
-
 $conn->close();
 
-// ===== DASHBOARD FUNCTIONS =====
+// ===== AUTHENTICATION FUNCTIONS =====
 
-function getDashboardStats($conn)
+function login($conn)
 {
+    $passcode = $_POST['passcode'] ?? '';
+
+    if (empty($passcode)) {
+        echo json_encode(['success' => false, 'message' => 'Passcode is required']);
+        return;
+    }
+
+    $hashedPasscode = hash('sha256', $passcode);
+    $stmt = $conn->prepare("SELECT id, name, role FROM sales_persons WHERE passcode = ?");
+    $stmt->bind_param("s", $hashedPasscode);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        $_SESSION['user_id'] = $row['id'];
+        $_SESSION['user_name'] = $row['name'];
+        $_SESSION['user_role'] = $row['role'];
+
+        echo json_encode([
+            'success' => true,
+            'user' => [
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'role' => $row['role']
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid passcode']);
+    }
+}
+
+function logout($conn)
+{
+    session_destroy();
+    echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
+}
+
+function checkSession($conn)
+{
+    if (isset($_SESSION['user_id'])) {
+        echo json_encode([
+            'success' => true,
+            'loggedIn' => true,
+            'user' => [
+                'id' => $_SESSION['user_id'],
+                'name' => $_SESSION['user_name'],
+                'role' => $_SESSION['user_role']
+            ]
+        ]);
+    } else {
+        echo json_encode(['success' => true, 'loggedIn' => false]);
+    }
+}
+
+// ===== SALES PERSON MANAGEMENT =====
+
+function addSalesPerson($conn)
+{
+    $name = $conn->real_escape_string(trim($_POST['name']));
+    $passcode = $_POST['passcode'] ?? '';
+    $role = $_POST['role'] ?? 'salesperson';
+
+    if (empty($name) || empty($passcode)) {
+        echo json_encode(['success' => false, 'message' => 'Name and passcode are required']);
+        return;
+    }
+
+    // Check if name already exists
+    $check = $conn->query("SELECT id FROM sales_persons WHERE name = '$name'");
+    if ($check->num_rows > 0) {
+        echo json_encode(['success' => false, 'message' => 'Sales person already exists']);
+        return;
+    }
+
+    $hashedPasscode = hash('sha256', $passcode);
+    $stmt = $conn->prepare("INSERT INTO sales_persons (name, passcode, role) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $name, $hashedPasscode, $role);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Sales person added successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error adding sales person']);
+    }
+}
+
+function getSalesPersons($conn)
+{
+    $sql = "SELECT id, name, role, created_at FROM sales_persons ORDER BY name ASC";
+    $result = $conn->query($sql);
+    $persons = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $persons[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'persons' => $persons]);
+}
+
+// ===== REPORT FUNCTIONS =====
+
+function addReport($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $reportDate = $_POST['reportDate'] ?? date('Y-m-d');
+    $clientId = intval($_POST['clientId']);
+    $method = $_POST['method'] ?? 'C';
+    $discussion = $conn->real_escape_string($_POST['discussion'] ?? '');
+    $feedback = $conn->real_escape_string($_POST['feedback'] ?? '');
+    $salesPersonId = $_SESSION['user_id'];
+
+    if (empty($clientId)) {
+        echo json_encode(['success' => false, 'message' => 'Client is required']);
+        return;
+    }
+
+    $stmt = $conn->prepare("INSERT INTO daily_reports (report_date, client_id, sales_person_id, method, discussion, feedback) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("siisss", $reportDate, $clientId, $salesPersonId, $method, $discussion, $feedback);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Report added successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error adding report']);
+    }
+}
+
+function getMyReports($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $salesPersonId = $_SESSION['user_id'];
+    $dateFrom = $_GET['dateFrom'] ?? date('Y-m-d', strtotime('-30 days'));
+    $dateTo = $_GET['dateTo'] ?? date('Y-m-d');
+    $search = $_GET['search'] ?? '';
+
+    $sql = "SELECT dr.*, 
+            c.client_name, c.client_type, c.contact, c.address,
+            sp.name as sales_person_name,
+            approver.name as approved_by_name
+            FROM daily_reports dr
+            LEFT JOIN clients c ON dr.client_id = c.id
+            LEFT JOIN sales_persons sp ON dr.sales_person_id = sp.id
+            LEFT JOIN sales_persons approver ON dr.approved_by = approver.id
+            WHERE dr.sales_person_id = $salesPersonId
+            AND dr.report_date BETWEEN '$dateFrom' AND '$dateTo'";
+
+    if (!empty($search)) {
+        $search = $conn->real_escape_string($search);
+        $sql .= " AND (c.client_name LIKE '%$search%' OR dr.discussion LIKE '%$search%' OR dr.feedback LIKE '%$search%')";
+    }
+
+    $sql .= " ORDER BY dr.report_date DESC, dr.created_at DESC";
+
+    $result = $conn->query($sql);
+    $reports = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $reports[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'reports' => $reports]);
+}
+
+function getAllReports($conn)
+{
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supervisor') {
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        return;
+    }
+
+    $salesPersonId = $_GET['salesPersonId'] ?? null;
+    $dateFrom = $_GET['dateFrom'] ?? date('Y-m-d', strtotime('-30 days'));
+    $dateTo = $_GET['dateTo'] ?? date('Y-m-d');
+    $status = $_GET['status'] ?? '';
+
+    $sql = "SELECT dr.*, 
+            c.client_name, c.client_type, c.contact, c.address,
+            sp.name as sales_person_name,
+            approver.name as approved_by_name
+            FROM daily_reports dr
+            LEFT JOIN clients c ON dr.client_id = c.id
+            LEFT JOIN sales_persons sp ON dr.sales_person_id = sp.id
+            LEFT JOIN sales_persons approver ON dr.approved_by = approver.id
+            WHERE dr.report_date BETWEEN '$dateFrom' AND '$dateTo'";
+
+    if ($salesPersonId) {
+        $sql .= " AND dr.sales_person_id = " . intval($salesPersonId);
+    }
+
+    if (!empty($status)) {
+        $status = $conn->real_escape_string($status);
+        $sql .= " AND dr.approved = '$status'";
+    }
+
+    $sql .= " ORDER BY dr.report_date DESC, dr.created_at DESC";
+
+    $result = $conn->query($sql);
+    $reports = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $reports[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'reports' => $reports]);
+}
+
+function approveReport($conn)
+{
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supervisor') {
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        return;
+    }
+
+    $reportId = intval($_POST['reportId']);
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
+    $supervisorId = $_SESSION['user_id'];
+
+    $sql = "UPDATE daily_reports 
+            SET approved = 'approved', 
+                approved_by = $supervisorId, 
+                approved_at = NOW(),
+                supervisor_comment = '$comment'
+            WHERE id = $reportId";
+
+    if ($conn->query($sql)) {
+        echo json_encode(['success' => true, 'message' => 'Report approved successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error approving report']);
+    }
+}
+
+function rejectReport($conn)
+{
+    if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'supervisor') {
+        echo json_encode(['success' => false, 'message' => 'Access denied']);
+        return;
+    }
+
+    $reportId = intval($_POST['reportId']);
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
+    $supervisorId = $_SESSION['user_id'];
+
+    $sql = "UPDATE daily_reports 
+            SET approved = 'rejected', 
+                approved_by = $supervisorId, 
+                approved_at = NOW(),
+                supervisor_comment = '$comment'
+            WHERE id = $reportId";
+
+    if ($conn->query($sql)) {
+        echo json_encode(['success' => true, 'message' => 'Report rejected successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error rejecting report']);
+    }
+}
+
+function updateReport($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $reportId = intval($_POST['reportId']);
+    $salesPersonId = $_SESSION['user_id'];
+    $discussion = $conn->real_escape_string($_POST['discussion'] ?? '');
+    $feedback = $conn->real_escape_string($_POST['feedback'] ?? '');
+
+    // Check if report belongs to user and is still pending
+    $check = $conn->query("SELECT approved FROM daily_reports WHERE id = $reportId AND sales_person_id = $salesPersonId");
+    
+    if ($check->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Report not found or access denied']);
+        return;
+    }
+
+    $report = $check->fetch_assoc();
+    if ($report['approved'] !== 'pending') {
+        echo json_encode(['success' => false, 'message' => 'Cannot edit approved/rejected reports']);
+        return;
+    }
+
+    $sql = "UPDATE daily_reports 
+            SET discussion = '$discussion', 
+                feedback = '$feedback'
+            WHERE id = $reportId AND sales_person_id = $salesPersonId";
+
+    if ($conn->query($sql)) {
+        echo json_encode(['success' => true, 'message' => 'Report updated successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error updating report']);
+    }
+}
+// ===== STATISTICS & PERFORMANCE =====
+
+function getReportStats($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $salesPersonId = $_SESSION['user_id'];
     $today = date('Y-m-d');
-    $firstDayOfMonth = date('Y-m-01');
+    $thisMonth = date('Y-m-01');
 
-    // Total clients
-    $totalClients = $conn->query("SELECT COUNT(*) as count FROM clients")->fetch_assoc()['count'];
+    // Today's reports
+    $todayReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND report_date = '$today'")->fetch_assoc()['count'];
 
-    // Today's orders (count of daily_sales records today)
-    $todayOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales WHERE sale_date = '$today'")->fetch_assoc()['count'];
+    // This month's reports
+    $monthReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
 
-    // Total orders (all time)
-    $totalOrders = $conn->query("SELECT COUNT(*) as count FROM daily_sales")->fetch_assoc()['count'];
+    // Pending approvals
+    $pending = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'pending'")->fetch_assoc()['count'];
 
-    // Monthly reports (daily_reports this month)
-    $monthlyReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE report_date >= '$firstDayOfMonth'")->fetch_assoc()['count'];
+    // Approved this month
+    $approved = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'approved' AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
 
     echo json_encode([
         'success' => true,
         'stats' => [
-            'totalClients' => $totalClients,
-            'todayOrders' => $todayOrders,
-            'totalOrders' => $totalOrders,
-            'monthlyReports' => $monthlyReports
+            'todayReports' => $todayReports,
+            'monthReports' => $monthReports,
+            'pending' => $pending,
+            'approved' => $approved
         ]
     ]);
 }
 
-// ===== CLIENT FUNCTIONS =====
-
-function getClients($conn)
+function getSalesPersonPerformance($conn)
 {
-    $categoryId = isset($_GET['categoryId']) ? intval($_GET['categoryId']) : null;
-
-    $sql = "SELECT DISTINCT c.*, 
-            (SELECT MAX(sale_date) FROM daily_sales WHERE client_id = c.id) as last_order_date,
-            COALESCE((SELECT COUNT(*) FROM daily_sales WHERE client_id = c.id), 0) as total_orders,
-            (SELECT GROUP_CONCAT(cat.category_name SEPARATOR ', ') 
-             FROM client_category_mapping ccm 
-             JOIN client_categorization cat ON ccm.category_id = cat.id 
-             WHERE ccm.client_id = c.id) as categories
-            FROM clients c";
-
-    if ($categoryId !== null) {
-        $sql .= " INNER JOIN client_category_mapping ccm ON c.id = ccm.client_id 
-                  WHERE ccm.category_id = $categoryId";
-    }
-
-    $sql .= " ORDER BY c.client_name ASC";
-
-    $result = $conn->query($sql);
-    $clients = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $clients[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'clients' => $clients]);
-}
-
-function getClientCategories($conn)
-{
-    $clientId = intval($_GET['clientId']);
-
-    $sql = "SELECT category_id FROM client_category_mapping WHERE client_id = $clientId";
-    $result = $conn->query($sql);
-    $categories = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $categories[] = $row['category_id'];
-    }
-
-    echo json_encode(['success' => true, 'categories' => $categories]);
-}
-
-function getClient($conn)
-{
-    $id = intval($_GET['id']);
-    $result = $conn->query("SELECT * FROM clients WHERE id = $id");
-
-    if ($row = $result->fetch_assoc()) {
-        echo json_encode(['success' => true, 'client' => $row]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Client not found']);
-    }
-}
-
-function addClient($conn)
-{
-    $clientType = $conn->real_escape_string(trim($_POST['clientType'] ?? 'Regular'));
-    $name = $conn->real_escape_string(trim($_POST['name']));
-    $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
-    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));
-    $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
-
-    // Check if client exists
-    $check = $conn->query("SELECT id FROM clients WHERE LOWER(client_name) = LOWER('$name')");
-    if ($check->num_rows > 0) {
-        echo json_encode(['success' => false, 'message' => 'Client already exists']);
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
         return;
     }
 
-    $sql = "INSERT INTO clients (client_type, client_name, contact, address, sales_person) 
-            VALUES ('$clientType', '$name', '$contact', '$address', '$salesPerson')";
-
-    if ($conn->query($sql)) {
-        echo json_encode(['success' => true, 'message' => 'Client added successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error adding client']);
-    }
-}
-
-function updateClient($conn)
-{
-    $id = intval($_POST['id']);
-
-    // Build update query based on provided fields
-    $updates = [];
-
-    // Only update name and category if provided (supervisor only)
-    if (isset($_POST['name'])) {
-        $name = $conn->real_escape_string(trim($_POST['name']));
-        $updates[] = "client_name = '$name'";
-    }
-
-    // Handle multiple categories
-    if (isset($_POST['categories'])) {
-        $categories = json_decode($_POST['categories'], true);
-
-        // Delete existing mappings
-        $conn->query("DELETE FROM client_category_mapping WHERE client_id = $id");
-
-        // Insert new mappings
-        if (!empty($categories)) {
-            $values = [];
-            foreach ($categories as $catId) {
-                $catId = intval($catId);
-                $values[] = "($id, $catId)";
-            }
-            if (!empty($values)) {
-                $conn->query("INSERT INTO client_category_mapping (client_id, category_id) VALUES " . implode(',', $values));
-            }
-        }
-    }
-
-    // These can always be updated
-    $contact = $conn->real_escape_string(trim($_POST['phone'] ?? ''));
-    $address = $conn->real_escape_string(trim($_POST['address'] ?? ''));
-    $salesPerson = $conn->real_escape_string(trim($_POST['salesPerson'] ?? ''));
-
-    $updates[] = "contact = '$contact'";
-    $updates[] = "address = '$address'";
-    $updates[] = "sales_person = '$salesPerson'";
-
-    if (!empty($updates)) {
-        $sql = "UPDATE clients SET " . implode(', ', $updates) . " WHERE id = $id";
-        $conn->query($sql);
-    }
-
-    echo json_encode(['success' => true, 'message' => 'Client updated successfully']);
-}
-
-function deleteClient($conn)
-{
-    $id = intval($_GET['id']);
-
-    // Related sales records will be deleted automatically due to ON DELETE CASCADE
-
-    if ($conn->query("DELETE FROM clients WHERE id = $id")) {
-        echo json_encode(['success' => true, 'message' => 'Client deleted successfully']);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Error deleting client']);
-    }
-}
-
-// ===== SALES FUNCTIONS =====
-
-function uploadSales($conn)
-{
-    $data = json_decode($_POST['data'], true);
-
-    if (!$data || !is_array($data)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid data']);
-        return;
-    }
-
-    $today = date('Y-m-d');
-    $newClientsCount = 0;
-    $totalOrders = 0;
-
-    $conn->begin_transaction();
-
-    try {
-        // Record upload
-        $conn->query("INSERT INTO upload_history (upload_date, new_clients, total_orders) VALUES ('$today', 0, 0)");
-        $uploadId = $conn->insert_id;
-
-        foreach ($data as $row) {
-            $customerName = $conn->real_escape_string(trim($row['customer_name'] ?? $row['CUSTOMER_NAME'] ?? $row['Customer Name'] ?? ''));
-            $method = $conn->real_escape_string(trim($row['method'] ?? $row['METHOD'] ?? $row['Method'] ?? 'C'));
-            $discussion = $conn->real_escape_string(trim($row['discussion'] ?? $row['DISCUSSION'] ?? $row['Discussion'] ?? ''));
-            $feedback = $conn->real_escape_string(trim($row['feedback'] ?? $row['FEEDBACK'] ?? $row['Feedback'] ?? ''));
-            $salesValue = floatval($row['sales_value'] ?? $row['SALES_VALUE'] ?? $row['Sales Value'] ?? 0);
-
-            if (empty($customerName)) continue;
-
-            // Check if client exists
-            $checkClient = $conn->query("SELECT id FROM clients WHERE LOWER(client_name) = LOWER('$customerName')");
-
-            $isNewClient = false;
-            $clientId = null;
-
-            if ($checkClient->num_rows == 0) {
-                // Add new client
-                $conn->query("INSERT INTO clients (client_type, client_name, contact, address, sales_person) 
-                             VALUES ('Regular', '$customerName', '', '', '')");
-                $clientId = $conn->insert_id;
-                $newClientsCount++;
-                $isNewClient = true;
-            } else {
-                $clientId = $checkClient->fetch_assoc()['id'];
-            }
-
-            // Add daily sale
-            $conn->query("INSERT INTO daily_sales (sale_date, client_id, method, discussion, feedback, sales_value) 
-                         VALUES ('$today', $clientId, '$method', '$discussion', '$feedback', $salesValue)");
-
-            $totalOrders++;
-        }
-
-        // Update upload history
-        $conn->query("UPDATE upload_history SET new_clients = $newClientsCount, total_orders = $totalOrders WHERE id = $uploadId");
-
-        $conn->commit();
-
-        echo json_encode([
-            'success' => true,
-            'message' => 'Data uploaded successfully',
-            'newClients' => $newClientsCount,
-            'totalOrders' => $totalOrders
-        ]);
-    } catch (Exception $e) {
-        $conn->rollback();
-        echo json_encode(['success' => false, 'message' => 'Error uploading data: ' . $e->getMessage()]);
-    }
-}
-
-function getSalesHistory($conn)
-{
-    $dateFrom = $_GET['dateFrom'] ?? date('Y-m-d', strtotime('-30 days'));
-    $dateTo = $_GET['dateTo'] ?? date('Y-m-d');
-
-    $sql = "SELECT ds.*, c.client_name as customer_name,
-            (SELECT COUNT(*) FROM daily_sales ds2 WHERE ds2.client_id = ds.client_id AND ds2.id < ds.id) as is_new_client
-            FROM daily_sales ds
-            LEFT JOIN clients c ON ds.client_id = c.id
-            WHERE ds.sale_date BETWEEN '$dateFrom' AND '$dateTo'
-            ORDER BY ds.sale_date DESC, c.client_name ASC";
-
-    $result = $conn->query($sql);
-    $sales = [];
-
-    while ($row = $result->fetch_assoc()) {
-        // is_new_client = 1 if this is the first sale for this client, 0 otherwise
-        $row['is_new_client'] = ($row['is_new_client'] == 0) ? 1 : 0;
-        $row['order_count'] = 1; // For compatibility with frontend
-        $sales[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'sales' => $sales]);
-}
-
-function getRecentSales($conn)
-{
-    $limit = intval($_GET['limit'] ?? 10);
-
-    $sql = "SELECT ds.sale_date, c.client_name as customer_name, COUNT(*) as order_count
-            FROM daily_sales ds
-            LEFT JOIN clients c ON ds.client_id = c.id
-            GROUP BY ds.sale_date, c.client_name
-            ORDER BY ds.sale_date DESC, order_count DESC
-            LIMIT $limit";
-
-    $result = $conn->query($sql);
-    $sales = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $sales[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'sales' => $sales]);
-}
-
-// ===== CHART FUNCTIONS =====
-
-function getSalesChart($conn)
-{
+    $role = $_SESSION['user_role'];
     $days = intval($_GET['days'] ?? 30);
     $startDate = date('Y-m-d', strtotime("-$days days"));
 
-    $sql = "SELECT sale_date, COUNT(*) as total_orders
-            FROM daily_sales 
-            WHERE sale_date >= '$startDate'
-            GROUP BY sale_date
-            ORDER BY sale_date ASC";
-
-    $result = $conn->query($sql);
-    $labels = [];
-    $values = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $labels[] = date('M d', strtotime($row['sale_date']));
-        $values[] = intval($row['total_orders']);
+    if ($role === 'supervisor') {
+        // Show all sales persons
+        $sql = "SELECT sp.name, COUNT(dr.id) as report_count
+                FROM sales_persons sp
+                LEFT JOIN daily_reports dr ON sp.id = dr.sales_person_id AND dr.report_date >= '$startDate'
+                WHERE sp.role = 'salesperson'
+                GROUP BY sp.id, sp.name
+                ORDER BY report_count DESC";
+    } else {
+        // Show only own performance
+        $salesPersonId = $_SESSION['user_id'];
+        $sql = "SELECT DATE(report_date) as date, COUNT(*) as report_count
+                FROM daily_reports
+                WHERE sales_person_id = $salesPersonId AND report_date >= '$startDate'
+                GROUP BY DATE(report_date)
+                ORDER BY report_date ASC";
     }
 
-    echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
-}
-
-function getTopClients($conn)
-{
-    $limit = intval($_GET['limit'] ?? 10);
-
-    $sql = "SELECT c.client_name as customer_name, COUNT(*) as total_orders
-            FROM daily_sales ds
-            LEFT JOIN clients c ON ds.client_id = c.id
-            GROUP BY c.client_name
-            ORDER BY total_orders DESC
-            LIMIT $limit";
-
     $result = $conn->query($sql);
     $labels = [];
     $values = [];
 
     while ($row = $result->fetch_assoc()) {
-        $labels[] = $row['customer_name'];
-        $values[] = intval($row['total_orders']);
-    }
-
-    echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
-}
-
-function getDailySalesPersonPerformance($conn)
-{
-    $today = date('Y-m-d');
-    
-    $sql = "SELECT 
-                sp.name as sales_person,
-                COUNT(dr.id) as report_count
-            FROM sales_persons sp
-            LEFT JOIN daily_reports dr ON sp.id = dr.sales_person_id 
-                AND dr.report_date = '$today'
-            WHERE sp.role = 'salesperson'
-            GROUP BY sp.id, sp.name
-            ORDER BY report_count DESC";
-    
-    $result = $conn->query($sql);
-    $labels = [];
-    $values = [];
-    
-    while ($row = $result->fetch_assoc()) {
-        $labels[] = $row['sales_person'];
+        if ($role === 'supervisor') {
+            $labels[] = $row['name'];
+        } else {
+            $labels[] = date('M d', strtotime($row['date']));
+        }
         $values[] = intval($row['report_count']);
     }
-    
-    echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
-}
-
-function getMonthlySalesPersonPerformance($conn)
-{
-    $days = intval($_GET['days'] ?? 30);
-    $startDate = date('Y-m-d', strtotime("-$days days"));
-    
-    // Get all salespeople
-    $spResult = $conn->query("SELECT id, name FROM sales_persons WHERE role = 'salesperson' ORDER BY name");
-    $salesPersons = [];
-    while ($row = $spResult->fetch_assoc()) {
-        $salesPersons[$row['id']] = $row['name'];
-    }
-    
-    // Get date range
-    $sql = "SELECT DISTINCT report_date 
-            FROM daily_reports 
-            WHERE report_date >= '$startDate' 
-            ORDER BY report_date ASC";
-    $dateResult = $conn->query($sql);
-    $dates = [];
-    while ($row = $dateResult->fetch_assoc()) {
-        $dates[] = $row['report_date'];
-    }
-    
-    // Get report counts for each salesperson per day
-    $datasets = [];
-    $colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899'];
-    $colorIndex = 0;
-    
-    foreach ($salesPersons as $spId => $spName) {
-        $data = [];
-        foreach ($dates as $date) {
-            $countResult = $conn->query("SELECT COUNT(*) as count 
-                                        FROM daily_reports 
-                                        WHERE sales_person_id = $spId 
-                                        AND report_date = '$date'");
-            $count = $countResult->fetch_assoc()['count'];
-            $data[] = intval($count);
-        }
-        
-        $color = $colors[$colorIndex % count($colors)];
-        $datasets[] = [
-            'label' => $spName,
-            'data' => $data,
-            'borderColor' => $color,
-            'backgroundColor' => $color . '33', // Add transparency
-            'tension' => 0.4
-        ];
-        $colorIndex++;
-    }
-    
-    // Format dates for display
-    $labels = array_map(function($date) {
-        return date('M d', strtotime($date));
-    }, $dates);
-    
-    echo json_encode(['success' => true, 'labels' => $labels, 'datasets' => $datasets]);
-}
-
-function getSalesByPerson($conn)
-{
-    $sql = "SELECT 
-                COALESCE(c.sales_person, 'Unassigned') as sales_person,
-                COUNT(*) as total_orders
-            FROM daily_sales ds
-            LEFT JOIN clients c ON ds.client_id = c.id
-            GROUP BY COALESCE(c.sales_person, 'Unassigned')
-            ORDER BY total_orders DESC
-            LIMIT 10";
-
-    $result = $conn->query($sql);
-    $labels = [];
-    $values = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $labels[] = $row['sales_person'];
-        $values[] = intval($row['total_orders']);
-    }
 
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
 }
 
-// ===== UPLOAD HISTORY =====
+// ===== CHANGE PASSCODE FUNCTION =====
 
-function getUploadHistory($conn)
+function changePasscode($conn)
 {
-    $sql = "SELECT * FROM upload_history ORDER BY upload_date DESC LIMIT 20";
-    $result = $conn->query($sql);
-    $uploads = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $uploads[] = $row;
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
     }
 
-    echo json_encode(['success' => true, 'uploads' => $uploads]);
-}
+    $currentPasscode = $_POST['currentPasscode'] ?? '';
+    $newPasscode = $_POST['newPasscode'] ?? '';
 
-function getClientActivity($conn)
-{
-    $clientId = intval($_GET['clientId']);
-
-    $sql = "SELECT 
-                ds.sale_date as date,
-                'order' as type,
-                'Order Placed' as title,
-                CONCAT('Order details: ', COALESCE(ds.discussion, 'No details provided')) as description
-            FROM daily_sales ds
-            WHERE ds.client_id = $clientId
-            
-            UNION ALL
-            
-            SELECT 
-                dr.report_date as date,
-                'report' as type,
-                CONCAT('Contact: ', IF(dr.method = 'M', 'Meeting', 'Phone Call')) as title,
-                COALESCE(dr.discussion, 'No details provided') as description
-            FROM daily_reports dr
-            WHERE dr.client_id = $clientId
-            
-            ORDER BY date DESC
-            LIMIT 10";
-
-    $result = $conn->query($sql);
-    $activities = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $activities[] = $row;
+    if (empty($currentPasscode) || empty($newPasscode)) {
+        echo json_encode(['success' => false, 'message' => 'All fields are required']);
+        return;
     }
 
-    echo json_encode(['success' => true, 'activities' => $activities]);
+    if (strlen($newPasscode) < 4) {
+        echo json_encode(['success' => false, 'message' => 'New passcode must be at least 4 characters']);
+        return;
+    }
+
+    $userId = $_SESSION['user_id'];
+    $hashedCurrentPasscode = hash('sha256', $currentPasscode);
+
+    // Verify current passcode
+    $stmt = $conn->prepare("SELECT id FROM sales_persons WHERE id = ? AND passcode = ?");
+    $stmt->bind_param("is", $userId, $hashedCurrentPasscode);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'Current passcode is incorrect']);
+        return;
+    }
+
+    // Update to new passcode
+    $hashedNewPasscode = hash('sha256', $newPasscode);
+    $stmt = $conn->prepare("UPDATE sales_persons SET passcode = ? WHERE id = ?");
+    $stmt->bind_param("si", $hashedNewPasscode, $userId);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Passcode changed successfully']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error changing passcode']);
+    }
 }
