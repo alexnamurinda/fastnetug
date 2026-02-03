@@ -75,6 +75,12 @@ switch ($action) {
     case 'getClientCategories':
         getClientCategories($conn);
         break;
+    case 'getDailySalesPersonPerformance':
+        getDailySalesPersonPerformance($conn);
+        break;
+    case 'getMonthlySalesPersonPerformance':
+        getMonthlySalesPersonPerformance($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -467,6 +473,90 @@ function getTopClients($conn)
     }
 
     echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
+}
+
+function getDailySalesPersonPerformance($conn)
+{
+    $today = date('Y-m-d');
+    
+    $sql = "SELECT 
+                sp.name as sales_person,
+                COUNT(dr.id) as report_count
+            FROM sales_persons sp
+            LEFT JOIN daily_reports dr ON sp.id = dr.sales_person_id 
+                AND dr.report_date = '$today'
+            WHERE sp.role = 'salesperson'
+            GROUP BY sp.id, sp.name
+            ORDER BY report_count DESC";
+    
+    $result = $conn->query($sql);
+    $labels = [];
+    $values = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $labels[] = $row['sales_person'];
+        $values[] = intval($row['report_count']);
+    }
+    
+    echo json_encode(['success' => true, 'labels' => $labels, 'values' => $values]);
+}
+
+function getMonthlySalesPersonPerformance($conn)
+{
+    $days = intval($_GET['days'] ?? 30);
+    $startDate = date('Y-m-d', strtotime("-$days days"));
+    
+    // Get all salespeople
+    $spResult = $conn->query("SELECT id, name FROM sales_persons WHERE role = 'salesperson' ORDER BY name");
+    $salesPersons = [];
+    while ($row = $spResult->fetch_assoc()) {
+        $salesPersons[$row['id']] = $row['name'];
+    }
+    
+    // Get date range
+    $sql = "SELECT DISTINCT report_date 
+            FROM daily_reports 
+            WHERE report_date >= '$startDate' 
+            ORDER BY report_date ASC";
+    $dateResult = $conn->query($sql);
+    $dates = [];
+    while ($row = $dateResult->fetch_assoc()) {
+        $dates[] = $row['report_date'];
+    }
+    
+    // Get report counts for each salesperson per day
+    $datasets = [];
+    $colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#3B82F6', '#EC4899'];
+    $colorIndex = 0;
+    
+    foreach ($salesPersons as $spId => $spName) {
+        $data = [];
+        foreach ($dates as $date) {
+            $countResult = $conn->query("SELECT COUNT(*) as count 
+                                        FROM daily_reports 
+                                        WHERE sales_person_id = $spId 
+                                        AND report_date = '$date'");
+            $count = $countResult->fetch_assoc()['count'];
+            $data[] = intval($count);
+        }
+        
+        $color = $colors[$colorIndex % count($colors)];
+        $datasets[] = [
+            'label' => $spName,
+            'data' => $data,
+            'borderColor' => $color,
+            'backgroundColor' => $color . '33', // Add transparency
+            'tension' => 0.4
+        ];
+        $colorIndex++;
+    }
+    
+    // Format dates for display
+    $labels = array_map(function($date) {
+        return date('M d', strtotime($date));
+    }, $dates);
+    
+    echo json_encode(['success' => true, 'labels' => $labels, 'datasets' => $datasets]);
 }
 
 function getSalesByPerson($conn)
