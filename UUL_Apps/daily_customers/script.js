@@ -881,16 +881,16 @@ function initializeCharts() {
 
 async function loadSalesChartData(days) {
     try {
-        const response = await fetch(`${API_URL}?action=getMonthlySalesPersonPerformance&days=${days}`);
+        const response = await fetch(`${API_URL}?action=getSalesChart&days=${days}`);
         const data = await response.json();
 
         if (data.success && salesChart) {
             salesChart.data.labels = data.labels;
-            salesChart.data.datasets = data.datasets;
+            salesChart.data.datasets[0].data = data.values;
             salesChart.update();
         }
     } catch (error) {
-        console.error('Error loading monthly performance chart:', error);
+        console.error('Error loading sales chart:', error);
     }
 }
 
@@ -908,7 +908,6 @@ async function loadTopClientsChart() {
         console.error('Error loading daily performance chart:', error);
     }
 }
-
 // Export Functions
 async function exportClients() {
     // Get current filter values

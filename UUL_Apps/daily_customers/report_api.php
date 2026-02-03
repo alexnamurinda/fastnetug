@@ -67,9 +67,6 @@ switch ($action) {
     case 'updateReport':
         updateReport($conn);
         break;
-    case 'markCommentRead':
-        markCommentRead($conn);
-        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -298,21 +295,20 @@ function approveReport($conn)
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         return;
     }
-    
+
     $reportId = intval($_POST['reportId']);
-    $comment = $conn->real_escape_string(trim($_POST['comment'] ?? ''));
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
     $supervisorId = $_SESSION['user_id'];
-    
+
     $sql = "UPDATE daily_reports 
             SET approved = 'approved', 
                 approved_by = $supervisorId, 
                 approved_at = NOW(),
-                supervisor_comment = " . ($comment ? "'$comment'" : "NULL") . ",
-                comment_notified = 0
+                supervisor_comment = '$comment'
             WHERE id = $reportId";
-    
+
     if ($conn->query($sql)) {
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'message' => 'Report approved successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error approving report']);
     }
@@ -324,25 +320,25 @@ function rejectReport($conn)
         echo json_encode(['success' => false, 'message' => 'Access denied']);
         return;
     }
-    
+
     $reportId = intval($_POST['reportId']);
-    $comment = $conn->real_escape_string(trim($_POST['comment'] ?? ''));
+    $comment = $conn->real_escape_string($_POST['comment'] ?? '');
     $supervisorId = $_SESSION['user_id'];
-    
+
     $sql = "UPDATE daily_reports 
             SET approved = 'rejected', 
                 approved_by = $supervisorId, 
                 approved_at = NOW(),
-                supervisor_comment = " . ($comment ? "'$comment'" : "NULL") . ",
-                comment_notified = 0
+                supervisor_comment = '$comment'
             WHERE id = $reportId";
-    
+
     if ($conn->query($sql)) {
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'message' => 'Report rejected successfully']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Error rejecting report']);
     }
 }
+
 function updateReport($conn)
 {
     if (!isset($_SESSION['user_id'])) {
@@ -384,26 +380,34 @@ function updateReport($conn)
 
 function getReportStats($conn)
 {
-    $userId = $_SESSION['user_id'];
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $salesPersonId = $_SESSION['user_id'];
     $today = date('Y-m-d');
-    $firstDayOfMonth = date('Y-m-01');
-    
-    $todayReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $userId AND report_date = '$today'")->fetch_assoc()['count'];
-    $monthReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $userId AND report_date >= '$firstDayOfMonth'")->fetch_assoc()['count'];
-    $pending = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $userId AND approved = 'pending'")->fetch_assoc()['count'];
-    $approved = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $userId AND approved = 'approved' AND report_date >= '$firstDayOfMonth'")->fetch_assoc()['count'];
-    
-    // Get unread comment notifications
-    $unreadComments = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $userId AND supervisor_comment IS NOT NULL AND comment_notified = 0")->fetch_assoc()['count'];
-    
+    $thisMonth = date('Y-m-01');
+
+    // Today's reports
+    $todayReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND report_date = '$today'")->fetch_assoc()['count'];
+
+    // This month's reports
+    $monthReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
+
+    // Pending approvals
+    $pending = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'pending'")->fetch_assoc()['count'];
+
+    // Approved this month
+    $approved = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'approved' AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
+
     echo json_encode([
         'success' => true,
         'stats' => [
             'todayReports' => $todayReports,
             'monthReports' => $monthReports,
             'pending' => $pending,
-            'approved' => $approved,
-            'unreadComments' => $unreadComments
+            'approved' => $approved
         ]
     ]);
 }
@@ -499,17 +503,4 @@ function changePasscode($conn)
     } else {
         echo json_encode(['success' => false, 'message' => 'Error changing passcode']);
     }
-}
-
-function markCommentRead($conn)
-{
-    $reportId = intval($_POST['reportId']);
-    $userId = $_SESSION['user_id'];
-    
-    $sql = "UPDATE daily_reports 
-            SET comment_notified = 1 
-            WHERE id = $reportId AND sales_person_id = $userId";
-    
-    $conn->query($sql);
-    echo json_encode(['success' => true]);
 }
