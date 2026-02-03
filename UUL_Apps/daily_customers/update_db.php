@@ -1,5 +1,5 @@
 <?php
-require_once 'setup_db.php';
+require_once 'database.php';
 
 $conn = getDbConnection();
 
