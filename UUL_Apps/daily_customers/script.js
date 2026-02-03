@@ -838,27 +838,7 @@ function initializeCharts() {
         }
     };
 
-    // Sales Trend Chart
-    const salesCtx = document.getElementById('salesChart');
-    if (salesCtx) {
-        salesChart = new Chart(salesCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Orders',
-                    data: [],
-                    borderColor: '#4F46E5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: chartOptions
-        });
-    }
-
-    // Top Clients Chart
+    // Daily Sales Person Performance Chart (Bar)
     const topCtx = document.getElementById('topClientsChart');
     if (topCtx) {
         topClientsChart = new Chart(topCtx, {
@@ -866,37 +846,57 @@ function initializeCharts() {
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Orders',
+                    label: 'Reports Today',
                     data: [],
-                    backgroundColor: '#10B981'
+                    backgroundColor: '#4F46E5'
                 }]
             },
             options: {
                 ...chartOptions,
-                indexAxis: 'y'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
             }
+        });
+    }
+
+    // Monthly Sales Person Performance Chart (Line)
+    const salesCtx = document.getElementById('salesChart');
+    if (salesCtx) {
+        salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: chartOptions
         });
     }
 }
 
 async function loadSalesChartData(days) {
     try {
-        const response = await fetch(`${API_URL}?action=getSalesChart&days=${days}`);
+        const response = await fetch(`${API_URL}?action=getMonthlySalesPersonPerformance&days=${days}`);
         const data = await response.json();
 
         if (data.success && salesChart) {
             salesChart.data.labels = data.labels;
-            salesChart.data.datasets[0].data = data.values;
+            salesChart.data.datasets = data.datasets;
             salesChart.update();
         }
     } catch (error) {
-        console.error('Error loading sales chart:', error);
+        console.error('Error loading monthly performance chart:', error);
     }
 }
 
 async function loadTopClientsChart() {
     try {
-        const response = await fetch(`${API_URL}?action=getTopClients&limit=10`);
+        const response = await fetch(`${API_URL}?action=getDailySalesPersonPerformance`);
         const data = await response.json();
 
         if (data.success && topClientsChart) {
@@ -905,7 +905,7 @@ async function loadTopClientsChart() {
             topClientsChart.update();
         }
     } catch (error) {
-        console.error('Error loading top clients chart:', error);
+        console.error('Error loading daily performance chart:', error);
     }
 }
 
