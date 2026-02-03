@@ -55,16 +55,31 @@ async function updateNotificationBadge() {
         const response = await fetch(`${AUTH_API_URL}?action=getReportStats`);
         const data = await response.json();
 
-        if (data.success && data.stats.pending > 0) {
-            const badge = document.getElementById('notificationBadge');
-            badge.textContent = data.stats.pending;
-            badge.style.display = 'block';
-        } else {
-            document.getElementById('notificationBadge').style.display = 'none';
+        if (data.success) {
+            const notificationCount = currentUser.role === 'supervisor'
+                ? data.stats.pending
+                : data.stats.unreadComments;
+
+            if (notificationCount > 0) {
+                const badge = document.getElementById('notificationBadge');
+                badge.textContent = notificationCount;
+                badge.style.display = 'block';
+            } else {
+                document.getElementById('notificationBadge').style.display = 'none';
+            }
         }
     } catch (error) {
         console.error('Error updating notifications:', error);
     }
+}
+
+async function markCommentAsRead(reportId) {
+    const formData = new FormData();
+    formData.append('action', 'markCommentRead');
+    formData.append('reportId', reportId);
+
+    await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+    updateNotificationBadge();
 }
 
 function showNotifications() {
@@ -1829,6 +1844,11 @@ async function viewReportDetail(reportId, source = 'my') {
             console.error('Report not found. Looking for ID:', reportId, 'Type:', typeof reportId);
             console.error('Available IDs:', reports.map(r => ({ id: r.id, type: typeof r.id })));
             showNotification('Report not found', 'error');
+        }
+
+        // Mark comment as read if this is salesperson's own report
+        if (source === 'my' && report.supervisor_comment && report.comment_notified === 0) {
+            markCommentAsRead(reportId);
         }
     } catch (error) {
         console.error('Error loading report details:', error);
