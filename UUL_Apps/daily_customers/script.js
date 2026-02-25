@@ -55,12 +55,24 @@ async function updateNotificationBadge() {
         const response = await fetch(`${AUTH_API_URL}?action=getReportStats`);
         const data = await response.json();
 
-        if (data.success && data.stats.pending > 0) {
+        if (data.success) {
             const badge = document.getElementById('notificationBadge');
-            badge.textContent = data.stats.pending;
-            badge.style.display = 'block';
-        } else {
-            document.getElementById('notificationBadge').style.display = 'none';
+            let count = 0;
+
+            if (currentUser.role === 'supervisor') {
+                // Supervisor: count pending reports awaiting approval
+                count = data.stats.pending || 0;
+            } else {
+                // Salesperson: count their own rejected reports
+                count = data.stats.rejected || 0;
+            }
+
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
         }
     } catch (error) {
         console.error('Error updating notifications:', error);
@@ -1397,29 +1409,93 @@ function displayApprovals(reports) {
     const tbody = document.getElementById('approvalsTableBody');
 
     if (!reports || reports.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;">No reports found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">No reports found</td></tr>';
         return;
     }
 
     tbody.innerHTML = reports.map(report => {
         const statusText = report.approved.charAt(0).toUpperCase() + report.approved.slice(1);
         return `
-            <tr onclick="viewReportDetail(${report.id}, 'approval')" style="cursor: pointer;">
-                <td>${report.report_date}</td>
-                <td><strong>${report.sales_person_name}</strong></td>
-                <td>
+            <tr>
+                <td onclick="event.stopPropagation()">
+                    <input type="checkbox" class="report-checkbox" value="${report.id}" 
+                           onchange="updateBulkBar()" 
+                           ${report.approved !== 'pending' ? 'disabled' : ''}>
+                </td>
+                <td onclick="viewReportDetail(${report.id}, 'approval')" style="cursor:pointer;">${report.report_date}</td>
+                <td onclick="viewReportDetail(${report.id}, 'approval')" style="cursor:pointer;"><strong>${report.sales_person_name}</strong></td>
+                <td onclick="viewReportDetail(${report.id}, 'approval')" style="cursor:pointer;">
                     <strong>${report.client_name}</strong><br>
                     <small style="color: var(--text-secondary);">${report.client_type}</small>
                 </td>
-                <td>
-                    <span class="status-badge ${report.approved}">
-                        ${statusText}
-                    </span>
+                <td onclick="viewReportDetail(${report.id}, 'approval')" style="cursor:pointer;">
+                    <span class="status-badge ${report.approved}">${statusText}</span>
                 </td>
             </tr>
         `;
     }).join('');
+
+    updateBulkBar();
 }
+
+function toggleSelectAll(checkbox) {
+    document.querySelectorAll('.report-checkbox:not(:disabled)').forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+    updateBulkBar();
+}
+
+function updateBulkBar() {
+    const selected = document.querySelectorAll('.report-checkbox:checked');
+    const bar = document.getElementById('bulkActionBar');
+    document.getElementById('selectedCount').textContent = `${selected.length} selected`;
+    bar.style.display = selected.length > 0 ? 'flex' : 'none';
+
+    // Sync select-all checkbox state
+    const all = document.querySelectorAll('.report-checkbox:not(:disabled)');
+    const selectAll = document.getElementById('selectAllReports');
+    if (selectAll) {
+        selectAll.checked = all.length > 0 && selected.length === all.length;
+        selectAll.indeterminate = selected.length > 0 && selected.length < all.length;
+    }
+}
+
+async function bulkApprove() {
+    const selected = [...document.querySelectorAll('.report-checkbox:checked')].map(cb => cb.value);
+    if (!selected.length) return;
+    if (!confirm(`Approve ${selected.length} report(s)?`)) return;
+
+    for (const reportId of selected) {
+        const formData = new FormData();
+        formData.append('action', 'approveReport');
+        formData.append('reportId', reportId);
+        formData.append('comment', '');
+        await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+    }
+
+    showNotification(`${selected.length} report(s) approved successfully`, 'success');
+    loadAllReports();
+}
+
+async function bulkReject() {
+    const selected = [...document.querySelectorAll('.report-checkbox:checked')].map(cb => cb.value);
+    if (!selected.length) return;
+
+    const comment = prompt(`Rejection reason for ${selected.length} report(s): (optional)`);
+    if (comment === null) return; // user cancelled
+
+    for (const reportId of selected) {
+        const formData = new FormData();
+        formData.append('action', 'rejectReport');
+        formData.append('reportId', reportId);
+        formData.append('comment', comment || '');
+        await fetch(AUTH_API_URL, { method: 'POST', body: formData });
+    }
+
+    showNotification(`${selected.length} report(s) rejected successfully`, 'success');
+    loadAllReports();
+}
+
 function filterApprovals() {
     loadAllReports();
 }
