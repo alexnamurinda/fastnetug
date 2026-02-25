@@ -1485,6 +1485,34 @@ async function bulkApprove() {
     loadAllReports();
 }
 
+async function bulkExport() {
+    const selected = [...document.querySelectorAll('.report-checkbox:checked')].map(cb => cb.value);
+    if (!selected.length) {
+        showNotification('No reports selected', 'error');
+        return;
+    }
+
+    const selectedReports = allApprovalReports.filter(r => selected.includes(String(r.id)));
+
+    const ws = XLSX.utils.json_to_sheet(selectedReports.map(r => ({
+        'Date': r.report_date,
+        'Sales Person': r.sales_person_name || '-',
+        'Client': r.client_name || '-',
+        'Client Type': r.client_type || '-',
+        'Method': r.method === 'M' ? 'Met' : 'Call',
+        'Discussion': r.discussion || '',
+        'Feedback': r.feedback || '',
+        'Status': r.approved,
+        'Approved/Rejected By': r.approved_by_name || '-',
+        'Approved/Rejected At': r.approved_at ? formatDate(r.approved_at) : '-',
+        'Supervisor Comment': r.supervisor_comment || ''
+    })));
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Selected Reports');
+    XLSX.writeFile(wb, `reports_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
 async function bulkReject() {
     const selected = [...document.querySelectorAll('.report-checkbox:checked')].map(cb => cb.value);
     if (!selected.length) return;
