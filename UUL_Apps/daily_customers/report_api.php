@@ -396,10 +396,13 @@ function getReportStats($conn)
     $monthReports = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
 
     // Pending approvals
-    $pending = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'pending'")->fetch_assoc()['count'];
+    $userRole = $_SESSION['user_role'];
+    $pending = ($userRole === 'supervisor')
+        ? $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE approved = 'pending'")->fetch_assoc()['count']
+        : $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'pending'")->fetch_assoc()['count'];
 
     // Salesperson: count their own rejected reports (new since last login or unread)
-    $rejected = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = {$currentUser['id']} AND approved = 'rejected'")->fetch_assoc()['count'];
+    $rejected = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'rejected'")->fetch_assoc()['count'];
 
     // Approved this month
     $approved = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'approved' AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
