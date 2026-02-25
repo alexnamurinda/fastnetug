@@ -165,6 +165,7 @@ function createDailyReportsTable($conn)
         approved ENUM('pending','approved','rejected') DEFAULT 'pending',
         approved_by INT DEFAULT NULL,
         approved_at TIMESTAMP NULL,
+        rejection_seen_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         
         INDEX idx_report_date (report_date),

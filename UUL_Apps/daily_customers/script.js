@@ -80,11 +80,16 @@ async function updateNotificationBadge() {
 }
 
 function showNotifications() {
-    // Navigate to reports page to see pending items
     if (currentUser.role === 'supervisor') {
         navigateToPage('approvals');
     } else {
-        navigateToPage('reports');
+        // Mark rejections as seen, then navigate
+        fetch(`${AUTH_API_URL}?action=markRejectionsAsSeen`)
+            .then(() => {
+                // Clear badge immediately
+                document.getElementById('notificationBadge').style.display = 'none';
+                navigateToPage('reports');
+            });
     }
 }
 
@@ -1294,6 +1299,7 @@ async function loadMyReports() {
         allMyReports = []; // Clear on error
     }
 }
+
 function displayMyReports(reports) {
     const tbody = document.getElementById('reportsTableBody');
 
@@ -1308,21 +1314,23 @@ function displayMyReports(reports) {
     }
 
     tbody.innerHTML = reports.map(report => {
-        const statusText = report.approved.charAt(0).toUpperCase() + report.approved.slice(1);
-        return `
-            <tr onclick="viewReportDetail(${report.id}, 'my')" style="cursor: pointer;">
-                <td>${report.report_date}</td>
-                <td>
-                    <strong>${report.client_name}</strong><br>
-                </td>
-                <td>
-                    <span class="status-badge ${report.approved}">
-                        ${statusText}
-                    </span>
-                </td>
-            </tr>
-        `;
-    }).join('');
+            const statusText = report.approved.charAt(0).toUpperCase() + report.approved.slice(1);
+            const isUnseenRejection = report.approved === 'rejected' && !report.rejection_seen_at;
+            return `
+                <tr onclick="viewReportDetail(${report.id}, 'my')" style="cursor: pointer; ${isUnseenRejection ? 'background: #FEF2F2;' : ''}">
+                    <td>${report.report_date}</td>
+                    <td>
+                        <strong>${report.client_name}</strong><br>
+                        ${isUnseenRejection ? '<small style="color:#EF4444; font-weight:600;"><i class="fas fa-exclamation-circle"></i> New rejection — tap to see reason</small>' : ''}
+                    </td>
+                    <td>
+                        <span class="status-badge ${report.approved}">
+                            ${statusText}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
 }
 function filterMyReports() {
     loadMyReports();

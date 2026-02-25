@@ -67,6 +67,9 @@ switch ($action) {
     case 'updateReport':
         updateReport($conn);
         break;
+    case 'markRejectionsAsSeen':
+        markRejectionsAsSeen($conn);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
@@ -402,7 +405,7 @@ function getReportStats($conn)
         : $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'pending'")->fetch_assoc()['count'];
 
     // Salesperson: count their own rejected reports (new since last login or unread)
-    $rejected = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'rejected'")->fetch_assoc()['count'];
+    $rejected = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'rejected' AND rejection_seen_at IS NULL")->fetch_assoc()['count'];
 
     // Approved this month
     $approved = $conn->query("SELECT COUNT(*) as count FROM daily_reports WHERE sales_person_id = $salesPersonId AND approved = 'approved' AND report_date >= '$thisMonth'")->fetch_assoc()['count'];
@@ -510,4 +513,22 @@ function changePasscode($conn)
     } else {
         echo json_encode(['success' => false, 'message' => 'Error changing passcode']);
     }
+}
+
+function markRejectionsAsSeen($conn)
+{
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+        return;
+    }
+
+    $salesPersonId = $_SESSION['user_id'];
+
+    $conn->query("UPDATE daily_reports 
+                  SET rejection_seen_at = NOW() 
+                  WHERE sales_person_id = $salesPersonId 
+                  AND approved = 'rejected' 
+                  AND rejection_seen_at IS NULL");
+
+    echo json_encode(['success' => true]);
 }
