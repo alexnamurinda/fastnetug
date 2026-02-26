@@ -83,7 +83,8 @@
                     <h1 class="hero-title">Seamless Connectivity for Every Need</h1>
                     <p class="hero-text">Stay connected with fast, secure, and affordable WiFi plans tailored for student hostels, homes, and businesses across Uganda.</p>
                     <div class="hero-buttons">
-                        <a href="#packages" class="btn btn-primary btn-lg">Buy Voucher</a>
+                        <!-- <a href="#packages" class="btn btn-primary btn-lg">Buy Voucher</a> -->
+                        <a href="https://fastnetuganda.centipidtechnologies.com/buy/packages" class="btn btn-primary btn-lg">Buy Voucher</a>                        
                         <a href="tel:0756585769" class="btn btn-primary btn-lg" style="background: transparent; border: 1px solid white;">
                             <i class="fas fa-phone-alt me-2" style="color: #fff;"></i>Call Us Now
                         </a>
