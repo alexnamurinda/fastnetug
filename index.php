@@ -114,7 +114,8 @@
                             <li><i class="fas fa-check text-success"></i> Up to 1 device</li>
                             <li><i class="fas fa-check text-success"></i> Perfect for travelers</li>
                         </ul>
-                        <button class="btn btn-outline-primary w-100">Buy Now</button>
+                        <!-- <button class="btn btn-outline-primary w-100">Buy Now</button> -->
+                        <a href="https://app.julypay.net/pay/pay-rAktK0fGyJgu" class="btn btn-primary btn-lg">Buy Voucher</a>
                     </div>
                 </div>
 
