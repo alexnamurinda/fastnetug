@@ -114,8 +114,7 @@
                             <li><i class="fas fa-check text-success"></i> Up to 1 device</li>
                             <li><i class="fas fa-check text-success"></i> Perfect for travelers</li>
                         </ul>
-                        <!-- <button class="btn btn-outline-primary w-100">Buy Now</button> -->
-                        <a href="https://app.julypay.net/pay/pay-rAktK0fGyJgu" class="btn btn-primary btn-lg">Buy Voucher</a>
+                        <button class="btn btn-outline-primary w-100">Buy Now</button>
                     </div>
                 </div>
 
@@ -531,7 +530,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="packageModalLabel">Enter your phone number to make payment</h5>
+                    <h5 class="modal-title" id="packageModalLabel">Enter your phone number</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -546,17 +545,15 @@
                         <div class="mb-3">
                             <select class="form-select" id="customerLocation" required>
                                 <option value="">Select your location</option>
-                                <option value="Makerere">Namuli Hostel</option>
-                                <option value="Wandegeya">Herman Hostel</option>
-                                <option value="Kikoni">Kasalita Hostel</option>
-                                <option value="Ntinda">Nabisunsa Close</option>
+                                <option value="Kikoni">Nabisunsa Close</option>
+                                <option value="Ntinda">Kiwanga</option>
                                 <option value="Najera">Other</option>
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="submitPackageRequest">Make payment</button>
+                    <button type="button" class="btn btn-primary" id="submitPackageRequest">Submit</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
@@ -644,7 +641,7 @@
             }
 
             // Success message
-            alert("Feature Coming soon! Thanks for your support.");
+            alert("Connection request submitted. We will contact you soon.");
 
             // Reset form
             $('#packageModal').modal('hide');
