@@ -166,7 +166,7 @@
             <!-- Special Packages -->
             <div class="row mt-5">
                 <div class="section-header text-center text-black" data-aos="fade-up">
-                    <h3>special Packages</h3>
+                    <h3>Special Packages</h3>
                 </div>
                 <div class="col-md-6" data-aos="fade-up" data-aos-delay="500">
                     <div class="package-card">
@@ -294,8 +294,8 @@
                 <div class="col-lg-6" data-aos="zoom-in">
                     <div class="coverage-map text-center">
                         <i class="fas fa-map-marked-alt" style="font-size: 5rem; margin-bottom: 20px;"></i>
-                        <h3>Wide Coverage Across Kampala</h3>
-                        <p>Our network covers major areas including Nabisunsa, Banda, Ntinda, Kibuli, and surrounding areas.</p>
+                        <h3>Coverage Countrywide</h3>
+                        <p>Our network covers major areas including Nabisunsa Close, Namuwongo, Kibuli, Kiwanga, +more.</p>
                         <div class="row mt-4">
                             <div class="col-6">
                                 <h4>25+</h4>
@@ -310,8 +310,8 @@
                 </div>
                 <div class="col-lg-6 d-flex justify-content-center">
                     <div class="about-content text-center w-100 px-3 px-md-5">
-                        <h2>Why Choose FastNetUG?</h2>
-                        <p style="text-align:justify;">We're Uganda's fastest-growing WiFi provider, committed to delivering reliable, high-speed internet access to students, families, and businesses across Kampala and beyond.</p>
+                        <h2>Why Choose FastNet UG?</h2>
+                        <p style="text-align:justify;">We're Uganda's fastest-growing WiFi provider, committed to delivering reliable, high-speed internet access to students, communities, and businesses across Kampala and beyond.</p>
                         <p style="text-align:justify;">Our network is backed by cutting-edge technology and round-the-clock support. With our 24/7 customer service team, you’ll get the fastest assistance whenever you need it — day or night.</p>
 
                         <div class="row justify-content-center">
@@ -319,7 +319,7 @@
                                 <div class="feature-item">
                                     <i class="fas fa-bolt feature-icon"></i>
                                     <h4>Fast Speeds</h4>
-                                    <p>Up to 100 Mbps speeds for seamless browsing and streaming</p>
+                                    <p>Up to 500 Mbps speeds for seamless browsing and streaming</p>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 mb-4">
@@ -355,11 +355,10 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-
                             </div>
                             <p class="testimonial-text">"FastNetUG saved my semester! Their WiFi is incredibly fast and reliable. I can stream lectures, download research papers, and video call my family without any interruptions."</p>
                             <div class="testimonial-author">
-                                <img src="images/developer.jpg" alt="Student" class="rounded-circle">
+                                <img src="images/profile_pic.png" alt="Student" class="rounded-circle">
                                 <div class="author-info">
                                     <h5>Student</h5>
                                     <span>Kyambogo University</span>
@@ -374,13 +373,12 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
                             </div>
                             <p class="testimonial-text">"As a family of five, we needed reliable internet for everyone. FastNetUG's family bundle gives us amazing speeds and their customer service is exceptional!"</p>
                             <div class="testimonial-author">
                                 <img src="images/sara.jpg" alt="Family Customer" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Lilian T</h5>
+                                    <h5>Lilian</h5>
                                     <span>Family Package</span>
                                 </div>
                             </div>
@@ -392,8 +390,9 @@
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
                             </div>
-                            <p class="testimonial-text">"Our business depends on reliable internet. FastNetUG's business package has been a game-changer with 99% uptime and lightning-fast speeds."</p>
+                            <p class="testimonial-text">"Our business depends on reliable internet. FastNetUG's business package has been a game-changer with 99% uptime"</p>
                             <div class="testimonial-author">
                                 <img src="images/profile_pic.png" alt="Business Customer" class="rounded-circle">
                                 <div class="author-info">
@@ -417,14 +416,14 @@
             <div class="row align-items-center justify-content-between text-center text-lg-start" data-aos="zoom-in" data-aos-duration="1000">
                 <div class="col-lg-7 mb-4 mb-lg-0">
                     <h2 class="cta-title">Ready to Get Connected?</h2>
-                    <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala. Get connected today!</p>
+                    <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala and beyond. Get connected today!</p>
                 </div>
                 <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
                     <a href="tel:0756585769" class="btn btn-light btn-lg" title="Call Us">
                         <i class="fas fa-phone-alt"></i>
                         <span>Call Now</span>
                     </a>
-                    <a href="https://wa.me/256744766410" class="btn btn-success btn-lg" title="Chat on WhatsApp" target="_blank">
+                    <a href="https://wa.me/256756585769" class="btn btn-success btn-lg" title="Chat on WhatsApp" target="_blank">
                         <i class="fab fa-whatsapp"></i>
                         <span>WhatsApp</span>
                     </a>
@@ -479,9 +478,9 @@
                 <div class="col-md-3">
                     <div class="footer-contact">
                         <h4>Contact Info</h4>
-                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Banda, Kampala</p>
-                        <p><i class="fas fa-phone"></i> +256 744 766 410</p>
-                        <p><i class="fas fa-envelope"></i> info@fastnetug.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Jinja Rd, Kampala</p>
+                        <p><i class="fas fa-phone"></i> 0756585769 / 0780393671</p>
+                        <p><i class="fas fa-envelope"></i> fastnetuganda@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -491,13 +490,13 @@
             <div class="container">
                 <div class="row align-items-center justify-content-between text-center text-md-start">
                     <div class="col-md-6">
-                        <p class="copyright">© 2025 FastNetUG. All Rights Reserved.</p>
+                        <p class="copyright">© 2026 FastNetUG. All Rights Reserved.</p>
                     </div>
 
                     <div class="col-md-6 text-md-end mt-3 mt-md-0">
                         <div class="footer-links-bottom">
-                            <a href="#">Privacy Policy</a>
-                            <a href="#">Terms of Service</a>
+                            <a href="">Privacy Policy</a>
+                            <a href="">Terms of Service</a>
                         </div>
                     </div>
                 </div>
@@ -519,7 +518,7 @@
                         width="100%"
                         height="450"
                         style="border: none;"
-                        title="LibreSpeed Internet Speed Test"
+                        title="FastNet UG Speed Test"
                         loading="lazy"></iframe>
                 </div>
             </div>
@@ -531,7 +530,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="packageModalLabel">Enter your phone number</h5>
+                    <h5 class="modal-title" id="packageModalLabel">Enter your phone number to continue</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -569,7 +568,7 @@
         <a href="#" class="float-btn speed-test-btn" data-bs-toggle="modal" data-bs-target="#speedTestModal" title="Test Speed">
             <i class="fas fa-tachometer-alt"></i>
         </a>
-        <a href="https://wa.me/256744766410" class="float-btn whatsapp-btn" title="WhatsApp" target="_blank">
+        <a href="https://wa.me/256756585769" class="float-btn whatsapp-btn" title="WhatsApp" target="_blank">
             <i class="fab fa-whatsapp"></i>
         </a>
     </div>
