@@ -92,7 +92,7 @@
     </section>
 
     <!-- Mission & Vision Section -->
-    <section class="mission-vision-section">
+    <!-- <section class="mission-vision-section">
         <div class="container">
             <div class="row">
                 <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
@@ -115,7 +115,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <!-- Core Values Section -->
     <section class="values-section">
@@ -154,7 +154,7 @@
                 </div>
 
                 <!-- second values row -->
-                <div class="col-md-4 text-center mt-md-4">
+                <!-- <div class="col-md-4 text-center mt-md-4">
                     <div class="value-card">
                         <div class="value-icon">
                             <i class="fas fa-lightbulb"></i>
@@ -162,8 +162,8 @@
                         <h3>Innovation</h3>
                         <p>We continuously upgrade our infrastructure and adopt new technologies to deliver faster speeds and better coverage to our users.</p>
                     </div>
-                </div>
-                <div class="col-md-4 text-center mt-md-4">
+                </div> -->
+                <!-- <div class="col-md-4 text-center mt-md-4">
                     <div class="value-card">
                         <div class="value-icon">
                             <i class="fas fa-shield-alt"></i>
@@ -171,8 +171,8 @@
                         <h3>Security</h3>
                         <p>We implement advanced security protocols to protect your data and ensure safe browsing for all our network users.</p>
                     </div>
-                </div>
-                <div class="col-md-4 text-center mt-md-4">
+                </div> -->
+                <!-- <div class="col-md-4 text-center mt-md-4">
                     <div class="value-card">
                         <div class="value-icon">
                             <i class="fas fa-globe"></i>
@@ -180,7 +180,7 @@
                         <h3>Community Impact</h3>
                         <p>We're committed to empowering local communities by providing internet access that enables education, business growth, and social connections.</p>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
