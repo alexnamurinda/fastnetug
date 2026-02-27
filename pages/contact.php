@@ -227,7 +227,7 @@
                             </h2>
                             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#contactFAQ">
                                 <div class="accordion-body">
-                                    Our network currently covers Nabisunsa, Banda, Ntinda, Kibuli, and surrounding areas within a 25km radius of Kampala. We're constantly expanding our coverage area.
+                                    Our network currently covers Nabisunsa, Kiwanga, Ntinda, Kibuli, and surrounding areas within a 25km radius of Kampala. We're constantly expanding our coverage area.
                                 </div>
                             </div>
                         </div>

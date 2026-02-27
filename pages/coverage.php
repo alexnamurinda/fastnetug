@@ -78,7 +78,7 @@
                             <i class="fas fa-map-marked-alt"></i>
                             <div class="coverage-points">
                                 <div class="point point-1" data-area="Nabisunsa"></div>
-                                <div class="point point-2" data-area="Banda"></div>
+                                <div class="point point-2" data-area="Kiwanga"></div>
                                 <div class="point point-3" data-area="Ntinda"></div>
                                 <div class="point point-4" data-area="Nakawa"></div>
                             </div>
@@ -103,7 +103,7 @@
                 <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="area-card">
                         <div class="area-header">
-                            <h3><i class="fas fa-map-marker-alt"></i> Nabisunsa</h3>
+                            <h3><i class="fas fa-map-marker-alt"></i> Nabisunsa Close</h3>
                             <span class="coverage-badge">Full Coverage</span>
                         </div>
                         <div class="area-content">
@@ -114,12 +114,12 @@
                                 <span class="feature-tag">24/7 Support</span>
                             </div>
                             <div class="area-contact">
-                                <p><strong>Area Contact:</strong> Alex Namurinda</p>
+                                <p><strong>Area Contact:</strong>Moses</p>
                                 <div class="contact-buttons">
-                                    <a href="tel:0756585769" class="btn btn-sm btn-primary">
+                                    <a href="tel:0780393671" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
-                                    <a href="https://wa.me/256744766410" class="btn btn-sm btn-success" target="_blank">
+                                    <a href="https://wa.me/256780393671" class="btn btn-sm btn-success" target="_blank">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </a>
                                 </div>
@@ -128,15 +128,15 @@
                     </div>
                 </div>
 
-                <!-- Banda Area -->
+                <!-- Kiwanga Area -->
                 <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="area-card">
                         <div class="area-header">
-                            <h3><i class="fas fa-map-marker-alt"></i> Banda</h3>
+                            <h3><i class="fas fa-map-marker-alt"></i> Kiwanga</h3>
                             <span class="coverage-badge">High Coverage</span>
                         </div>
                         <div class="area-content">
-                            <p>Strong coverage in Banda with multiple hotspots serving students and families.</p>
+                            <p>Strong coverage in Kiwanga with multiple hotspots serving students and families.</p>
                             <div class="area-features">
                                 <span class="feature-tag">Multiple Hotspots</span>
                                 <span class="feature-tag">Student Focused</span>
@@ -401,7 +401,7 @@
                             <i class="fas fa-home"></i>
                         </div>
                         <h4>Lilian's Family</h4>
-                        <p class="location"><i class="fas fa-map-marker-alt"></i> Banda Area</p>
+                        <p class="location"><i class="fas fa-map-marker-alt"></i> Kiwanga Area</p>
                         <div class="testimonial">
                             <p><em>"FastNetUG has transformed our home internet experience. The whole family stays connected!"</em></p>
                         </div>
