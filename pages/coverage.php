@@ -114,7 +114,7 @@
                                 <span class="feature-tag">24/7 Support</span>
                             </div>
                             <div class="area-contact">
-                                <p><strong>Area Contact:</strong>Moses</p>
+                                <p><strong>Area Contact:</strong> Moses</p>
                                 <div class="contact-buttons">
                                     <a href="tel:0780393671" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
@@ -136,19 +136,19 @@
                             <span class="coverage-badge">High Coverage</span>
                         </div>
                         <div class="area-content">
-                            <p>Strong coverage in Kiwanga with multiple hotspots serving students and families.</p>
+                            <p>Strong coverage in Kiwanga with multiple hotspots serving Business units and families.</p>
                             <div class="area-features">
                                 <span class="feature-tag">Multiple Hotspots</span>
-                                <span class="feature-tag">Student Focused</span>
+                                <span class="feature-tag">Community based connection</span>
                                 <span class="feature-tag">Family Plans</span>
                             </div>
                             <div class="area-contact">
                                 <p><strong>Area Contact:</strong> Kasumba Mark</p>
                                 <div class="contact-buttons">
-                                    <a href="tel:0752090648" class="btn btn-sm btn-primary">
+                                    <a href="tel:0756585769" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
-                                    <a href="https://wa.me/256752090648" class="btn btn-sm btn-success" target="_blank">
+                                    <a href="https://wa.me/256756585769" class="btn btn-sm btn-success" target="_blank">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </a>
                                 </div>
@@ -157,27 +157,55 @@
                     </div>
                 </div>
 
-                <!-- Ntinda Area -->
+                <!-- Arua Area -->
                 <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="area-card">
                         <div class="area-header">
-                            <h3><i class="fas fa-map-marker-alt"></i> Ntinda</h3>
+                            <h3><i class="fas fa-map-marker-alt"></i> Arua</h3>
                             <span class="coverage-badge expanding">Expanding</span>
                         </div>
                         <div class="area-content">
-                            <p>Growing coverage in Ntinda with new hotspots and improved infrastructure.</p>
+                            <p>Growing coverage in Arua with new hotspots and improved infrastructure.</p>
                             <div class="area-features">
                                 <span class="feature-tag">New Hotspots</span>
                                 <span class="feature-tag">Growing Network</span>
                                 <span class="feature-tag">Business Plans</span>
                             </div>
                             <div class="area-contact">
-                                <p><strong>Area Contact:</strong> Alex Namurinda</p>
+                                <p><strong>Area Contact:</strong> Eng. Alex</p>
                                 <div class="contact-buttons">
-                                    <a href="tel:0756585769" class="btn btn-sm btn-primary">
+                                    <a href="tel:0745685794" class="btn btn-sm btn-primary">
                                         <i class="fas fa-phone"></i> Call
                                     </a>
-                                    <a href="https://wa.me/256744766410" class="btn btn-sm btn-success" target="_blank">
+                                    <a href="https://wa.me/256745685794" class="btn btn-sm btn-success" target="_blank">
+                                        <i class="fab fa-whatsapp"></i> WhatsApp
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ibanda Area -->
+                <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="area-card">
+                        <div class="area-header">
+                            <h3><i class="fas fa-map-marker-alt"></i> Ibanda</h3>
+                            <span class="coverage-badge expanding">Pipeline</span>
+                        </div>
+                        <div class="area-content">
+                            <p>Reliable coverage with focus on educational institutions.</p>
+                            <div class="area-features">
+                                <span class="feature-tag">New Hotspots</span>
+                                <span class="feature-tag">Business Plans</span>
+                            </div>
+                            <div class="area-contact">
+                                <p><strong>Area Contact:</strong> Eng. Alex</p>
+                                <div class="contact-buttons">
+                                    <a href="tel:0745685794" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-phone"></i> Call
+                                    </a>
+                                    <a href="https://wa.me/256745685794" class="btn btn-sm btn-success" target="_blank">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </a>
                                 </div>
@@ -187,7 +215,7 @@
                 </div>
 
                 <!-- Nakawa Area -->
-                <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <!-- <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="400">
                     <div class="area-card">
                         <div class="area-header">
                             <h3><i class="fas fa-map-marker-alt"></i> Nakawa</h3>
@@ -213,7 +241,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
