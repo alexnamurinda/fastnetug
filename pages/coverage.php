@@ -262,18 +262,18 @@
                         </div>
                         <h4>Namuli Hostel</h4>
                         <p>Our first and flagship hostel with complete WiFi coverage across all wings.</p>
-                        <div class="hostel-features">
+                        <!-- <div class="hostel-features">
                             <span class="feature"><i class="fas fa-check"></i> Full Coverage</span>
                             <span class="feature"><i class="fas fa-check"></i> 70+ Students</span>
                             <span class="feature"><i class="fas fa-check"></i> 24/7 Support</span>
-                        </div>
+                        </div> -->
                         <div class="hostel-agent">
                             <p><strong>Hostel Agent:</strong> Kasumba Mark</p>
                             <div class="agent-contact">
-                                <a href="tel:0752090648" class="btn btn-sm btn-outline-primary">
+                                <a href="tel:0756585769" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
-                                <a href="https://wa.me/256752090648" class="btn btn-sm btn-outline-success" target="_blank">
+                                <a href="https://wa.me/256756585769" class="btn btn-sm btn-outline-success" target="_blank">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -287,20 +287,20 @@
                         <div class="hostel-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4>Herman Hostel</h4>
-                        <p>Modern hostel with high-speed internet and dedicated student support.</p>
-                        <div class="hostel-features">
+                        <h4>Harmony Hostels</h4>
+                        <!-- <p>Modern hostel with high-speed internet and dedicated student support.</p> -->
+                        <!-- <div class="hostel-features">
                             <span class="feature"><i class="fas fa-check"></i> High Speed</span>
                             <span class="feature"><i class="fas fa-check"></i> 50+ Students</span>
                             <span class="feature"><i class="fas fa-check"></i> Fast Support</span>
-                        </div>
+                        </div> -->
                         <div class="hostel-agent">
-                            <p><strong>Hostel Agent:</strong> Prossie M</p>
+                            <p><strong>Hostel Agent:</strong> Erick</p>
                             <div class="agent-contact">
-                                <a href="tel:0757951874" class="btn btn-sm btn-outline-primary">
+                                <a href="tel:0744115919" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
-                                <a href="https://wa.me/256757951874" class="btn btn-sm btn-outline-success" target="_blank">
+                                <a href="https://wa.me/256744115919" class="btn btn-sm btn-outline-success" target="_blank">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -314,15 +314,15 @@
                         <div class="hostel-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4>Kasalita Hostel</h4>
-                        <p>Popular hostel with reliable internet and affordable student packages.</p>
-                        <div class="hostel-features">
+                        <h4>Opp-Kasalita Hostel</h4>
+                        <!-- <p>Popular hostel with reliable internet and affordable student packages.</p> -->
+                        <!-- <div class="hostel-features">
                             <span class="feature"><i class="fas fa-check"></i> Affordable</span>
                             <span class="feature"><i class="fas fa-check"></i> 120+ Students</span>
                             <span class="feature"><i class="fas fa-check"></i> Reliable</span>
-                        </div>
+                        </div> -->
                         <div class="hostel-agent">
-                            <p><strong>Hostel Agent:</strong> Achan K</p>
+                            <p><strong>Hostel Agent:</strong> Wimsey</p>
                             <div class="agent-contact">
                                 <a href="tel:0775580790" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
@@ -341,20 +341,20 @@
                         <div class="hostel-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4>Lower Herman</h4>
-                        <p>Budget-friendly hostel with good internet coverage and student-focused services.</p>
+                        <h4>Lower wing</h4>
+                        <!-- <p>Budget-friendly hostel with good internet coverage and student-focused services.</p>
                         <div class="hostel-features">
                             <span class="feature"><i class="fas fa-check"></i> Budget Plans</span>
                             <span class="feature"><i class="fas fa-check"></i> 10+ Students</span>
                             <span class="feature"><i class="fas fa-check"></i> Good Coverage</span>
-                        </div>
+                        </div> -->
                         <div class="hostel-agent">
-                            <p><strong>Hostel Agent:</strong> Michael Kunta</p>
+                            <p><strong>Section Agent:</strong> Moses</p>
                             <div class="agent-contact">
-                                <a href="tel:0708620852" class="btn btn-sm btn-outline-primary">
+                                <a href="tel:0780393671" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
-                                <a href="https://wa.me/256708620852" class="btn btn-sm btn-outline-success" target="_blank">
+                                <a href="https://wa.me/256780393671" class="btn btn-sm btn-outline-success" target="_blank">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -368,20 +368,20 @@
                         <div class="hostel-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4>Chairman's Hostel</h4>
-                        <p>Recently connected hostel with modern infrastructure and fast speeds.</p>
+                        <h4>Rentals</h4>
+                        <!-- <p>Recently connected hostel with modern infrastructure and fast speeds.</p>
                         <div class="hostel-features">
                             <span class="feature"><i class="fas fa-check"></i> Modern</span>
                             <span class="feature"><i class="fas fa-check"></i> 80+ Students</span>
                             <span class="feature"><i class="fas fa-check"></i> Fast Speed</span>
-                        </div>
+                        </div> -->
                         <div class="hostel-agent">
-                            <p><strong>Hostel Agent:</strong> Habib Ssemakula</p>
+                            <p><strong>Project Agent:</strong> Andy</p>
                             <div class="agent-contact">
-                                <a href="tel:0767239404" class="btn btn-sm btn-outline-primary">
+                                <a href="tel:0743929780" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
-                                <a href="https://wa.me/256767239404" class="btn btn-sm btn-outline-success" target="_blank">
+                                <a href="https://wa.me/256743929780" class="btn btn-sm btn-outline-success" target="_blank">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -404,7 +404,7 @@
                                 <a href="tel:0756585769" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-phone"></i>
                                 </a>
-                                <a href="https://wa.me/256744766410" class="btn btn-sm btn-outline-success" target="_blank">
+                                <a href="https://wa.me/256756585769" class="btn btn-sm btn-outline-success" target="_blank">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                             </div>
@@ -459,7 +459,7 @@
                         <p>Become part of our growing family of satisfied customers with reliable home internet.</p>
                        
                         <div>
-                            <a href="../contact.php" class="btn btn-primary">Get Quote</a>
+                            <a href="https://wa.me/256756585769" class="btn btn-primary">Get Quote</a>
                         </div>
                     </div>
                 </div>
@@ -480,7 +480,7 @@
                     <a href="tel:0756585769" class="btn btn-light btn-lg">
                         <i class="fas fa-phone-alt"></i> Call Now
                     </a>
-                    <a href="https://wa.me/256744766410" class="btn btn-success btn-lg" target="_blank">
+                    <a href="https://wa.me/256756585769" class="btn btn-success btn-lg" target="_blank">
                         <i class="fab fa-whatsapp"></i> WhatsApp
                     </a>
                 </div>
@@ -498,11 +498,11 @@
                             <h3>FastNetUG <i class="fas fa-wifi"></i></h3>
                         </div>
                         <p>Follow us on all our socials</p>
-                        <div class="social-links d-flex justify-content-center justify-content-md-start">
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                       <div class="social-links d-flex justify-content-center justify-content-md-start">
+                            <a href=""><i class="fab fa-facebook-f"></i></a>
+                            <a href=""><i class="fab fa-twitter"></i></a>
+                            <a href=""><i class="fab fa-instagram"></i></a>
+                            <a href=""><i class="fab fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
@@ -534,9 +534,9 @@
                 <div class="col-md-3">
                     <div class="footer-contact">
                         <h4>Contact Info</h4>
-                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Banda, Kampala</p>
-                        <p><i class="fas fa-phone"></i> +256 744 766 410</p>
-                        <p><i class="fas fa-envelope"></i> info@fastnetug.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close, Jinja Rd, Kampala</p>
+                        <p><i class="fas fa-phone"></i> 0756585769 / 0780393671</p>
+                        <p><i class="fas fa-envelope"></i> fastnetuganda@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -546,12 +546,12 @@
             <div class="container">
                 <div class="row align-items-center justify-content-between text-center text-md-start">
                     <div class="col-md-6">
-                        <p class="copyright">© 2025 FastNetUG. All Rights Reserved.</p>
+                        <p class="copyright">© 2026 FastNetUG. All Rights Reserved.</p>
                     </div>
                     <div class="col-md-6 text-md-end mt-3 mt-md-0">
                         <div class="footer-links-bottom">
-                            <a href="#">Privacy Policy</a>
-                            <a href="#">Terms of Service</a>
+                            <a href="">Privacy Policy</a>
+                            <a href="">Terms of Service</a>
                         </div>
                     </div>
                 </div>
