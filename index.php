@@ -478,7 +478,7 @@
                 <div class="col-md-3">
                     <div class="footer-contact">
                         <h4>Contact Info</h4>
-                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close<br>Jinja Rd, Kampala</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Nabisunsa Close, Jinja Rd, Kampala</p>
                         <p><i class="fas fa-phone"></i> 0756585769 / 0780393671</p>
                         <p><i class="fas fa-envelope"></i> fastnetuganda@gmail.com</p>
                     </div>
