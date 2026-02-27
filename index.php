@@ -140,7 +140,7 @@
                         <div class="package-price">20,000 <small>UGX</small></div>
                         <ul class="list-unstyled">
                             <li><i class="fas fa-check text-success"></i> 30 days unlimited access</li>
-                            <li><i class="fas fa-check text-success"></i> Up to 2 devices</li>
+                            <li><i class="fas fa-check text-success"></i> Up to 1 devices</li>
                             <li><i class="fas fa-check text-success"></i> Priority support</li>
                         </ul>
                         <button class="btn btn-success w-100">Choose Plan</button>
@@ -150,11 +150,11 @@
                 <!-- Semester Package -->
                 <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
                     <div class="package-card">
-                        <h4>Semester Plan</h4>
+                        <h4>Semester Pack</h4>
                         <div class="package-price">50,000 <small>UGX</small></div>
                         <ul class="list-unstyled">
                             <li><i class="fas fa-check text-success"></i> 105 days unlimited access</li>
-                            <li><i class="fas fa-check text-success"></i> Up to 2 devices</li>
+                            <li><i class="fas fa-check text-success"></i> Up to 1 devices</li>
                             <li><i class="fas fa-check text-success"></i> Best value for students</li>
                         </ul>
                         <button class="btn btn-outline-primary w-100">Choose Plan</button>
@@ -173,7 +173,7 @@
                         <div class="package-price">50,000 <small>UGX</small></div>
                         <p class="text-muted">per month</p>
                         <ul class="list-unstyled">
-                            <li><i class="fas fa-check text-success"></i> Up to 100 Mbps shared speed</li>
+                            <li><i class="fas fa-check text-success"></i> Up to 500 Mbps shared speed</li>
                             <li><i class="fas fa-check text-success"></i> maximum 4 devices</li>
                             <li><i class="fas fa-check text-success"></i> Parental controls included</li>
                             <li style="color: red;"><i class="fas fa-check text-success"></i> Free installation</li>
