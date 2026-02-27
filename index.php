@@ -142,6 +142,7 @@
                             <li><i class="fas fa-check text-success"></i> 30 days unlimited access</li>
                             <li><i class="fas fa-check text-success"></i> Up to 1 devices</li>
                             <li><i class="fas fa-check text-success"></i> Priority support</li>
+                            <li style="color: red;"><i class="fas fa-check text-success"></i> Best price available for 2 devices</li>
                         </ul>
                         <button class="btn btn-success w-100">Choose Plan</button>
                     </div>
