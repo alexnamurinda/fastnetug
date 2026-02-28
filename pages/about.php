@@ -199,12 +199,14 @@
                             <img src="../images/developer.jpg" alt="CEO" class="img-fluid">
                         </div>
                         <div class="team-info">
-                            <h4>Alex Namurinda</h4>
+                            <h4>Eng. Alex</h4>
                             <p>Founder & CEO</p>
                             <div class="team-social">
-                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                                <a href="#"><i class="fab fa-twitter"></i></a>
-                                <a href="#"><i class="far fa-envelope"></i></a>
+                                <a href="https://www.linkedin.com/in/namurinda-alex-25217a255/"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="https://x.com/namurindaalex43"><i class="fab fa-twitter"></i></a>
+                                <a href="https://wa.me/256745685794" title="WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
