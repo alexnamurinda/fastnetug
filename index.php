@@ -168,7 +168,7 @@ $activePage = 'home';
                         <div class="package-price">20,000 <small>UGX</small></div>
                         <ul class="list-unstyled">
                             <li><i class="fas fa-check text-success"></i> 30 days unlimited</li>
-                            <li><i class="fas fa-check text-success" style="color:red;"></i> <span style="color:red;">Up to 25k for 2 devices</span></li>
+                            <li><i class="fas fa-check text-success"></i> <span style="color:red;">Up to 25k for 2 devices</span></li>
                             <li><i class="fas fa-check text-success"></i> Priority support</li>
                         </ul>
                         <button class="btn btn-success w-100">Choose Plan</button>
@@ -280,78 +280,58 @@ $activePage = 'home';
                 <h2>What Our Clients Say</h2>
             </div>
             <div class="testimonial-slider" data-aos="fade-up">
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-4">
                         <div class="testimonial-card">
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">"FastNetUG saved my semester! Their WiFi is incredibly fast and reliable. I can stream lectures, download research papers, and video call my family without interruptions."</p>
                             <div class="testimonial-author">
                                 <img src="images/profile_pic.png" alt="Student" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Student</h5>
+                                    <h5>Henry B</h5>
                                     <span>Kyambogo University</span>
+                                    <div class="testimonial-rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="testimonial-text">"FastNetUG saved my semester! Incredibly fast and reliable — I stream lectures and video call family without interruptions."</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="testimonial-card">
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">"As a family of five, we needed reliable internet for everyone. FastNetUG's family bundle gives us amazing speeds and their customer service is exceptional!"</p>
                             <div class="testimonial-author">
                                 <img src="images/sara.jpg" alt="Family Customer" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Lilian</h5>
+                                    <h5>Lilian N</h5>
                                     <span>Family Package</span>
+                                    <div class="testimonial-rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="testimonial-text">"FastNetUG's family bundle gives amazing speeds for all five of us, and their customer service is exceptional!"</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="testimonial-card">
-                            <div class="testimonial-rating">
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                            </div>
-                            <p class="testimonial-text">"Our business depends on reliable internet. FastNetUG's business package has been a game-changer with 99% uptime."</p>
                             <div class="testimonial-author">
                                 <img src="images/profile_pic.png" alt="Business Customer" class="rounded-circle">
                                 <div class="author-info">
-                                    <h5>Operations Manager</h5>
-                                    <span>Nabisunsa Savings Sacco</span>
+                                    <h5>Wandela S</h5>
+                                    <span>Manager, Nabisunsa Savings Sacco</span>
+                                    <div class="testimonial-rating">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
                                 </div>
                             </div>
+                            <p class="testimonial-text">"FastNetUG's business package has been a game-changer — reliable internet with 99% uptime for our operations."</p>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-5">
+                <div class="text-center mt-3">
                     <a href="pages/reviews.php" class="btn btn-outline-primary">View All Reviews</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <div class="row align-items-center justify-content-between text-center text-lg-start" data-aos="zoom-in" data-aos-duration="1000">
-                <div class="col-lg-7 mb-4 mb-lg-0">
-                    <h2 class="cta-title">Ready to Get Connected?</h2>
-                    <p class="cta-subtitle">Join thousands of satisfied customers enjoying fast, reliable internet across Kampala and beyond.</p>
-                </div>
-                <div class="col-lg-5 d-flex flex-column flex-sm-row justify-content-center justify-content-lg-end gap-3">
-                    <a href="tel:0756585769" class="btn btn-light btn-lg">
-                        <i class="fas fa-phone-alt"></i> <span>Call Now</span>
-                    </a>
-                    <a href="https://wa.me/256756585769" class="btn btn-success btn-lg" target="_blank" rel="noopener">
-                        <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
-                    </a>
                 </div>
             </div>
         </div>
