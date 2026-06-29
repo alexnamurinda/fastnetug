@@ -41,6 +41,14 @@ $expiry   = $_GET['expiry'] ?? null;
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script>
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.confetti) {
+            const brandColors = ['#2563eb', '#0ea5e9', '#22c55e', '#f59e0b'];
+            confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.2, y: 0.25 }, colors: brandColors });
+            confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.8, y: 0.25 }, colors: brandColors });
+        }
+    </script>
 </body>
 
 </html>
