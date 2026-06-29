@@ -45,8 +45,16 @@ $expiry   = $_GET['expiry'] ?? null;
     <script>
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.confetti) {
             const brandColors = ['#2563eb', '#0ea5e9', '#22c55e', '#f59e0b'];
-            confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.2, y: 0.25 }, colors: brandColors });
-            confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.8, y: 0.25 }, colors: brandColors });
+            const corners = () => {
+                confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.2, y: 0.25 }, colors: brandColors });
+                confetti({ particleCount: 70, spread: 65, startVelocity: 38, origin: { x: 0.8, y: 0.25 }, colors: brandColors });
+            };
+
+            corners(); // immediate burst
+            setTimeout(corners, 2000); // second burst
+            setTimeout(() => { // big finale from the middle
+                confetti({ particleCount: 200, spread: 100, startVelocity: 45, origin: { x: 0.5, y: 0.3 }, colors: brandColors });
+            }, 4500);
         }
     </script>
 </body>
